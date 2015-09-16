@@ -1,16 +1,10 @@
-
 import javafx.fxml.FXML;
-import javafx.scene.Group;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
-import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,8 +19,9 @@ public class Controller {
     private AnchorPane upperPane;
     @FXML
     public VBox vboxLayers;
+
     @FXML
-    public void pressed(){
+    public void pressed() {
         System.out.println(queryInput.getText());
         draw_polygon(queryInput.getText());
 
@@ -34,7 +29,6 @@ public class Controller {
 
 
     }
-
 
 
     public void draw_polygon(String poly) {
@@ -72,14 +66,6 @@ public class Controller {
         }
 
     }
-
-
-
-
-
-
-
-
 
 
 }

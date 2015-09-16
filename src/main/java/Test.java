@@ -2,6 +2,7 @@
 /**
  * Created by per on 10/09/15.
  */
+
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -22,7 +23,7 @@ public class Test extends Application {
         polygon.getPoints().addAll(new Double[]{
                 0.0, 0.0,
                 20.0, 10.0,
-                10.0, 20.0 });
+                10.0, 20.0});
 
         g.getChildren().add(polygon);
 

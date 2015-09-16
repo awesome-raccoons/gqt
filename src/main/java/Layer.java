@@ -12,7 +12,7 @@ import java.util.Comparator;
 /**
  * Created by Johannes on 10.09.2015.
  */
-public class Layer extends  HBox{
+public class Layer extends HBox {
 
     private int orderID;
     private GisVisualization gisVis;
@@ -21,8 +21,7 @@ public class Layer extends  HBox{
     private VBox parentContainer;
     public static ArrayList<Layer> layers = new ArrayList<>();
 
-    public Layer(GisVisualization gisVis, VBox parentContainer)
-    {
+    public Layer(GisVisualization gisVis, VBox parentContainer) {
         this.gisVis = gisVis;
         this.orderID = gisVis.getID();
         this.parentContainer = parentContainer;
@@ -30,8 +29,7 @@ public class Layer extends  HBox{
     }
 
 
-    public void createLayer()
-    {
+    public void createLayer() {
 
         CheckBox cb = new CheckBox();
         cb.setOnAction(event -> this.gisVis.toggleVisibility());
@@ -66,31 +64,29 @@ public class Layer extends  HBox{
         this.getChildren().add(vb);
     }
 
-    public int getOrderID()
-    {
+    public int getOrderID() {
         return this.orderID;
     }
 
-    public void setOrderID(int id)
-    {
+    public void setOrderID(int id) {
         this.orderID = id;
     }
 
     /**
      * Disable or enable the up button
+     *
      * @param b If True, disables button. Enables if false
      */
-    public void setUpDisable(boolean b)
-    {
+    public void setUpDisable(boolean b) {
         buttonUp.setDisable(b);
     }
 
     /**
      * Disable or enable the down button
+     *
      * @param b If True, disables button. Enables if false
      */
-    public void setDownDisable(boolean b)
-    {
+    public void setDownDisable(boolean b) {
         buttonDown.setDisable(b);
     }
 
@@ -98,16 +94,14 @@ public class Layer extends  HBox{
     /**
      * Reorders the layers according to their ID and redraws the polygons in the same order
      */
-    public void reorderLayers()
-    {
+    public void reorderLayers() {
         this.parentContainer.getChildren().remove(0, this.parentContainer.getChildren().size());
 
         Collections.sort(layers, Comparator.comparing(Layer::getOrderID));
 
         GisVisualization.group.getChildren().remove(0, GisVisualization.group.getChildren().size());
 
-        for (Layer hb : layers)
-        {
+        for (Layer hb : layers) {
             hb.gisVis.redraw();
             hb.setUpDisable(false);
             hb.setDownDisable(false);
@@ -115,19 +109,10 @@ public class Layer extends  HBox{
 
         }
         layers.get(0).setUpDisable(true);
-        layers.get(layers.size()-1).setDownDisable(true);
+        layers.get(layers.size() - 1).setDownDisable(true);
 
 
     }
-
-
-
-
-
-
-
-
-
 
 
 }
