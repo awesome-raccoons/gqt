@@ -14,31 +14,41 @@ import java.util.Comparator;
  */
 public class Layer extends HBox {
 
-    private int orderID;
-    private GisVisualization gisVis;
-    private Button buttonUp;
-    private Button buttonDown;
-    private VBox parentContainer;
+    //TODO style buttons with better representation, generally improve layer visuals
+    //TODO Make upper layer act as frotn layer
+    //TODO Make layers in layerview dragable
+    //TODO Todo enable selecting color
+    //TODO Suggestion: make layer hbox selectable, when selected show tooltips.
+
+
+    private int orderID;                //Defines the drawing order, highest value is drawn last
+    private GisVisualization gisVis;    //The drawing model
+    private Button buttonUp;            //Button for moving layer up a layer
+    private Button buttonDown;          //Button for moving layer down a layer
+    private VBox parentContainer;       //Container where layers are put
+    private String name;                //Name of the layers
     public static ArrayList<Layer> layers = new ArrayList<>();
 
-    public Layer(GisVisualization gisVis, VBox parentContainer) {
+    public Layer(GisVisualization gisVis, VBox parentContainer, String name) {
         this.gisVis = gisVis;
         this.orderID = gisVis.getID();
         this.parentContainer = parentContainer;
+        this.name = name;
         createLayer();
     }
 
-
+    /**
+     * Creates a layer for this Layer object
+     */
     public void createLayer() {
 
         CheckBox cb = new CheckBox();
         cb.setOnAction(event -> this.gisVis.toggleVisibility());
 
-
         cb.setSelected(true);
 
         //TODO style textfield with css so it looks like a label when not highlighted
-        TextField tf = new TextField("Layer" + this.orderID);
+        TextField tf = new TextField(this.name + " " + gisVis.getID());
 
         buttonUp = new Button("Up");
         buttonUp.setOnAction(event -> {
@@ -53,7 +63,7 @@ public class Layer extends HBox {
             reorderLayers();
         });
 
-        //TODO style up and down buttons with better representation, generally improve layer visuals
+        //TODO style up and down but
 
         VBox vb = new VBox();
         vb.getChildren().add(buttonUp);
@@ -101,13 +111,16 @@ public class Layer extends HBox {
 
         GisVisualization.group.getChildren().remove(0, GisVisualization.group.getChildren().size());
 
-        for (Layer hb : layers) {
-            hb.gisVis.redraw();
+        //Redraw all the layers, only make the toplayer have tooltips
+        for(int i = 0; i < layers.size(); i++)
+        {
+            Layer hb = layers.get(i);
+            hb.gisVis.redraw(i == layers.size()-1);
             hb.setUpDisable(false);
             hb.setDownDisable(false);
             this.parentContainer.getChildren().add(hb);
-
         }
+
         layers.get(0).setUpDisable(true);
         layers.get(layers.size() - 1).setDownDisable(true);
 

@@ -1,13 +1,18 @@
+import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.io.WKTReader;
+import javafx.event.Event;
 import javafx.fxml.FXML;
+import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import org.geotools.geometry.jts.JTSFactoryFinder;
 
-import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Controller {
 
@@ -20,52 +25,135 @@ public class Controller {
     @FXML
     public VBox vboxLayers;
 
+    private double dragBaseX, dragBaseY;
+    private double dragBase2X, dragBase2Y;
+
     @FXML
     public void pressed() {
-        System.out.println(queryInput.getText());
         draw_polygon(queryInput.getText());
 
         vboxLayers.getChildren().add(new HBox());
-
-
     }
 
 
     public void draw_polygon(String poly) {
-        //'POLYGON((10 10,20 10,20 20,10 20,10 10))'
-        Pattern p = Pattern.compile(".POLYGON\\(\\((.*?)\\)\\).");
-        Matcher m = p.matcher(poly); // get a matcher object
-        if (m.find()) {
-            String s = m.group(1);
-            String[] s_array = s.split(",");
-            ArrayList<Double> x_coords = new ArrayList<Double>();
-            ArrayList<Double> y_coords = new ArrayList<Double>();
+        try {
 
-            for (String a : s_array) {
-                String[] coords = a.split(" ");
-                x_coords.add(Double.parseDouble(coords[0]));
-                y_coords.add(Double.parseDouble(coords[1]));
+            //Create a WKT parser for reading WKT input
+            GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
+            WKTReader reader = new WKTReader(geometryFactory);
+            Geometry p = reader.read(poly);
+
+
+            if (p instanceof  GeometryCollection)
+            {
+                for(int i = 0; i < p.getNumGeometries(); i++)
+                {
+                    refineGeometryClass(p.getGeometryN(i));
+                }
+            }
+            else
+            {
+                refineGeometryClass(p);
             }
 
-            double[] x_array = new double[x_coords.size()];
-            for (int i = 0; i < x_array.length; i++) {
-                x_array[i] = x_coords.get(i);                // java 1.5+ style (outboxing)
-            }
-            double[] y_array = new double[y_coords.size()];
-            for (int i = 0; i < y_array.length; i++) {
-                y_array[i] = y_coords.get(i);                // java 1.5+ style (outboxing)
-            }
+        } catch(com.vividsolutions.jts.io.ParseException e) {}
 
-            System.out.println(x_array.length);
-            System.out.println(y_array.length);
-            //draw2DShapes(gc, Color.rgb(255,0,0,0.5f), x_array, y_array,g);
-            GisVisualization gv = GisVisualization.createVisualization(500, 500, x_array, y_array, upperPane);
-            Layer hb = new Layer(gv, vboxLayers);
-            Layer.layers.add(hb);
-            hb.reorderLayers();
-        }
+
 
     }
 
+    /**
+     * Delegates the task of creating the layer for this geometry. Whether it is a plain WKT object,
+     * or a composite such as a MultiPolygon
+     * @param geometry  geometry to consider
+     */
+    private void refineGeometryClass(Geometry geometry)
+    {
+        if (geometry instanceof MultiPolygon || geometry instanceof  MultiLineString || geometry instanceof  MultiPoint)
+        {
+            createrLayersFromMultiples(geometry);
+        }
+        else {
+            createLayer(geometry);
+        }
+    }
+
+    /**
+     * Assumes the given geomtry is of a multiple type, and creates a layer for each
+     * @param geometry geometry to consider
+     */
+    private void createrLayersFromMultiples(Geometry geometry)
+    {
+        for(int i = 0; i < geometry.getNumGeometries(); i++)
+        {
+            createLayer(geometry.getGeometryN(i));
+        }
+    }
+
+    /**
+     * Creates a layer for the given geometry
+     * @param geometry  geometry to draw to a layer
+     */
+    private void createLayer(Geometry geometry)
+    {
+        GisVisualization gv = GisVisualization.createVisualization(Main.stage.getWidth(),Main.stage.getHeight(), geometry, upperPane);
+        Layer hb = new Layer(gv, vboxLayers, geometry.getGeometryType());
+        Layer.layers.add(hb);
+        hb.reorderLayers();
+        upperPane.requestFocus();
+    }
+
+    private void zoom(double d)
+    {
+        upperPane.scaleXProperty().set(upperPane.scaleXProperty().get() * d);
+        upperPane.scaleYProperty().set(upperPane.scaleYProperty().get() * d);
+    }
+
+    public void handleUpperPaneKeyPresses(KeyEvent event) {
+        if (event.getCode() == KeyCode.ADD || event.getCode() == KeyCode.PLUS)
+        {
+            zoom(1.4);
+        }
+        else if (event.getCode() == KeyCode.MINUS || event.getCode() == KeyCode.SUBTRACT)
+        {
+            zoom(1/1.4);
+        }
+    }
+
+    //TODO Concerns: dragging only works when clicking the canvas, areas of pane not filled with canvas does not react
+    //TODO possible solutions: Make a really huge canvas and translate 0,0 to middle of screen. Or find another node and listener to move canvas
+
+
+    /**
+     * Called when the mouse press the upperPane.
+     * This pane will receive focus and save the coordinates of the press to be used for dragging
+     * @param event MouseEvent to react to
+     */
+    public void upperPaneMousePressed(MouseEvent event) {
+        upperPane.requestFocus();
+
+        dragBaseX = upperPane.translateXProperty().get();
+        dragBaseY = upperPane.translateYProperty().get();
+        dragBase2X = event.getSceneX();
+        dragBase2Y = event.getSceneY();
+    }
+
+    /**
+     * Called when upperPane is being dragged and drag it accordingly. Also sets cursor to Cursor.Move
+     * @param event MouseEvent to react to
+     */
+    public void upperPaneMouseDragged(MouseEvent event) {
+        Main.stage.getScene().setCursor(Cursor.MOVE);
+        upperPane.setTranslateX(dragBaseX + (event.getSceneX()-dragBase2X));
+        upperPane.setTranslateY(dragBaseY + (event.getSceneY()-dragBase2Y));
+    }
+
+    /**
+     * Called when mouse releases on upperPane. Makes sure cursor goes back to normal
+     */
+    public void upperPaneMouseReleased() {
+        Main.stage.getScene().setCursor(Cursor.DEFAULT);
+    }
 
 }
