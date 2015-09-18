@@ -1,4 +1,3 @@
-package main.java;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;

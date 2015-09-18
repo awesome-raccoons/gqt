@@ -1,4 +1,3 @@
-package main.java;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
