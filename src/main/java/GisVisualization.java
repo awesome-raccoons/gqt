@@ -1,6 +1,8 @@
 
+
 import com.vividsolutions.jts.geom.*;
 import javafx.event.EventHandler;
+
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Tooltip;
