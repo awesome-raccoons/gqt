@@ -10,12 +10,13 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 
 
 public class Controller {
 
-    private final double zoomFactor = 1.4;
+    private static final double ZOOM_FACTOR = 1.4;
 
     @FXML
     private TextArea queryInput;
@@ -26,12 +27,17 @@ public class Controller {
 
     private double dragBaseX, dragBaseY;
     private double dragBase2X, dragBase2Y;
+    private Stage stage;
 
     @FXML
     public final void pressed() {
         drawPolygon(queryInput.getText());
 
         vboxLayers.getChildren().add(new HBox());
+    }
+
+    public final void setStage(final Stage stage) {
+        this.stage = stage;
     }
 
     public final void drawPolygon(final String poly) {
@@ -82,10 +88,10 @@ public class Controller {
      */
     private void createLayer(final Geometry geometry) {
         GisVisualization gv = GisVisualization.createVisualization(
-                        Main.getStage().getWidth(),
-                        Main.getStage().getHeight(),
-                        geometry,
-                        upperPane);
+                this.stage.getWidth(),
+                this.stage.getHeight(),
+                geometry,
+                upperPane);
 
         Layer hb = new Layer(gv, vboxLayers, geometry.getGeometryType());
         Layer.getLayers().add(hb);
@@ -99,10 +105,15 @@ public class Controller {
     }
 
     public final void handleUpperPaneKeyPresses(final KeyEvent event) {
-        if (event.getText().equals('+')) {
-            zoom(zoomFactor);
-        } else if (event.getText().equals('-')) {
-            zoom(1 / zoomFactor);
+        switch (event.getText()) {
+            case "+":
+                zoom(ZOOM_FACTOR);
+                break;
+            case "-":
+                zoom(1 / ZOOM_FACTOR);
+                break;
+            default:
+                break;
         }
     }
 
@@ -133,7 +144,7 @@ public class Controller {
      * @param event MouseEvent to react to.
      */
     public final void upperPaneMouseDragged(final MouseEvent event) {
-        Main.getStage().getScene().setCursor(Cursor.MOVE);
+        this.stage.getScene().setCursor(Cursor.MOVE);
         upperPane.setTranslateX(dragBaseX + (event.getSceneX() - dragBase2X));
         upperPane.setTranslateY(dragBaseY + (event.getSceneY() - dragBase2Y));
     }
@@ -142,7 +153,7 @@ public class Controller {
      * Called when mouse releases on upperPane. Makes sure cursor goes back to normal.
      */
     public final void upperPaneMouseReleased() {
-        Main.getStage().getScene().setCursor(Cursor.DEFAULT);
+        this.stage.getScene().setCursor(Cursor.DEFAULT);
     }
 
 }

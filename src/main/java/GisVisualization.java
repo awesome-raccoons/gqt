@@ -23,11 +23,11 @@ import java.util.Random;
 
 public class GisVisualization {
 
-    private final double pointWidth = 5;    //Defines the width of Points
-    private final double pointHeight = 5;   //Defines the height of Points
+    private static final double POINT_WIDTH = 5;    //Defines the width of Points
+    private static final double POINT_HEIGHT = 5;   //Defines the height of Points
 
-    private static int idCounter = 0;       //Static counter for IDs
-    private static AnchorPane group;         //Root node all canvases will be drawn to
+    private int idCounter = 0;       //Static counter for IDs
+    private AnchorPane group;         //Root node all canvases will be drawn to
 
     private int id;
     private Canvas canvas;
@@ -40,18 +40,17 @@ public class GisVisualization {
                             final Geometry geometry,
                             final AnchorPane group) {
         this.id = idCounter++;
-        GisVisualization.group = group;
+        this.group = group;
         this.canvas = new Canvas(canvasWidth, canvasHeight);
         this.graphicsContext = canvas.getGraphicsContext2D();
-        //graphicsContext.setFill(Color.rgb(0, 100, 0, 0.1f));
         graphicsContext.setFill(Color.GREEN);
         graphicsContext.fillRect(0, 0, canvasWidth, canvasHeight);
         this.geometry = geometry;
         this.tooltips = new ArrayList<>();
     }
 
-    public static AnchorPane getGroup() {
-        return group;
+    public final AnchorPane getGroup() {
+        return this.group;
     }
 
     /**
@@ -145,12 +144,12 @@ public class GisVisualization {
         for (int i = 0; i < coords.length; i++) {
             xCoords[i] = coords[i].x;
             yCoords[i] = coords[i].y;
-            createTooltip(GisVisualization.group, xCoords[i], yCoords[i], Color.BLACK);
+            createTooltip(this.group, xCoords[i], yCoords[i], Color.BLACK);
         }
         this.graphicsContext.fillPolygon(xCoords, yCoords, coords.length);
     }
 
-    private final double adjustmentFactor = 0.5;
+    private static final double ADJUSTMENT_FACTOR = 0.5;
 
     /**
      * Draws a WKT Point to screen.
@@ -159,9 +158,9 @@ public class GisVisualization {
      */
     private void drawPoint(final Point point) {
         this.graphicsContext.fillOval(
-                point.getX() + pointWidth * adjustmentFactor,
-                point.getY() + pointHeight * adjustmentFactor,
-                pointWidth, pointHeight);
+                point.getX() + POINT_WIDTH * ADJUSTMENT_FACTOR,
+                point.getY() + POINT_HEIGHT * ADJUSTMENT_FACTOR,
+                POINT_WIDTH, POINT_HEIGHT);
     }
 
     /**
@@ -172,10 +171,10 @@ public class GisVisualization {
      */
     private void drawPoint(final double xCoordinate, final double yCoordinate) {
         this.graphicsContext.fillOval(
-                xCoordinate + pointWidth * adjustmentFactor,
-                yCoordinate + pointHeight * adjustmentFactor,
-                pointWidth,
-                pointHeight);
+                xCoordinate + POINT_WIDTH * ADJUSTMENT_FACTOR,
+                yCoordinate + POINT_HEIGHT * ADJUSTMENT_FACTOR,
+                POINT_WIDTH,
+                POINT_HEIGHT);
     }
 
     /**
@@ -192,7 +191,7 @@ public class GisVisualization {
         this.graphicsContext.stroke();
     }
 
-    private final double toolTipAdjustor = 2.5;
+    private static final double TOOLTIP_ADJUSTOR = 2.5;
 
     /**
      * Creates tooltips for each of the points involved in this GisVisualization.
@@ -204,7 +203,7 @@ public class GisVisualization {
                                final double yCoord,
                                final Paint color) {
 
-        Circle c = new Circle(xCoord, yCoord, toolTipAdjustor, color);
+        Circle c = new Circle(xCoord, yCoord, TOOLTIP_ADJUSTOR, color);
         Tooltip t = new Tooltip(xCoord + " , " + yCoord);
         Tooltip.install(c, t);
         tooltips.add(c);

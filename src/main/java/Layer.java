@@ -113,7 +113,7 @@ public class Layer extends HBox {
      * Reorders the layers according to their ID and redraws the polygons in the same order.
      */
     public final void reorderLayers() {
-        AnchorPane group = GisVisualization.getGroup();
+        AnchorPane group = gisVis.getGroup();
 
         this.parentContainer.getChildren().remove(0, this.parentContainer.getChildren().size());
 
