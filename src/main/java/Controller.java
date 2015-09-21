@@ -113,11 +113,11 @@ public class Controller {
     }
 
     public void handleUpperPaneKeyPresses(KeyEvent event) {
-        if (event.getCode() == KeyCode.ADD || event.getCode() == KeyCode.PLUS)
+        if (event.getText().equals("+"))
         {
             zoom(1.4);
         }
-        else if (event.getCode() == KeyCode.MINUS || event.getCode() == KeyCode.SUBTRACT)
+        else if (event.getText().equals("-"))
         {
             zoom(1/1.4);
         }
