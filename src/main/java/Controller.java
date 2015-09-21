@@ -4,7 +4,6 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.WKTReader;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
-import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -18,8 +17,6 @@ public class Controller {
 
     private final double zoomFactor = 1.4;
 
-    @FXML
-    private Button submit;
     @FXML
     private TextArea queryInput;
     @FXML

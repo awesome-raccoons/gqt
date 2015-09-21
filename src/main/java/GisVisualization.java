@@ -13,7 +13,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -194,7 +193,6 @@ public class GisVisualization {
     }
 
     private final double toolTipAdjustor = 2.5;
-    private final double toolTipSize = 5.0;
 
     /**
      * Creates tooltips for each of the points involved in this GisVisualization.
@@ -205,11 +203,6 @@ public class GisVisualization {
                                final double xCoord,
                                final double yCoord,
                                final Paint color) {
-        Rectangle r =
-                new Rectangle(xCoord - toolTipAdjustor,
-                        yCoord - toolTipAdjustor,
-                        toolTipSize,
-                        toolTipSize);
 
         Circle c = new Circle(xCoord, yCoord, toolTipAdjustor, color);
         Tooltip t = new Tooltip(xCoord + " , " + yCoord);
