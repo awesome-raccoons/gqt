@@ -85,8 +85,8 @@ public class Controller {
      */
     private void createLayer(final Geometry geometry) {
         GisVisualization gv = GisVisualization.createVisualization(
-                        Main.stage.getWidth(),
-                        Main.stage.getHeight(),
+                        Main.getStage().getWidth(),
+                        Main.getStage().getHeight(),
                         geometry,
                         upperPane);
 
@@ -137,7 +137,7 @@ public class Controller {
      * @param event MouseEvent to react to.
      */
     public final void upperPaneMouseDragged(final MouseEvent event) {
-        Main.stage.getScene().setCursor(Cursor.MOVE);
+        Main.getStage().getScene().setCursor(Cursor.MOVE);
         upperPane.setTranslateX(dragBaseX + (event.getSceneX() - dragBase2X));
         upperPane.setTranslateY(dragBaseY + (event.getSceneY() - dragBase2Y));
     }
@@ -146,7 +146,7 @@ public class Controller {
      * Called when mouse releases on upperPane. Makes sure cursor goes back to normal.
      */
     public final void upperPaneMouseReleased() {
-        Main.stage.getScene().setCursor(Cursor.DEFAULT);
+        Main.getStage().getScene().setCursor(Cursor.DEFAULT);
     }
 
 }

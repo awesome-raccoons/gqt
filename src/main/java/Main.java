@@ -7,21 +7,24 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
-    public static Stage stage;
+    private static Stage stage;
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public final void start(final Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
         Main.stage = primaryStage;
         primaryStage.setTitle("Gis Query Tool");
         primaryStage.setMaximized(true);
-        primaryStage.setScene(new Scene(root, 1080, 600));
+        primaryStage.setScene(new Scene(root));
         primaryStage.show();
 
     }
 
+    public static Stage getStage() {
+        return stage;
+    }
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         launch(args);
     }
 }
