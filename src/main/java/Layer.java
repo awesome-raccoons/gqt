@@ -2,6 +2,7 @@
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
@@ -112,11 +113,13 @@ public class Layer extends HBox {
      * Reorders the layers according to their ID and redraws the polygons in the same order.
      */
     public final void reorderLayers() {
+        AnchorPane group = GisVisualization.getGroup();
+
         this.parentContainer.getChildren().remove(0, this.parentContainer.getChildren().size());
 
         Collections.sort(layers, Comparator.comparing(Layer::getOrderID));
 
-        GisVisualization.group.getChildren().remove(0, GisVisualization.group.getChildren().size());
+        group.getChildren().remove(0, group.getChildren().size());
 
         //Redraw all the layers, only make the toplayer have tooltips
         for (int i = 0; i < layers.size(); i++) {
