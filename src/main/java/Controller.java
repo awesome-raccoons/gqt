@@ -101,7 +101,6 @@ public class Controller {
         upperPane.scaleYProperty().set(upperPane.scaleYProperty().get() * d);
     }
 
-
     public final void handleUpperPaneKeyPresses(final KeyEvent event) {
         if (event.getText().equals('+')) {
             zoom(zoomFactor);
