@@ -3,8 +3,19 @@ import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.WKTReader;
 import javafx.event.EventHandler;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.Event;
+
+import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -16,6 +27,12 @@ import javafx.stage.Stage;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 
 import java.util.Vector;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import org.geotools.geometry.jts.JTSFactoryFinder;
+
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 
 
 public class Controller {
@@ -189,5 +206,27 @@ public class Controller {
     public final void upperPaneMouseReleased() {
         this.stage.getScene().setCursor(Cursor.DEFAULT);
     }
+
+
+
+    private Node isChildFocused(javafx.scene.Parent parent)
+    {
+        for (Node node : parent.getChildrenUnmodifiable())
+        {
+            if (node.isFocused())
+            {
+                return node;
+            }
+            else if (node instanceof javafx.scene.Parent)
+            {
+                if (isChildFocused((javafx.scene.Parent)node) != null)
+                {
+                    return node;
+                }
+            }
+        }
+        return null;
+    }
+
 
 }

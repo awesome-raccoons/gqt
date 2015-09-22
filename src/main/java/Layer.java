@@ -1,10 +1,17 @@
 
+import javafx.beans.binding.Bindings;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,6 +37,7 @@ public class Layer extends HBox {
     private Button buttonUp;            //Button for moving layer up a layer
     private Button buttonDown;          //Button for moving layer down a layer
     private String name;                //Name of the layers
+    private layerSelectedProperty isSelected;
 
     private static ArrayList<Layer> layers = new ArrayList<>();
 
@@ -38,12 +46,24 @@ public class Layer extends HBox {
         this.orderID = gisVis.getID();
         this.parentContainer = parentContainer;
         this.name = name;
+        this.isSelected = new layerSelectedProperty();
+        this.setOnMouseClicked(mouseClickedHandler);
         createLayer();
     }
 
     public static ArrayList<Layer> getLayers() {
         return layers;
     }
+
+    private EventHandler<MouseEvent> mouseClickedHandler = new EventHandler<MouseEvent>() {
+        @Override
+        public void handle(MouseEvent event) {
+            isSelected.set(!isSelected.get());
+            backgroundProperty().bind(Bindings.when(isSelected)
+                    .then(new Background(new BackgroundFill(Color.CORNFLOWERBLUE, CornerRadii.EMPTY, Insets.EMPTY)))
+                    .otherwise(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY))));
+        }
+    };
 
     /**
      * Creates a layer for this Layer object.
@@ -137,4 +157,22 @@ public class Layer extends HBox {
     }
 
 
+    private Node isChildFocused(javafx.scene.Parent parent)
+    {
+        for (Node node : parent.getChildrenUnmodifiable())
+        {
+            if (node.isFocused())
+            {
+                return node;
+            }
+            else if (node instanceof javafx.scene.Parent)
+            {
+                if (isChildFocused((javafx.scene.Parent)node) != null)
+                {
+                    return node;
+                }
+            }
+        }
+        return null;
+    }
 }
