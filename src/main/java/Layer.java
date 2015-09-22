@@ -2,6 +2,7 @@
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
@@ -12,24 +13,27 @@ import java.util.Comparator;
 /**
  * Created by Johannes on 10.09.2015.
  */
+
 public class Layer extends HBox {
 
     //TODO style buttons with better representation, generally improve layer visuals
-    //TODO Make upper layer act as frotn layer
-    //TODO Make layers in layerview dragable
+    //TODO Make upper layer act as front layer
+    //TODO Make layers in layerview draggable
     //TODO Todo enable selecting color
     //TODO Suggestion: make layer hbox selectable, when selected show tooltips.
 
 
+    private final GisVisualization gisVis;     //The drawing model
+    private final VBox parentContainer;        //Container where layers are put
+
     private int orderID;                //Defines the drawing order, highest value is drawn last
-    private GisVisualization gisVis;    //The drawing model
     private Button buttonUp;            //Button for moving layer up a layer
     private Button buttonDown;          //Button for moving layer down a layer
-    private VBox parentContainer;       //Container where layers are put
     private String name;                //Name of the layers
-    public static ArrayList<Layer> layers = new ArrayList<>();
 
-    public Layer(GisVisualization gisVis, VBox parentContainer, String name) {
+    private static ArrayList<Layer> layers = new ArrayList<>();
+
+    public Layer(final GisVisualization gisVis, final VBox parentContainer, final String name) {
         this.gisVis = gisVis;
         this.orderID = gisVis.getID();
         this.parentContainer = parentContainer;
@@ -37,10 +41,14 @@ public class Layer extends HBox {
         createLayer();
     }
 
+    public static ArrayList<Layer> getLayers() {
+        return layers;
+    }
+
     /**
-     * Creates a layer for this Layer object
+     * Creates a layer for this Layer object.
      */
-    public void createLayer() {
+    public final void createLayer() {
 
         CheckBox cb = new CheckBox();
         cb.setOnAction(event -> this.gisVis.toggleVisibility());
@@ -74,48 +82,49 @@ public class Layer extends HBox {
         this.getChildren().add(vb);
     }
 
-    public int getOrderID() {
+    public final int getOrderID() {
         return this.orderID;
     }
 
-    public void setOrderID(int id) {
+    public final void setOrderID(final int id) {
         this.orderID = id;
     }
 
     /**
-     * Disable or enable the up button
+     * Disable or enable the up button.
      *
-     * @param b If True, disables button. Enables if false
+     * @param b If True, disables button. Enables if false.
      */
-    public void setUpDisable(boolean b) {
+    public final void setUpDisable(final boolean b) {
         buttonUp.setDisable(b);
     }
 
     /**
-     * Disable or enable the down button
+     * Disable or enable the down button.
      *
-     * @param b If True, disables button. Enables if false
+     * @param b If True, disables button. Enables if false.
      */
-    public void setDownDisable(boolean b) {
+    public final void setDownDisable(final boolean b) {
         buttonDown.setDisable(b);
     }
 
 
     /**
-     * Reorders the layers according to their ID and redraws the polygons in the same order
+     * Reorders the layers according to their ID and redraws the polygons in the same order.
      */
-    public void reorderLayers() {
+    public final void reorderLayers() {
+        AnchorPane group = gisVis.getGroup();
+
         this.parentContainer.getChildren().remove(0, this.parentContainer.getChildren().size());
 
         Collections.sort(layers, Comparator.comparing(Layer::getOrderID));
 
-        GisVisualization.group.getChildren().remove(0, GisVisualization.group.getChildren().size());
+        group.getChildren().remove(0, group.getChildren().size());
 
         //Redraw all the layers, only make the toplayer have tooltips
-        for(int i = 0; i < layers.size(); i++)
-        {
+        for (int i = 0; i < layers.size(); i++) {
             Layer hb = layers.get(i);
-            hb.gisVis.redraw(i == layers.size()-1);
+            hb.gisVis.redraw(i == layers.size() - 1);
             hb.setUpDisable(false);
             hb.setDownDisable(false);
             this.parentContainer.getChildren().add(hb);
