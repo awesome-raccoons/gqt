@@ -110,8 +110,7 @@ public class Controller {
     }
 
 
-    private void zoom(final double d)
-    {
+    private void zoom(final double d) {
         upperPane.setScaleX(upperPane.scaleXProperty().get() * d);
         upperPane.setScaleY(upperPane.scaleYProperty().get() * d);
     }
@@ -134,29 +133,32 @@ public class Controller {
     // areas of pane not filled with canvas does not react
     // Possible solutions: Make a really huge canvas and translate
     // 0,0 to middle of screen. Or find another node and listener to move canvas
-    public EventHandler<ScrollEvent> getOnScrollEventHandler() {
+    public final EventHandler<ScrollEvent> getOnScrollEventHandler() {
         return onScrollEventHandler;
     }
 
     /**
-     * Mouse wheel handler: zoom to pivot point
+     * Mouse wheel handler: zoom to pivot point.
      */
     private EventHandler<ScrollEvent> onScrollEventHandler = new EventHandler<ScrollEvent>() {
 
         @Override
-        public void handle(ScrollEvent event) {
-            if (event.getDeltaY() < 0)
-                zoom(1/1.4);
-            else
-                zoom(1.4);
-
+        public void handle(final ScrollEvent event) {
+            if (event.getDeltaY() < 0) {
+                zoom(1 / ZOOM_FACTOR);
+            }
+            else {
+                zoom(ZOOM_FACTOR);
+            }
         }
 
     };
 
 
-    //TODO Concerns: dragging only works when clicking the canvas, areas of pane not filled with canvas does not react
-    //TODO possible solutions: Make a really huge canvas and translate 0,0 to middle of screen. Or find another node and listener to move canvas
+    //TODO Concerns: dragging only works when clicking the canvas,
+        //areas of pane not filled with canvas does not react
+    //TODO possible solutions: Make a really huge canvas and translate 0,0 to middle of screen.
+        // Or find another node and listener to move canvas
 
     /**
      * Called when the mouse press the upperPane.

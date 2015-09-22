@@ -44,8 +44,8 @@ public class GisVisualization {
         this.group = group;
         this.canvas = new Canvas(canvasWidth, canvasHeight);
         this.graphicsContext = canvas.getGraphicsContext2D();
-        graphicsContext.setFill(Color.GREEN);
-        graphicsContext.fillRect(0, 0, canvasWidth, canvasHeight);
+      //  graphicsContext.setFill(Color.WHITE);
+      //  graphicsContext.fillRect(0, 0, canvasWidth, canvasHeight);
         this.geometry = geometry;
         this.tooltips = new ArrayList<>();
     }
