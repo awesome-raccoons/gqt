@@ -65,6 +65,7 @@ public class Layer extends HBox {
         }
     };
 
+
     /**
      * Creates a layer for this Layer object.
      */
