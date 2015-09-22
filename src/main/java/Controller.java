@@ -1,8 +1,6 @@
-
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.io.WKTReader;
-import javafx.event.Event;
-
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
@@ -10,10 +8,13 @@ import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.geotools.geometry.jts.JTSFactoryFinder;
+
+import java.util.Vector;
 
 
 public class Controller {
@@ -29,10 +30,16 @@ public class Controller {
 
     private double dragBaseX, dragBaseY;
     private double dragBase2X, dragBase2Y;
+    private Vector geometries;
 
+    public Controller() {
+        geometries = new Vector(1, 1);
+
+    }
     @FXML
     public void pressed() {
         draw_polygon(queryInput.getText());
+        upperPane.setOnScroll(getOnScrollEventHandler());
 
         vboxLayers.getChildren().add(new HBox());
     }
@@ -100,16 +107,18 @@ public class Controller {
     private void createLayer(Geometry geometry)
     {
         GisVisualization gv = GisVisualization.createVisualization(Main.stage.getWidth(),Main.stage.getHeight(), geometry, upperPane);
+        geometries.add(geometry);
         Layer hb = new Layer(gv, vboxLayers, geometry.getGeometryType());
         Layer.layers.add(hb);
         hb.reorderLayers();
         upperPane.requestFocus();
     }
 
+
     private void zoom(double d)
     {
-        upperPane.scaleXProperty().set(upperPane.scaleXProperty().get() * d);
-        upperPane.scaleYProperty().set(upperPane.scaleYProperty().get() * d);
+        upperPane.setScaleX(upperPane.scaleXProperty().get() * d);
+        upperPane.setScaleY(upperPane.scaleYProperty().get() * d);
     }
 
     public void handleUpperPaneKeyPresses(KeyEvent event) {
@@ -123,9 +132,29 @@ public class Controller {
         }
     }
 
+    public EventHandler<ScrollEvent> getOnScrollEventHandler() {
+        return onScrollEventHandler;
+    }
+
+    /**
+     * Mouse wheel handler: zoom to pivot point
+     */
+    private EventHandler<ScrollEvent> onScrollEventHandler = new EventHandler<ScrollEvent>() {
+
+        @Override
+        public void handle(ScrollEvent event) {
+            if (event.getDeltaY() < 0)
+                zoom(1/1.4);
+            else
+                zoom(1.4);
+
+        }
+
+    };
+
+
     //TODO Concerns: dragging only works when clicking the canvas, areas of pane not filled with canvas does not react
     //TODO possible solutions: Make a really huge canvas and translate 0,0 to middle of screen. Or find another node and listener to move canvas
-
 
     /**
      * Called when the mouse press the upperPane.

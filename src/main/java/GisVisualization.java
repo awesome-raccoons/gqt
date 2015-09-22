@@ -1,12 +1,9 @@
 
 
 import com.vividsolutions.jts.geom.*;
-import javafx.event.EventHandler;
-
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Tooltip;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -154,7 +151,7 @@ public class GisVisualization {
      */
     private void drawPoint(Point point)
     {
-        this.graphicsContext.fillOval(point.getX() + pointWidth * 0.5f, point.getY() + pointHeight * 0.5f, pointWidth, pointHeight);
+        this.graphicsContext.fillOval(point.getX() - pointWidth * 0.5f, point.getY() - pointHeight * 0.5f, pointWidth, pointHeight);
     }
 
     /**
@@ -164,7 +161,7 @@ public class GisVisualization {
      */
     private void drawPoint(double x_coordinate, double y_coordinate)
     {
-        this.graphicsContext.fillOval(x_coordinate + pointWidth * 0.5, y_coordinate + pointHeight * 0.5, pointWidth, pointHeight);
+        this.graphicsContext.fillOval(x_coordinate - pointWidth * 0.5, y_coordinate - pointHeight * 0.5, pointWidth, pointHeight);
     }
 
     /**
