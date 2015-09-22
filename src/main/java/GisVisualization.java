@@ -6,6 +6,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
+
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Tooltip;
@@ -43,8 +44,8 @@ public class GisVisualization {
         this.group = group;
         this.canvas = new Canvas(canvasWidth, canvasHeight);
         this.graphicsContext = canvas.getGraphicsContext2D();
-        graphicsContext.setFill(Color.GREEN);
-        graphicsContext.fillRect(0, 0, canvasWidth, canvasHeight);
+      //  graphicsContext.setFill(Color.WHITE);
+      //  graphicsContext.fillRect(0, 0, canvasWidth, canvasHeight);
         this.geometry = geometry;
         this.tooltips = new ArrayList<>();
     }
@@ -158,9 +159,10 @@ public class GisVisualization {
      */
     private void drawPoint(final Point point) {
         this.graphicsContext.fillOval(
-                point.getX() + POINT_WIDTH * ADJUSTMENT_FACTOR,
-                point.getY() + POINT_HEIGHT * ADJUSTMENT_FACTOR,
+                point.getX() - POINT_WIDTH * ADJUSTMENT_FACTOR,
+                point.getY() - POINT_HEIGHT * ADJUSTMENT_FACTOR,
                 POINT_WIDTH, POINT_HEIGHT);
+
     }
 
     /**
@@ -169,10 +171,11 @@ public class GisVisualization {
      * @param xCoordinate x coordinate of the point.
      * @param yCoordinate y coordinate of the point.
      */
+
     private void drawPoint(final double xCoordinate, final double yCoordinate) {
         this.graphicsContext.fillOval(
-                xCoordinate + POINT_WIDTH * ADJUSTMENT_FACTOR,
-                yCoordinate + POINT_HEIGHT * ADJUSTMENT_FACTOR,
+                xCoordinate - POINT_WIDTH * ADJUSTMENT_FACTOR,
+                yCoordinate - POINT_HEIGHT * ADJUSTMENT_FACTOR,
                 POINT_WIDTH,
                 POINT_HEIGHT);
     }
