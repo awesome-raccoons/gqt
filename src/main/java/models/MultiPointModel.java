@@ -18,9 +18,9 @@ public class MultiPointModel extends GeometryModel {
 
     public final ArrayList<Circle> drawAndCreateToolTips(final GraphicsContext graphicsContext) {
         ArrayList<Circle> tooltips = new ArrayList<>();
-        MultiPoint multiPoint = (MultiPoint) this.geometry;
+        MultiPoint multiPoint = (MultiPoint) this.getGeometry();
         for (int i = 0; i < multiPoint.getNumGeometries(); i++) {
-            PointModel pointModel = new PointModel(multiPoint.getGeometryN(i), this.group);
+            PointModel pointModel = new PointModel(multiPoint.getGeometryN(i), this.getGroup());
             tooltips.addAll(pointModel.drawAndCreateToolTips(graphicsContext));
         }
         return tooltips;

@@ -18,9 +18,10 @@ public class MultiPolygonModel extends GeometryModel {
 
     public final ArrayList<Circle> drawAndCreateToolTips(final GraphicsContext graphicsContext) {
         ArrayList<Circle> tooltips = new ArrayList<>();
-        MultiPolygon multiPolygon = (MultiPolygon) this.geometry;
+        MultiPolygon multiPolygon = (MultiPolygon) this.getGeometry();
         for (int i = 0; i < multiPolygon.getNumGeometries(); i++) {
-            PolygonModel polygonModel = new PolygonModel(multiPolygon.getGeometryN(i), this.group);
+            PolygonModel polygonModel =
+                    new PolygonModel(multiPolygon.getGeometryN(i), this.getGroup());
             tooltips.addAll(polygonModel.drawAndCreateToolTips(graphicsContext));
         }
         return tooltips;

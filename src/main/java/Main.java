@@ -7,8 +7,6 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
-    private Stage stage;
-
     @Override
     public final void start(final Stage primaryStage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("sample.fxml"));
@@ -17,7 +15,6 @@ public class Main extends Application {
         Controller controller = loader.<Controller>getController();
         controller.setStage(primaryStage);
 
-        this.stage = primaryStage;
         primaryStage.setTitle("Gis Query Tool");
         primaryStage.setMaximized(true);
         primaryStage.setScene(new Scene(root));

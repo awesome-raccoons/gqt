@@ -30,12 +30,17 @@ public class GisVisualization {
                             final double canvasHeight,
                             final Geometry geometry,
                             final AnchorPane group) {
-        this.id = idCounter++;
+        this.id = idCounter;
+        incrementCounter();
         this.group = group;
         this.canvas = new Canvas(canvasWidth, canvasHeight);
         this.graphicsContext = canvas.getGraphicsContext2D();
         this.geometryModel = GeometryModel.getModel(geometry, group);
         this.tooltips = new ArrayList<>();
+    }
+
+    private static void incrementCounter() {
+        GisVisualization.idCounter += 1;
     }
 
     public final AnchorPane getGroup() {

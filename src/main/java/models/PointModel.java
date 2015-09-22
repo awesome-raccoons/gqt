@@ -23,7 +23,7 @@ public class PointModel extends GeometryModel {
 
     public final ArrayList<Circle> drawAndCreateToolTips(final GraphicsContext graphicsContext) {
         ArrayList<Circle> tooltips = new ArrayList<>();
-        Point point = (Point) this.geometry;
+        Point point = (Point) this.getGeometry();
         graphicsContext.fillOval(
                 point.getX() - POINT_SIZE * ADJUSTMENT_FACTOR,
                 point.getY() - POINT_SIZE * ADJUSTMENT_FACTOR,

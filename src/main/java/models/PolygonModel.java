@@ -14,14 +14,14 @@ import java.util.ArrayList;
  */
 public class PolygonModel extends GeometryModel {
 
-    public PolygonModel(final Geometry geometry, final AnchorPane group){
+    public PolygonModel(final Geometry geometry, final AnchorPane group) {
         super(geometry, group);
     }
 
-    public final ArrayList<Circle> drawAndCreateToolTips(final GraphicsContext graphicsContext){
+    public final ArrayList<Circle> drawAndCreateToolTips(final GraphicsContext graphicsContext) {
         ArrayList<Circle> tooltips = new ArrayList<>();
 
-        Coordinate[] coordinates = this.geometry.getCoordinates();
+        Coordinate[] coordinates = this.getGeometry().getCoordinates();
         double[] xCoordinates = new double[coordinates.length];
         double[] yCoordinates = new double[coordinates.length];
         for (int i = 0; i < coordinates.length; i++) {

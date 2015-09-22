@@ -13,16 +13,16 @@ import java.util.ArrayList;
  */
 public class MultiLineStringModel extends GeometryModel {
 
-    public MultiLineStringModel(Geometry geometry, AnchorPane group) {
+    public MultiLineStringModel(final Geometry geometry, final AnchorPane group) {
         super(geometry, group);
     }
 
-    public final ArrayList<Circle> drawAndCreateToolTips(GraphicsContext graphicsContext) {
+    public final ArrayList<Circle> drawAndCreateToolTips(final GraphicsContext graphicsContext) {
         ArrayList<Circle> tooltips = new ArrayList<>();
-        MultiLineString multiLineString = (MultiLineString) this.geometry;
+        MultiLineString multiLineString = (MultiLineString) this.getGeometry();
         for (int i = 0; i < multiLineString.getNumGeometries(); i++) {
             LineStringModel lineStringModel =
-                    new LineStringModel(multiLineString.getGeometryN(i), this.group);
+                    new LineStringModel(multiLineString.getGeometryN(i), this.getGroup());
             tooltips.addAll(lineStringModel.drawAndCreateToolTips(graphicsContext));
         }
         return tooltips;

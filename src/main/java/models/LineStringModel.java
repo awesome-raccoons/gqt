@@ -19,7 +19,7 @@ public class LineStringModel extends GeometryModel {
 
     public final ArrayList<Circle> drawAndCreateToolTips(final GraphicsContext graphicsContext) {
         ArrayList<Circle> tooltips = new ArrayList<>();
-        Coordinate[] coordinates = this.geometry.getCoordinates();
+        Coordinate[] coordinates = this.getGeometry().getCoordinates();
         graphicsContext.moveTo(coordinates[0].x, coordinates[0].y);
 
         for (int i = 1; i < coordinates.length; i++) {

@@ -7,7 +7,6 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
-import javafx.scene.Group;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
@@ -21,8 +20,8 @@ import java.util.ArrayList;
  */
 public abstract class GeometryModel {
 
-    protected final Geometry geometry;
-    protected final AnchorPane group;
+    private final Geometry geometry;
+    private final AnchorPane group;
     private static final double TOOLTIP_SIZE = 2.5;
 
     public GeometryModel(final Geometry geometry, final AnchorPane group) {
@@ -30,7 +29,15 @@ public abstract class GeometryModel {
         this.group = group;
     }
 
-    public static final GeometryModel getModel(final Geometry geometry, final AnchorPane group){
+    public final Geometry getGeometry() {
+        return this.geometry;
+    }
+
+    public final AnchorPane getGroup() {
+        return this.group;
+    }
+
+    public static final GeometryModel getModel(final Geometry geometry, final AnchorPane group) {
         if (geometry instanceof Polygon) {
             return new PolygonModel(geometry, group);
         } else if (geometry instanceof Point) {
