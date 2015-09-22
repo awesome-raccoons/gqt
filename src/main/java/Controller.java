@@ -36,7 +36,6 @@ public class Controller {
 
     public Controller() {
         geometries = new Vector(1, 1);
-
     }
     @FXML
     public final void pressed() {

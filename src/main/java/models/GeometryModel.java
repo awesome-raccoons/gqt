@@ -10,6 +10,7 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import javafx.scene.Group;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Tooltip;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 
@@ -21,15 +22,15 @@ import java.util.ArrayList;
 public abstract class GeometryModel {
 
     protected final Geometry geometry;
-    private final Group group;
+    protected final AnchorPane group;
     private static final double TOOLTIP_SIZE = 2.5;
 
-    public GeometryModel(Geometry geometry, Group group) {
+    public GeometryModel(final Geometry geometry, final AnchorPane group) {
         this.geometry = geometry;
         this.group = group;
     }
 
-    public static final GeometryModel getModel(Geometry geometry, Group group){
+    public static final GeometryModel getModel(final Geometry geometry, final AnchorPane group){
         if (geometry instanceof Polygon) {
             return new PolygonModel(geometry, group);
         } else if (geometry instanceof Point) {
@@ -59,6 +60,6 @@ public abstract class GeometryModel {
      * @param graphicsContext The graphics to which the object should be drawn.
      * @return A list of tooltips.
      */
-    public abstract ArrayList<Circle> drawAndCreateToolTips(GraphicsContext graphicsContext);
+    public abstract ArrayList<Circle> drawAndCreateToolTips(final GraphicsContext graphicsContext);
 }
 

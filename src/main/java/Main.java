@@ -25,10 +25,6 @@ public class Main extends Application {
 
     }
 
-    public final Stage getStage() {
-        return this.stage;
-    }
-
     public static void main(final String[] args) {
         launch(args);
     }

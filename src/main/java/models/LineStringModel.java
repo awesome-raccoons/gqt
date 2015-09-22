@@ -2,8 +2,8 @@ package models;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
-import javafx.scene.Group;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
@@ -13,12 +13,12 @@ import java.util.ArrayList;
  * Created by thea on 22/09/15.
  */
 public class LineStringModel extends GeometryModel {
-    public LineStringModel(Geometry geometry, Group group) {
+    public LineStringModel(final Geometry geometry, final AnchorPane group) {
         super(geometry, group);
     }
 
-    public final ArrayList<Circle> drawAndCreateToolTips(GraphicsContext graphicsContext) {
-        ArrayList<Circle> tooltips = new ArrayList<Circle>();
+    public final ArrayList<Circle> drawAndCreateToolTips(final GraphicsContext graphicsContext) {
+        ArrayList<Circle> tooltips = new ArrayList<>();
         Coordinate[] coordinates = this.geometry.getCoordinates();
         graphicsContext.moveTo(coordinates[0].x, coordinates[0].y);
 
