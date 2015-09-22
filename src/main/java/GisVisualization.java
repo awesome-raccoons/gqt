@@ -7,7 +7,6 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
 
-
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Tooltip;
@@ -163,6 +162,7 @@ public class GisVisualization {
                 point.getX() - POINT_WIDTH * ADJUSTMENT_FACTOR,
                 point.getY() - POINT_HEIGHT * ADJUSTMENT_FACTOR,
                 POINT_WIDTH, POINT_HEIGHT);
+
     }
 
     /**
@@ -171,6 +171,7 @@ public class GisVisualization {
      * @param xCoordinate x coordinate of the point.
      * @param yCoordinate y coordinate of the point.
      */
+
     private void drawPoint(final double xCoordinate, final double yCoordinate) {
         this.graphicsContext.fillOval(
                 xCoordinate - POINT_WIDTH * ADJUSTMENT_FACTOR,
