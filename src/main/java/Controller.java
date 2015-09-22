@@ -146,8 +146,7 @@ public class Controller {
         public void handle(final ScrollEvent event) {
             if (event.getDeltaY() < 0) {
                 zoom(1 / ZOOM_FACTOR);
-            }
-            else {
+            } else {
                 zoom(ZOOM_FACTOR);
             }
         }
