@@ -17,6 +17,7 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -26,6 +27,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 
+import java.util.ArrayList;
 import java.util.Vector;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -50,9 +52,13 @@ public class Controller {
     private double dragBase2X, dragBase2Y;
     private Stage stage;
     private Vector geometries;
+    private static ArrayList<KeyCode> heldDownKeys;
 
     public Controller() {
         geometries = new Vector(1, 1);
+
+        heldDownKeys = new ArrayList<>();
+
     }
     @FXML
     public final void pressed() {
@@ -229,4 +235,25 @@ public class Controller {
     }
 
 
+
+
+    public void onAnyKeyPressed(KeyEvent event) {
+
+        if (!heldDownKeys.contains(event.getCode()))
+        {
+            heldDownKeys.add(event.getCode());
+        }
+
+    }
+
+    public void onAnyKeyReleased(KeyEvent event) {
+
+        heldDownKeys.remove(event.getCode());
+
+    }
+
+    public static boolean isKeyHeldDown(KeyCode code)
+    {
+        return heldDownKeys.contains(code);
+    }
 }
