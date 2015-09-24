@@ -1,28 +1,25 @@
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
-import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 
 /**
  * Created by Johannes on 10.09.2015.
@@ -44,7 +41,7 @@ public class Layer extends HBox {
     private Button buttonUp;            //Button for moving layer up a layer
     private Button buttonDown;          //Button for moving layer down a layer
     private String name;                //Name of the layers
-    private layerSelectedProperty isSelected;
+    private LayerSelectedProperty isSelected;
 
     private static ArrayList<Layer> layers = new ArrayList<>();
 
@@ -53,7 +50,7 @@ public class Layer extends HBox {
         this.orderID = gisVis.getID();
         this.parentContainer = parentContainer;
         this.name = name;
-        this.isSelected = new layerSelectedProperty();
+        this.isSelected = new LayerSelectedProperty();
         this.setOnMouseClicked(mouseClickedHandler);
         this.setOnKeyReleased(keyReleasedHandler);
         createLayer();
@@ -65,14 +62,11 @@ public class Layer extends HBox {
 
     private EventHandler<KeyEvent> keyReleasedHandler = new EventHandler<KeyEvent>() {
         @Override
-        public void handle(KeyEvent event) {
-            if (event.getCode() == KeyCode.DOWN)
-            {
+        public void handle(final KeyEvent event) {
+            if (event.getCode() == KeyCode.DOWN) {
                 //Move selected layers down
                 moveSelectedLayers(1);
-            }
-            else if (event.getCode() == KeyCode.UP)
-            {
+            } else if (event.getCode() == KeyCode.UP) {
                 //Move selected layers up
                 moveSelectedLayers(-1);
             }
@@ -82,10 +76,8 @@ public class Layer extends HBox {
     /**
      * Deselects all layers, disables their tooltip and returns background color to normal.
      */
-    public final void deselectAllLayers()
-    {
-        for(Layer l : layers)
-        {
+    public final void deselectAllLayers() {
+        for (Layer l : layers) {
             l.isSelected.set(false);
             l.gisVis.setDisplayTooltips(false);
             l.toggleBackgroundColor(l.isSelected);
@@ -94,30 +86,31 @@ public class Layer extends HBox {
 
     private EventHandler<MouseEvent> mouseClickedHandler = new EventHandler<MouseEvent>() {
         @Override
-        public void handle(MouseEvent event) {
+        public void handle(final MouseEvent event) {
             //CTRL is pressed select additional, otherwise unselected previously selected
             boolean oldValue = isSelected.get();
-            if (!Controller.isKeyHeldDown(KeyCode.CONTROL))
-            {
+            if (!Controller.isKeyHeldDown(KeyCode.CONTROL)) {
                 deselectAllLayers();
             }
 
             //Toggle selection and display tooltips if it is selected
             isSelected.set(!oldValue);
             gisVis.setDisplayTooltips(isSelected.get());
-            if (isSelected.get())
-            {
+            if (isSelected.get()) {
                 requestFocus();
             }
             toggleBackgroundColor(isSelected);
         }
     };
 
-    private void toggleBackgroundColor(BooleanProperty val)
-    {
+    private void toggleBackgroundColor(final BooleanProperty val) {
         backgroundProperty().bind(Bindings.when(val)
-                .then(new Background(new BackgroundFill(Color.CORNFLOWERBLUE, CornerRadii.EMPTY, Insets.EMPTY)))
-                .otherwise(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY))));
+                .then(new Background(
+                        new BackgroundFill(Color.CORNFLOWERBLUE,
+                                CornerRadii.EMPTY, Insets.EMPTY)))
+                .otherwise(new Background(
+                        new BackgroundFill(Color.TRANSPARENT,
+                                CornerRadii.EMPTY, Insets.EMPTY))));
     }
 
     /**
@@ -185,49 +178,41 @@ public class Layer extends HBox {
     }
 
     /**
-     * Move all selected layers the amount of places up or down the list according to the offset
+     * Move all selected layers the amount of places up or down the list according to the offset.
      * @param offset    The number of places to move selected layers.
-     *                  Offset > 0 moves it down the stack
-     *                  Offset < 0 moves it up the stack
+     *                  Offset > 0 moves it down the stack.
+     *                  Offset < 0 moves it up the stack.
      */
-    public final void moveSelectedLayers(final int offset)
-    {
+    public final void moveSelectedLayers(final int offset) {
         //Keep track of all the layers that have been checked
         ArrayList<Layer> checkedLayers = new ArrayList<>();
 
         //Create a list of numbers from 0...n where n is the amount of layers
         //Is there an easier more convenient way to do this?
         ArrayList<Integer> iteratorList = new ArrayList<>();
-        for (int i = 0; i < Layer.getLayers().size(); i++)
-        {
+        for (int i = 0; i < Layer.getLayers().size(); i++) {
             iteratorList.add(i);
         }
 
-        if (offset > 0)
-        {
+        if (offset > 0) {
             Collections.reverse(iteratorList);
         }
-        for (int i : iteratorList)
-        {
+        for (int i : iteratorList) {
             Layer currentLayer = Layer.getLayers().get(i);
-            if (!checkedLayers.contains(currentLayer))
-            {
+
+            if (!checkedLayers.contains(currentLayer)) {
                 checkedLayers.add(currentLayer);
-                if (currentLayer.isSelected.get())
-                {
+
+                if (currentLayer.isSelected.get()) {
                     Layer l = Layer.getLayers().remove(i);
                     int newPos = i + offset;
-                    if (newPos >= Layer.getLayers().size())
-                    {
+
+                    if (newPos >= Layer.getLayers().size()) {
                         Layer.getLayers().add(l);
-                    }
-                    else if (newPos < 0)
-                    {
-                        Layer.getLayers().add(0,l);
-                    }
-                    else
-                    {
-                        Layer.getLayers().add(newPos,l);
+                    } else if (newPos < 0) {
+                        Layer.getLayers().add(0, l);
+                    } else {
+                        Layer.getLayers().add(newPos, l);
                     }
                 }
             }
@@ -238,7 +223,7 @@ public class Layer extends HBox {
 
 
     /**
-     * Reorders the layers according to their position in the layers list
+     * Reorders the layers according to their position in the layers list.
      */
     public final void reorderLayers() {
         AnchorPane group = gisVis.getGroup();
@@ -248,13 +233,14 @@ public class Layer extends HBox {
         group.getChildren().remove(0, group.getChildren().size());
 
         //Redraw all the layers, only make the toplayer have tooltips
-        for (int i = layers.size()-1; i >= 0; i--) {
+        for (int i = layers.size() - 1; i >= 0; i--) {
             Layer hb = layers.get(i);
             hb.gisVis.redraw();
             hb.gisVis.setDisplayTooltips(hb.isSelected.get());
             hb.setUpDisable(false);
             hb.setDownDisable(false);
         }
+
         for (Layer layer : layers) {
             this.parentContainer.getChildren().add(layer);
         }

@@ -26,7 +26,8 @@ public class LineStringModel extends GeometryModel {
         graphicsContext.setFill(Color.BLACK);
 
         for (int i = 1; i < coordinates.length; i++) {
-            graphicsContext.strokeLine(coordinates[i-1].x, coordinates[i-1].y, coordinates[i].x, coordinates[i].y);
+            graphicsContext.strokeLine(coordinates[i - 1].x, coordinates[i - 1].y,
+                    coordinates[i].x, coordinates[i].y);
             Circle tooltip = createToolTip(coordinates[i].x, coordinates[i].y, Color.BLACK);
             tooltips.add(tooltip);
         }
