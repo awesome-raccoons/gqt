@@ -11,6 +11,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
@@ -28,7 +29,7 @@ public class GisVisualization {
     private static final double POINT_HEIGHT = 5;   //Defines the height of Points
 
     private int idCounter = 0;       //Static counter for IDs
-    private AnchorPane group;         //Root node all canvases will be drawn to
+    private Pane group;         //Root node all canvases will be drawn to
 
     private int id;
     private Canvas canvas;
@@ -39,7 +40,7 @@ public class GisVisualization {
     public GisVisualization(final double canvasWidth,
                             final double canvasHeight,
                             final Geometry geometry,
-                            final AnchorPane group) {
+                            final Pane group) {
         this.id = idCounter++;
         this.group = group;
         this.canvas = new Canvas(canvasWidth, canvasHeight);
@@ -50,7 +51,7 @@ public class GisVisualization {
         this.tooltips = new ArrayList<>();
     }
 
-    public final AnchorPane getGroup() {
+    public final Pane getGroup() {
         return this.group;
     }
 
@@ -67,7 +68,7 @@ public class GisVisualization {
     public static GisVisualization createVisualization(final double canvasWidth,
                                                        final double canvasHeight,
                                                        final Geometry geometry,
-                                                       final AnchorPane group) {
+                                                       final Pane group) {
         GisVisualization gisVis = new GisVisualization(canvasWidth, canvasHeight, geometry, group);
         gisVis.create2DShape(getRandomColor(1.0f));
         group.getChildren().add(gisVis.canvas);
@@ -201,7 +202,7 @@ public class GisVisualization {
      *
      * @param group The group the tooltips will be added to.
      */
-    private void createTooltip(final AnchorPane group,
+    private void createTooltip(final Pane group,
                                final double xCoord,
                                final double yCoord,
                                final Paint color) {

@@ -4,6 +4,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
@@ -113,7 +114,7 @@ public class Layer extends HBox {
      * Reorders the layers according to their ID and redraws the polygons in the same order.
      */
     public final void reorderLayers() {
-        AnchorPane group = gisVis.getGroup();
+        Pane group = gisVis.getGroup();
 
         this.parentContainer.getChildren().remove(0, this.parentContainer.getChildren().size());
 

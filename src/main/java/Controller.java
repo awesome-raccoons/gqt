@@ -2,16 +2,20 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.WKTReader;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 
@@ -25,14 +29,18 @@ public class Controller {
     @FXML
     private TextArea queryInput;
     @FXML
-    private AnchorPane upperPane;
+    private Pane upperPane;
+    @FXML
+    private AnchorPane upperAnchorPane;
     @FXML
     private VBox vboxLayers;
 
     private double dragBaseX, dragBaseY;
     private double dragBase2X, dragBase2Y;
+    private double mouseXpos, mouseYpos;
     private Stage stage;
     private Vector geometries;
+
 
     public Controller() {
         geometries = new Vector(1, 1);
@@ -42,6 +50,7 @@ public class Controller {
     public final void pressed() {
         drawPolygon(queryInput.getText());
         upperPane.setOnScroll(getOnScrollEventHandler());
+        upperPane.setBackground(new Background(new BackgroundFill(Color.AQUA, CornerRadii.EMPTY, Insets.EMPTY)));
 
         vboxLayers.getChildren().add(new HBox());
     }
@@ -111,8 +120,21 @@ public class Controller {
 
 
     private void zoom(final double d) {
+
+
+
         upperPane.setScaleX(upperPane.scaleXProperty().get() * d);
         upperPane.setScaleY(upperPane.scaleYProperty().get() * d);
+        Bounds bounds = upperPane.getLayoutBounds();
+
+
+
+        //upperPane.setTranslateX( (d * width - width) / 2 );
+        //upperPane.setTranslateY( (d * height - height) / 2 );
+
+        System.out.println("LAYOUT X: " + upperPane.scaleXProperty().get() + " LAYOUT Y: " + upperPane.scaleYProperty().get());
+
+
     }
 
     public final void handleUpperPaneKeyPresses(final KeyEvent event) {
@@ -191,4 +213,9 @@ public class Controller {
         this.stage.getScene().setCursor(Cursor.DEFAULT);
     }
 
+    public void onupperPaneMouseMove(MouseEvent event) {
+        mouseXpos = event.getX();
+        mouseYpos = event.getY();
+        System.out.println("X: " + event.getX() + "Y: " + event.getY());
+    }
 }
