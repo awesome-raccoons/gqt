@@ -150,8 +150,8 @@ public class Layer extends HBox {
         //TODO style up and down but
 
         VBox vb = new VBox();
-        vb.getChildren().add(buttonUp);
-        vb.getChildren().add(buttonDown);
+        //vb.getChildren().add(buttonUp);
+        //vb.getChildren().add(buttonDown);
 
         this.getChildren().add(cb);
         this.getChildren().add(tf);
