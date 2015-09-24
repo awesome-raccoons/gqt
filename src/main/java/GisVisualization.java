@@ -72,11 +72,23 @@ public class GisVisualization {
     /**
      * Redraws this GisVisualization object and tooltips to its given group.
      */
-    public final void redraw(final boolean displayTooltips) {
+    public final void redraw() {
         group.getChildren().add(this.canvas);
-        if (displayTooltips) {
+    }
+
+    public final void setDisplayTooltips(final boolean display)
+    {
+        //group.getChildren().remove(0, group.getChildren().size());
+        if (display)
+        {
             for (Circle c : tooltips) {
                 group.getChildren().add(c);
+            }
+        }
+        else
+        {
+            for (Circle c : tooltips) {
+                group.getChildren().remove(c);
             }
         }
     }
