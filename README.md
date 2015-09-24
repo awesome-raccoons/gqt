@@ -1,5 +1,7 @@
 # gqt
 
+This project uses Maven.
+
 ## Usage
 ### Input
 Accepted input is a WKT-string of the Geometry that should be plotted. A layer is created for each plotted object. To see the exact coordinates for a Layer, select the Layer in the list to the right (by clicking on it), and hover over the points that appear on the selected objects.
