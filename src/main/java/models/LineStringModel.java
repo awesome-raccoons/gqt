@@ -21,6 +21,9 @@ public class LineStringModel extends GeometryModel {
         ArrayList<Circle> tooltips = new ArrayList<>();
         Coordinate[] coordinates = this.getGeometry().getCoordinates();
         graphicsContext.moveTo(coordinates[0].x, coordinates[0].y);
+        graphicsContext.setLineWidth(2.0);
+
+        graphicsContext.setFill(Color.BLACK);
 
         for (int i = 1; i < coordinates.length; i++) {
             graphicsContext.lineTo(coordinates[i].x, coordinates[i].y);
