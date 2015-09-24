@@ -76,17 +76,13 @@ public class GisVisualization {
         group.getChildren().add(this.canvas);
     }
 
-    public final void setDisplayTooltips(final boolean display)
-    {
+    public final void setDisplayTooltips(final boolean display) {
         //group.getChildren().remove(0, group.getChildren().size());
-        if (display)
-        {
+        if (display) {
             for (Circle c : tooltips) {
                 group.getChildren().add(c);
             }
-        }
-        else
-        {
+        } else {
             for (Circle c : tooltips) {
                 group.getChildren().remove(c);
             }

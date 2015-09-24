@@ -3,19 +3,11 @@ import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.WKTReader;
 import javafx.event.EventHandler;
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.Event;
 
-import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.scene.Cursor;
-import javafx.scene.Node;
-import javafx.scene.control.Button;
+//import javafx.scene.Node;
+//import javafx.scene.Parent;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -28,14 +20,8 @@ import javafx.stage.Stage;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import org.geotools.geometry.jts.JTSFactoryFinder;
-
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-
 
 public class Controller {
 
@@ -52,14 +38,12 @@ public class Controller {
     private double dragBase2X, dragBase2Y;
     private Stage stage;
     private Vector geometries;
-    private static ArrayList<KeyCode> heldDownKeys;
+    private static List<KeyCode> heldDownKeys = new ArrayList<>();
 
     public Controller() {
         geometries = new Vector(1, 1);
-
-        heldDownKeys = new ArrayList<>();
-
     }
+
     @FXML
     public final void pressed() {
         drawPolygon(queryInput.getText());
@@ -215,45 +199,33 @@ public class Controller {
 
 
 
-    private Node isChildFocused(javafx.scene.Parent parent)
-    {
-        for (Node node : parent.getChildrenUnmodifiable())
-        {
-            if (node.isFocused())
-            {
+    /*private Node isChildFocused(final Parent parent) {
+        for (Node node : parent.getChildrenUnmodifiable()) {
+            if (node.isFocused()) {
                 return node;
-            }
-            else if (node instanceof javafx.scene.Parent)
-            {
-                if (isChildFocused((javafx.scene.Parent)node) != null)
-                {
+            } else if (node instanceof Parent) {
+                if (isChildFocused((Parent) node) != null) {
                     return node;
                 }
             }
         }
         return null;
-    }
+    }*/
 
 
 
 
-    public void onAnyKeyPressed(KeyEvent event) {
-
-        if (!heldDownKeys.contains(event.getCode()))
-        {
+    public final void onAnyKeyPressed(final KeyEvent event) {
+        if (!heldDownKeys.contains(event.getCode())) {
             heldDownKeys.add(event.getCode());
         }
-
     }
 
-    public void onAnyKeyReleased(KeyEvent event) {
-
+    public final void onAnyKeyReleased(final KeyEvent event) {
         heldDownKeys.remove(event.getCode());
-
     }
 
-    public static boolean isKeyHeldDown(KeyCode code)
-    {
+    public static boolean isKeyHeldDown(final KeyCode code) {
         return heldDownKeys.contains(code);
     }
 }
