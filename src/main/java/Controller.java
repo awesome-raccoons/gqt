@@ -26,13 +26,13 @@ import java.util.Vector;
 
 public class Controller {
     /**
-     * Identifies value of zooming (e.g 140% -> 1.4)
+     * Identifies value of zooming (e.g 140% -> 1.4).
      */
     private static final double ZOOM_FACTOR = 1.4;
     /**
-     * Current level of zooming (0 -> default
+     * Current level of zooming (0 -> default.
      */
-    private static int ZOOM_LEVEL = 0;
+    private static int current_zoom_level = 0;
 
     @FXML
     private TextArea queryInput;
@@ -45,11 +45,11 @@ public class Controller {
     private double dragBase2X, dragBase2Y;
     private Stage stage;
     /**
-     * Stores geometries with original coordinates
+     * Stores geometries with original coordinates.
      */
     private final Vector originalGeometries;
     /**
-     * Stored all GisVisualizations
+     * Stored all GisVisualizations.
      */
     private final Vector<GisVisualization> gisVisualizations;
     private static List<KeyCode> heldDownKeys = new ArrayList<>();
@@ -71,22 +71,21 @@ public class Controller {
     }
 
     /**
-     * Adds geometry or geometry collection into vector
+     * Adds geometry or geometry collection into vector.
      * @param  geom geometry that has to be saved
      */
-    public void saveOriginalGeometries(Geometry geom) {
+    public final void saveOriginalGeometries(final Geometry geom) {
         if (geom instanceof GeometryCollection) {
             for (int i = 0; i < geom.getNumGeometries(); i++) {
                 originalGeometries.add(geom.getGeometryN(i));
             }
-        }
-        else {
+        } else {
             originalGeometries.add(geom);
         }
     }
 
     /**
-     * Creates and saves geometry. Calls methods to create new layer and visualization
+     * Creates and saves geometry. Calls methods to create new layer and visualization.
      * @param poly Well Known Text from user input
      */
     public final void drawPolygonFromWKT(final String poly) {
@@ -98,11 +97,12 @@ public class Controller {
 
             drawPolygon(geom);
 
-            // clone geometry to save 2 different objects. One with original coordinates, the other with actual (scaled) coordinates
+            // clone geometry to save 2 different objects. One with original coordinates,
+            // the other with actual (scaled) coordinates
             Geometry geomClone = (Geometry) geom.clone();
             saveOriginalGeometries(geomClone);
             // scale appropriately to current zoom level
-            if (ZOOM_LEVEL != 0) {
+            if (current_zoom_level != 0) {
                 rescaleAllGeometries();
             }
         } catch (com.vividsolutions.jts.io.ParseException e) {
@@ -168,11 +168,11 @@ public class Controller {
     public final void handleUpperPaneKeyPresses(final KeyEvent event) {
         switch (event.getText()) {
             case "+":
-                ZOOM_LEVEL++;
+                current_zoom_level++;
                 rescaleAllGeometries();
                 break;
             case "-":
-                ZOOM_LEVEL--;
+                current_zoom_level--;
                 rescaleAllGeometries();
                 break;
             default:
@@ -186,8 +186,8 @@ public class Controller {
     // Possible solutions: Make a really huge canvas and translate
     // 0,0 to middle of screen. Or find another node and listener to move canvas
 
-    public void rescaleAllGeometries() {
-        double current_zoom = Math.pow(ZOOM_FACTOR, ZOOM_LEVEL); // ZOOM_FACTOR ^ ZOOM_LEVEL;
+    public final void rescaleAllGeometries() {
+        double currentZoom = Math.pow(ZOOM_FACTOR, current_zoom_level); // ZOOM_FACTOR ^ ZOOM_LEVEL;
 
         Geometry geom;
 
@@ -195,7 +195,7 @@ public class Controller {
         for (int i = 0; i < originalGeometries.size(); i++) {
             geom = (Geometry) originalGeometries.get(i);
 
-            resizeGeometryModel(geom, gisVisualizations.get(i), current_zoom);
+            resizeGeometryModel(geom, gisVisualizations.get(i), currentZoom);
         }
         // reorder layers to maintain tooltips display correctly
         if (!Layer.getLayers().isEmpty()) {
@@ -204,37 +204,39 @@ public class Controller {
     }
 
     /**
-     * Updates coordinates of gisVisualization
+     * Updates coordinates of gisVisualization.
      * @param originalGeometry that contains original non changed coordinates
      * @param gisVisualization that contains geometry to change
      * @param scale for resizing
      */
-    public final void resizeGeometryModel(Geometry originalGeometry, GisVisualization gisVisualization, double scale) {
-        Coordinate coord_orig[];
-        Coordinate coord[];
+    public final void resizeGeometryModel(final Geometry originalGeometry,
+                                          final GisVisualization gisVisualization,
+                                          final double scale) {
+        Coordinate[] coordOrig;
+        Coordinate[] coord;
         GeometryModel gm = gisVisualization.getGeometryModel();
         // get original coordinates
-        coord_orig = originalGeometry.getCoordinates();
+        coordOrig = originalGeometry.getCoordinates();
         // get actual (scaled) coordinates
         coord = gm.getGeometry().getCoordinates();
 
         // recalculate
-        for (int j = 0; j < coord_orig.length; j++) {
-            coord[j].x = coord_orig[j].x * scale;
-            coord[j].y = coord_orig[j].y * scale;
+        for (int j = 0; j < coordOrig.length; j++) {
+            coord[j].x = coordOrig[j].x * scale;
+            coord[j].y = coordOrig[j].y * scale;
         }
 
         // redraw
         gisVisualization.reDraw();
     }
 
-    public void mouseScrollEvent(final ScrollEvent event) {
+    public final void mouseScrollEvent(final ScrollEvent event) {
         // scroll down
         if (event.getDeltaY() < 0) {
-            ZOOM_LEVEL--;
+            current_zoom_level--;
             rescaleAllGeometries();
         } else { // scroll up
-            ZOOM_LEVEL++;
+            current_zoom_level++;
             rescaleAllGeometries();
         }
     }
@@ -292,7 +294,7 @@ public class Controller {
 
 
 
-    public final void WktAreaKeyPressed(final KeyEvent event) {
+    public final void wktAreaKeyPressed(final KeyEvent event) {
         if (event.isAltDown() && event.getCode() == KeyCode.ENTER) {
             pressed();
         }
