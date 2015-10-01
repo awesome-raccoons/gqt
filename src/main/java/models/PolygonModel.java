@@ -32,6 +32,11 @@ public class PolygonModel extends GeometryModel {
         }
 
         graphicsContext.fillPolygon(xCoordinates, yCoordinates, coordinates.length);
+        graphicsContext.setStroke(((Color) graphicsContext.getFill()).darker());
+        for (int i = 1; i < coordinates.length; i++) {
+            graphicsContext.strokeLine(coordinates[i - 1].x, coordinates[i - 1].y,
+                    coordinates[i].x, coordinates[i].y);
+        }
 
         return tooltips;
     }
