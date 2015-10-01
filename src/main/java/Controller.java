@@ -27,6 +27,7 @@ import java.util.Vector;
 public class Controller {
 
     private static final double ZOOM_FACTOR = 1.4;
+    private static double CURRENT_ZOOM = 1.0;
 
     @FXML
     private TextArea queryInput;
@@ -39,15 +40,17 @@ public class Controller {
     private double dragBase2X, dragBase2Y;
     private Stage stage;
     private Vector geometries;
+    private Vector originalGeometries;
     private static List<KeyCode> heldDownKeys = new ArrayList<>();
 
     public Controller() {
         geometries = new Vector(1, 1);
+        originalGeometries = new Vector(1, 1);
     }
 
     @FXML
     public final void pressed() {
-        drawPolygon(queryInput.getText());
+        drawPolygonFromWKT(queryInput.getText());
         upperPane.setOnScroll(getOnScrollEventHandler());
 
         vboxLayers.getChildren().add(new HBox());
@@ -57,25 +60,30 @@ public class Controller {
         this.stage = stage;
     }
 
-    public final void drawPolygon(final String poly) {
+    public final void drawPolygonFromWKT(final String poly) {
         try {
             //Create a WKT parser for reading WKT input
             GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
             WKTReader reader = new WKTReader(geometryFactory);
             Geometry p = reader.read(poly);
+            Geometry p1 = (Geometry)p.clone();
 
-            if (p instanceof GeometryCollection) {
-                for (int i = 0; i < p.getNumGeometries(); i++) {
-                    refineGeometryClass(p.getGeometryN(i));
-                }
-            } else {
-                refineGeometryClass(p);
-            }
+            drawPolygon(p);
+            originalGeometries.add(p1);
         } catch (com.vividsolutions.jts.io.ParseException e) {
             e.printStackTrace();
         }
     }
 
+    public final void drawPolygon(final Geometry geom) {
+        if (geom instanceof GeometryCollection) {
+            for (int i = 0; i < geom.getNumGeometries(); i++) {
+                refineGeometryClass(geom.getGeometryN(i));
+            }
+        } else {
+            refineGeometryClass(geom);
+        }
+    }
     /**
      * Delegates the task of creating the layer for this geometry. Whether it is a plain WKT object,
      * or a composite such as a MultiPolygon.
@@ -145,6 +153,8 @@ public class Controller {
         return onScrollEventHandler;
     }
 
+    // change this code to new method that will be created by johannes
+    // this is ugly
     public void removeAllLayers() {
         ArrayList<Layer> layer = Layer.getLayers();
         if (layer.isEmpty() != true) {
@@ -153,29 +163,36 @@ public class Controller {
     }
 
     public void zoomByChangingGeometries(final double scale) {
+        CURRENT_ZOOM *= scale;
         removeAllLayers();
-        Geometry geom;
+        //geometries.clear();
         Coordinate coord[];
-        for (int i = 0; i < geometries.size(); i++) {
-            geom = (Geometry) geometries.get(0);
-            coord = geom.getCoordinates();
+        Coordinate coord_orig[];
+        Geometry geom;
+        Geometry geom2;
+        for (int i = 0; i < originalGeometries.size(); i++) {
+            geom = (Geometry) originalGeometries.get(i);
+            geom2 = (Geometry) geometries.get(0);
+            coord_orig = geom.getCoordinates();
             for (int j = 0; j < coord.length; j++) {
-                coord[j].x *= scale;
-                coord[j].y *= scale;
-                //    System.out.println("coord[j].x " + coord[j].x);
-                //   System.out.println("coord[j].y " + coord[j].y);
-            }
-            drawPolygon(geom);
-            geometries.remove(0);
-        }
-        for (int i = 0; i < geometries.size(); i++) {
-            geom = (Geometry) geometries.get(i);
-            coord = geom.getCoordinates();
-            for (int j = 0; j < coord.length; j++) {
+                coord[j].x = coord_orig[j].x * CURRENT_ZOOM;
+                coord[j].y = coord_orig[j].y * CURRENT_ZOOM;
                 System.out.println("coord[j].x " + coord[j].x);
                 System.out.println("coord[j].y " + coord[j].y);
             }
+            geometries.remove(0);
+            drawPolygon(geom2);
         }
+
+        for (int i = 0; i < originalGeometries.size(); i++) {
+            geom = (Geometry) originalGeometries.get(i);
+            coord = geom.getCoordinates();
+            for (int j = 0; j < coord.length; j++) {
+                System.out.println("ORIG: coord[j].x " + coord[j].x);
+                System.out.println("ORIG: coord[j].y " + coord[j].y);
+            }
+        }
+        System.out.println("CURRENT_ZOOM: " + CURRENT_ZOOM);
     }
     /**
      * Mouse wheel handler: zoom to pivot point.

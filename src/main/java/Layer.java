@@ -60,6 +60,11 @@ public class Layer extends HBox {
         return layers;
     }
 
+    public final void deleteLayers() {
+        this.parentContainer.getChildren().remove(0, this.parentContainer.getChildren().size());
+        layers.clear();
+    }
+
     private EventHandler<KeyEvent> keyReleasedHandler = new EventHandler<KeyEvent>() {
         @Override
         public void handle(final KeyEvent event) {
