@@ -62,7 +62,7 @@ public class GisVisualization {
                                                        final Geometry geometry,
                                                        final AnchorPane group) {
         GisVisualization gisVis = new GisVisualization(canvasWidth, canvasHeight, geometry, group);
-        gisVis.create2DShape(getRandomColor(1.0f));
+        gisVis.create2DShape(getRandomColor(0.7f));
         group.getChildren().add(gisVis.canvas);
 
         return gisVis;

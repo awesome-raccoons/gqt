@@ -5,6 +5,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 
 import java.util.ArrayList;
@@ -32,6 +33,11 @@ public class PolygonModel extends GeometryModel {
         }
 
         graphicsContext.fillPolygon(xCoordinates, yCoordinates, coordinates.length);
+        graphicsContext.setStroke(((Color)graphicsContext.getFill()).darker());
+        for (int i = 1; i < coordinates.length; i++) {
+            graphicsContext.strokeLine(coordinates[i - 1].x, coordinates[i - 1].y,
+                    coordinates[i].x, coordinates[i].y);
+        }
 
         return tooltips;
     }
