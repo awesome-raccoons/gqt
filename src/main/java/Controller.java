@@ -1,3 +1,4 @@
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -139,10 +140,43 @@ public class Controller {
     // areas of pane not filled with canvas does not react
     // Possible solutions: Make a really huge canvas and translate
     // 0,0 to middle of screen. Or find another node and listener to move canvas
+
     public final EventHandler<ScrollEvent> getOnScrollEventHandler() {
         return onScrollEventHandler;
     }
 
+    public void removeAllLayers() {
+        ArrayList<Layer> layer = Layer.getLayers();
+        if (layer.isEmpty() != true) {
+            layer.get(0).deleteLayers();
+        }
+    }
+
+    public void zoomByChangingGeometries(final double scale) {
+        removeAllLayers();
+        Geometry geom;
+        Coordinate coord[];
+        for (int i = 0; i < geometries.size(); i++) {
+            geom = (Geometry) geometries.get(0);
+            coord = geom.getCoordinates();
+            for (int j = 0; j < coord.length; j++) {
+                coord[j].x *= scale;
+                coord[j].y *= scale;
+                //    System.out.println("coord[j].x " + coord[j].x);
+                //   System.out.println("coord[j].y " + coord[j].y);
+            }
+            drawPolygon(geom);
+            geometries.remove(0);
+        }
+        for (int i = 0; i < geometries.size(); i++) {
+            geom = (Geometry) geometries.get(i);
+            coord = geom.getCoordinates();
+            for (int j = 0; j < coord.length; j++) {
+                System.out.println("coord[j].x " + coord[j].x);
+                System.out.println("coord[j].y " + coord[j].y);
+            }
+        }
+    }
     /**
      * Mouse wheel handler: zoom to pivot point.
      */
@@ -151,14 +185,14 @@ public class Controller {
         @Override
         public void handle(final ScrollEvent event) {
             if (event.getDeltaY() < 0) {
-                zoom(1 / ZOOM_FACTOR);
+                zoomByChangingGeometries(1 / ZOOM_FACTOR);
             } else {
-                zoom(ZOOM_FACTOR);
+                zoomByChangingGeometries(ZOOM_FACTOR);
+
             }
         }
 
     };
-
 
 
 
