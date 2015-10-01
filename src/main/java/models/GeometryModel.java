@@ -17,12 +17,11 @@ public abstract class GeometryModel {
     private final Geometry geometry;
     private final AnchorPane group;
     private static final double TOOLTIP_SIZE = 2.5;
-   // private Vector<Circle> circlesVector;
 
     public GeometryModel(final Geometry geometry, final AnchorPane group) {
         this.geometry = geometry;
         this.group = group;
-       // circlesVector = new Vector<Circle>(1, 1);
+
     }
 
     public final Geometry getGeometry() {
@@ -32,8 +31,6 @@ public abstract class GeometryModel {
     public final AnchorPane getGroup() {
         return this.group;
     }
-
-   // public final Vector<Circle> getCirclesVector() { return this.circlesVector; }
 
     public static final GeometryModel getModel(final Geometry geometry, final AnchorPane group) {
         if (geometry instanceof Polygon) {
@@ -56,19 +53,10 @@ public abstract class GeometryModel {
         Circle circle = new Circle(x, y, TOOLTIP_SIZE, color);
         Tooltip tooltip = new Tooltip(x + ", " + y);
         Tooltip.install(circle, tooltip);
-       // circlesVector.add(circle);
-        this.group.getChildren().add(circle);
+        //this.group.getChildren().add(circle);
         return circle;
     }
 
-    /*public final void removeTooltips() {
-        Circle circle;
-        for (int i = 0; i < circlesVector.size(); i++) {
-            circle = circlesVector.get(i);
-            this.group.getChildren().remove(circle);
-        }
-        circlesVector.clear();
-    }*/
 
     /**
      * Draws a geometry-object with to the screen.

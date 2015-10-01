@@ -3,7 +3,6 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.WKTReader;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.control.TextArea;
@@ -63,7 +62,6 @@ public class Controller {
     @FXML
     public final void pressed() {
         drawPolygonFromWKT(queryInput.getText());
-        upperPane.setOnScroll(getOnScrollEventHandler());
 
         vboxLayers.getChildren().add(new HBox());
     }
@@ -103,9 +101,9 @@ public class Controller {
             // clone geometry to save 2 different objects. One with original coordinates, the other with actual (scaled) coordinates
             Geometry geomClone = (Geometry) geom.clone();
             saveOriginalGeometries(geomClone);
+            // scale appropriately to current zoom level
             if (ZOOM_LEVEL != 0) {
-                double scale = Math.pow(ZOOM_FACTOR, ZOOM_LEVEL);
-                resizeGeometryModel(geomClone, gisVisualizations.lastElement(), scale);
+                rescaleAllGeometries();
             }
         } catch (com.vividsolutions.jts.io.ParseException e) {
             e.printStackTrace();
@@ -170,10 +168,12 @@ public class Controller {
     public final void handleUpperPaneKeyPresses(final KeyEvent event) {
         switch (event.getText()) {
             case "+":
-                zoom(ZOOM_FACTOR);
+                ZOOM_LEVEL++;
+                rescaleAllGeometries();
                 break;
             case "-":
-                zoom(1 / ZOOM_FACTOR);
+                ZOOM_LEVEL--;
+                rescaleAllGeometries();
                 break;
             default:
                 break;
@@ -186,27 +186,29 @@ public class Controller {
     // Possible solutions: Make a really huge canvas and translate
     // 0,0 to middle of screen. Or find another node and listener to move canvas
 
-    public final EventHandler<ScrollEvent> getOnScrollEventHandler() {
-        return onScrollEventHandler;
-    }
-
-    public void zoomByChangingGeometries() {
+    public void rescaleAllGeometries() {
         double current_zoom = Math.pow(ZOOM_FACTOR, ZOOM_LEVEL); // ZOOM_FACTOR ^ ZOOM_LEVEL;
 
         Geometry geom;
-        GeometryModel gm;
-        Coordinate coord_orig[];
-        Coordinate coord[];
 
         // resize and redraw all geometries
         for (int i = 0; i < originalGeometries.size(); i++) {
             geom = (Geometry) originalGeometries.get(i);
-            resizeGeometryModel(geom, gisVisualizations.get(i), current_zoom);
 
-            //gisVisualizations.get(i).getGeometryModel().drawAndCreateToolTips(gisVisualizations.get(i).getGraphicsContext());
+            resizeGeometryModel(geom, gisVisualizations.get(i), current_zoom);
+        }
+        // reorder layers to maintain tooltips display correctly
+        if (!Layer.getLayers().isEmpty()) {
+            Layer.getLayers().get(0).reorderLayers();
         }
     }
 
+    /**
+     * Updates coordinates of gisVisualization
+     * @param originalGeometry that contains original non changed coordinates
+     * @param gisVisualization that contains geometry to change
+     * @param scale for resizing
+     */
     public final void resizeGeometryModel(Geometry originalGeometry, GisVisualization gisVisualization, double scale) {
         Coordinate coord_orig[];
         Coordinate coord[];
@@ -216,37 +218,26 @@ public class Controller {
         // get actual (scaled) coordinates
         coord = gm.getGeometry().getCoordinates();
 
+        // recalculate
         for (int j = 0; j < coord_orig.length; j++) {
             coord[j].x = coord_orig[j].x * scale;
             coord[j].y = coord_orig[j].y * scale;
         }
 
-        // remove tooltips' circles from canvas
-       // gm.removeTooltips();
         // redraw
         gisVisualization.reDraw();
     }
-    /**
-     * Mouse wheel handler: zoom to pivot point.
-     */
-    private EventHandler<ScrollEvent> onScrollEventHandler = new EventHandler<ScrollEvent>() {
 
-        @Override
-        public void handle(final ScrollEvent event) {
-            if (event.getDeltaY() < 0) {
-                ZOOM_LEVEL--;
-                zoomByChangingGeometries();
-            } else {
-                ZOOM_LEVEL++;
-                zoomByChangingGeometries();
-
-            }
+    public void mouseScrollEvent(final ScrollEvent event) {
+        // scroll down
+        if (event.getDeltaY() < 0) {
+            ZOOM_LEVEL--;
+            rescaleAllGeometries();
+        } else { // scroll up
+            ZOOM_LEVEL++;
+            rescaleAllGeometries();
         }
-
-    };
-
-
-
+    }
     //TODO Concerns: dragging only works when clicking the canvas,
         //areas of pane not filled with canvas does not react
     //TODO possible solutions: Make a really huge canvas and translate 0,0 to middle of screen.

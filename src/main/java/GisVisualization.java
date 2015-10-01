@@ -57,11 +57,14 @@ public class GisVisualization {
 
     public final void clearGraphicsContext() {
         this.canvas.getGraphicsContext2D().clearRect(0, 0, this.canvas.getWidth(), this.canvas.getHeight());
+        this.setDisplayTooltips(false);
+        tooltips.clear();
     }
 
     public final void reDraw() {
         this.clearGraphicsContext();
-        this.geometryModel.drawAndCreateToolTips(this.graphicsContext);
+        ArrayList<Circle> partialTooltips = this.geometryModel.drawAndCreateToolTips(this.graphicsContext);
+        tooltips.addAll(partialTooltips);
     }
 
     /**
