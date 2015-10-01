@@ -30,9 +30,9 @@ public class Controller {
      */
     private static final double ZOOM_FACTOR = 1.4;
     /**
-     * Current level of zooming (0 -> default.
+     * Current level of zooming (0 -> default).
      */
-    private static int currentZoomLevel = 0;
+    private int currentZoomLevel = 0;
 
     @FXML
     private TextArea queryInput;
@@ -235,7 +235,7 @@ public class Controller {
     public final void mouseScrollEvent(final ScrollEvent event) {
         // scroll down
         if (event.getDeltaY() < 0) {
-            zoomOut();;
+            zoomOut();
         } else { // scroll up
             zoomIn();
         }
