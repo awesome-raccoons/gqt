@@ -39,12 +39,29 @@ public class GisVisualization {
         this.tooltips = new ArrayList<>();
     }
 
+    public final GeometryModel getGeometryModel() {
+        return this.geometryModel;
+    }
+
     private static void incrementCounter() {
         GisVisualization.idCounter += 1;
     }
 
     public final AnchorPane getGroup() {
         return this.group;
+    }
+
+    public final GraphicsContext getGraphicsContext() {
+        return this.graphicsContext;
+    }
+
+    public final void clearGraphicsContext() {
+        this.canvas.getGraphicsContext2D().clearRect(0, 0, this.canvas.getWidth(), this.canvas.getHeight());
+    }
+
+    public final void reDraw() {
+        this.clearGraphicsContext();
+        this.geometryModel.drawAndCreateToolTips(this.graphicsContext);
     }
 
     /**
@@ -72,7 +89,7 @@ public class GisVisualization {
     /**
      * Redraws this GisVisualization object and tooltips to its given group.
      */
-    public final void redraw() {
+    public final void reAddCanvas() {
         group.getChildren().add(this.canvas);
     }
 

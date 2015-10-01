@@ -4,11 +4,8 @@ import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.WKTReader;
 import javafx.event.EventHandler;
-
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
-//import javafx.scene.Node;
-//import javafx.scene.Parent;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -18,16 +15,25 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import models.GeometryModel;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-public class Controller {
+//import javafx.scene.Node;
+//import javafx.scene.Parent;
 
+public class Controller {
+    /**
+     * Identifies value of zooming (e.g 140% -> 1.4)
+     */
     private static final double ZOOM_FACTOR = 1.4;
-    private static double CURRENT_ZOOM = 1.0;
+    /**
+     * Current level of zooming (0 -> default
+     */
+    private static int ZOOM_LEVEL = 0;
 
     @FXML
     private TextArea queryInput;
@@ -39,13 +45,19 @@ public class Controller {
     private double dragBaseX, dragBaseY;
     private double dragBase2X, dragBase2Y;
     private Stage stage;
-    private Vector geometries;
-    private Vector originalGeometries;
+    /**
+     * Stores geometries with original coordinates
+     */
+    private final Vector originalGeometries;
+    /**
+     * Stored all GisVisualizations
+     */
+    private final Vector<GisVisualization> gisVisualizations;
     private static List<KeyCode> heldDownKeys = new ArrayList<>();
 
     public Controller() {
-        geometries = new Vector(1, 1);
         originalGeometries = new Vector(1, 1);
+        gisVisualizations = new Vector(1, 1);
     }
 
     @FXML
@@ -60,16 +72,41 @@ public class Controller {
         this.stage = stage;
     }
 
+    /**
+     * Adds geometry or geometry collection into vector
+     * @param  geom geometry that has to be saved
+     */
+    public void saveOriginalGeometries(Geometry geom) {
+        if (geom instanceof GeometryCollection) {
+            for (int i = 0; i < geom.getNumGeometries(); i++) {
+                originalGeometries.add(geom.getGeometryN(i));
+            }
+        }
+        else {
+            originalGeometries.add(geom);
+        }
+    }
+
+    /**
+     * Creates and saves geometry. Calls methods to create new layer and visualization
+     * @param poly Well Known Text from user input
+     */
     public final void drawPolygonFromWKT(final String poly) {
         try {
             //Create a WKT parser for reading WKT input
             GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
             WKTReader reader = new WKTReader(geometryFactory);
-            Geometry p = reader.read(poly);
-            Geometry p1 = (Geometry)p.clone();
+            Geometry geom = reader.read(poly);
 
-            drawPolygon(p);
-            originalGeometries.add(p1);
+            drawPolygon(geom);
+
+            // clone geometry to save 2 different objects. One with original coordinates, the other with actual (scaled) coordinates
+            Geometry geomClone = (Geometry) geom.clone();
+            saveOriginalGeometries(geomClone);
+            if (ZOOM_LEVEL != 0) {
+                double scale = Math.pow(ZOOM_FACTOR, ZOOM_LEVEL);
+                resizeGeometryModel(geomClone, gisVisualizations.lastElement(), scale);
+            }
         } catch (com.vividsolutions.jts.io.ParseException e) {
             e.printStackTrace();
         }
@@ -117,7 +154,7 @@ public class Controller {
                 this.stage.getHeight(),
                 geometry,
                 upperPane);
-        geometries.add(geometry);
+        gisVisualizations.add(gv);
         Layer hb = new Layer(gv, vboxLayers, geometry.getGeometryType());
         Layer.getLayers().add(hb);
         hb.reorderLayers();
@@ -153,46 +190,41 @@ public class Controller {
         return onScrollEventHandler;
     }
 
-    // change this code to new method that will be created by johannes
-    // this is ugly
-    public void removeAllLayers() {
-        ArrayList<Layer> layer = Layer.getLayers();
-        if (layer.isEmpty() != true) {
-            layer.get(0).deleteLayers();
+    public void zoomByChangingGeometries() {
+        double current_zoom = Math.pow(ZOOM_FACTOR, ZOOM_LEVEL); // ZOOM_FACTOR ^ ZOOM_LEVEL;
+
+        Geometry geom;
+        GeometryModel gm;
+        Coordinate coord_orig[];
+        Coordinate coord[];
+
+        // resize and redraw all geometries
+        for (int i = 0; i < originalGeometries.size(); i++) {
+            geom = (Geometry) originalGeometries.get(i);
+            resizeGeometryModel(geom, gisVisualizations.get(i), current_zoom);
+
+            //gisVisualizations.get(i).getGeometryModel().drawAndCreateToolTips(gisVisualizations.get(i).getGraphicsContext());
         }
     }
 
-    public void zoomByChangingGeometries(final double scale) {
-        CURRENT_ZOOM *= scale;
-        removeAllLayers();
-        //geometries.clear();
-        Coordinate coord[];
+    public final void resizeGeometryModel(Geometry originalGeometry, GisVisualization gisVisualization, double scale) {
         Coordinate coord_orig[];
-        Geometry geom;
-        Geometry geom2;
-        for (int i = 0; i < originalGeometries.size(); i++) {
-            geom = (Geometry) originalGeometries.get(i);
-            geom2 = (Geometry) geometries.get(0);
-            coord_orig = geom.getCoordinates();
-            for (int j = 0; j < coord.length; j++) {
-                coord[j].x = coord_orig[j].x * CURRENT_ZOOM;
-                coord[j].y = coord_orig[j].y * CURRENT_ZOOM;
-                System.out.println("coord[j].x " + coord[j].x);
-                System.out.println("coord[j].y " + coord[j].y);
-            }
-            geometries.remove(0);
-            drawPolygon(geom2);
+        Coordinate coord[];
+        GeometryModel gm = gisVisualization.getGeometryModel();
+        // get original coordinates
+        coord_orig = originalGeometry.getCoordinates();
+        // get actual (scaled) coordinates
+        coord = gm.getGeometry().getCoordinates();
+
+        for (int j = 0; j < coord_orig.length; j++) {
+            coord[j].x = coord_orig[j].x * scale;
+            coord[j].y = coord_orig[j].y * scale;
         }
 
-        for (int i = 0; i < originalGeometries.size(); i++) {
-            geom = (Geometry) originalGeometries.get(i);
-            coord = geom.getCoordinates();
-            for (int j = 0; j < coord.length; j++) {
-                System.out.println("ORIG: coord[j].x " + coord[j].x);
-                System.out.println("ORIG: coord[j].y " + coord[j].y);
-            }
-        }
-        System.out.println("CURRENT_ZOOM: " + CURRENT_ZOOM);
+        // remove tooltips' circles from canvas
+       // gm.removeTooltips();
+        // redraw
+        gisVisualization.reDraw();
     }
     /**
      * Mouse wheel handler: zoom to pivot point.
@@ -202,9 +234,11 @@ public class Controller {
         @Override
         public void handle(final ScrollEvent event) {
             if (event.getDeltaY() < 0) {
-                zoomByChangingGeometries(1 / ZOOM_FACTOR);
+                ZOOM_LEVEL--;
+                zoomByChangingGeometries();
             } else {
-                zoomByChangingGeometries(ZOOM_FACTOR);
+                ZOOM_LEVEL++;
+                zoomByChangingGeometries();
 
             }
         }

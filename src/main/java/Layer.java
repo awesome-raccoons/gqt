@@ -240,7 +240,7 @@ public class Layer extends HBox {
         //Redraw all the layers, only make the toplayer have tooltips
         for (int i = layers.size() - 1; i >= 0; i--) {
             Layer hb = layers.get(i);
-            hb.gisVis.redraw();
+            hb.gisVis.reAddCanvas();
             hb.gisVis.setDisplayTooltips(hb.isSelected.get());
             hb.setUpDisable(false);
             hb.setDownDisable(false);
