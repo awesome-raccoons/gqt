@@ -160,6 +160,8 @@ public class Controller {
     };
 
 
+
+
     //TODO Concerns: dragging only works when clicking the canvas,
         //areas of pane not filled with canvas does not react
     //TODO possible solutions: Make a really huge canvas and translate 0,0 to middle of screen.
@@ -214,6 +216,11 @@ public class Controller {
 
 
 
+    public final void WktAreaKeyPressed(final KeyEvent event) {
+        if (event.isAltDown() && event.getCode() == KeyCode.ENTER) {
+            pressed();
+        }
+    }
 
     public final void onAnyKeyPressed(final KeyEvent event) {
         if (!heldDownKeys.contains(event.getCode())) {
