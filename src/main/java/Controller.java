@@ -32,7 +32,7 @@ public class Controller {
     /**
      * Current level of zooming (0 -> default.
      */
-    private static int current_zoom_level = 0;
+    private static int currentZoomLevel = 0;
 
     @FXML
     private TextArea queryInput;
@@ -102,7 +102,7 @@ public class Controller {
             Geometry geomClone = (Geometry) geom.clone();
             saveOriginalGeometries(geomClone);
             // scale appropriately to current zoom level
-            if (current_zoom_level != 0) {
+            if (currentZoomLevel != 0) {
                 rescaleAllGeometries();
             }
         } catch (com.vividsolutions.jts.io.ParseException e) {
@@ -159,21 +159,23 @@ public class Controller {
         upperPane.requestFocus();
     }
 
+    public final void zoomIn() {
+        currentZoomLevel++;
+        rescaleAllGeometries();
+    }
 
-    private void zoom(final double d) {
-        upperPane.setScaleX(upperPane.scaleXProperty().get() * d);
-        upperPane.setScaleY(upperPane.scaleYProperty().get() * d);
+    public final void zoomOut() {
+        currentZoomLevel--;
+        rescaleAllGeometries();
     }
 
     public final void handleUpperPaneKeyPresses(final KeyEvent event) {
         switch (event.getText()) {
             case "+":
-                current_zoom_level++;
-                rescaleAllGeometries();
+                zoomIn();
                 break;
             case "-":
-                current_zoom_level--;
-                rescaleAllGeometries();
+                zoomOut();
                 break;
             default:
                 break;
@@ -187,7 +189,7 @@ public class Controller {
     // 0,0 to middle of screen. Or find another node and listener to move canvas
 
     public final void rescaleAllGeometries() {
-        double currentZoom = Math.pow(ZOOM_FACTOR, current_zoom_level); // ZOOM_FACTOR ^ ZOOM_LEVEL;
+        double currentZoom = Math.pow(ZOOM_FACTOR, currentZoomLevel); // ZOOM_FACTOR ^ ZOOM_LEVEL;
 
         Geometry geom;
 
@@ -233,11 +235,9 @@ public class Controller {
     public final void mouseScrollEvent(final ScrollEvent event) {
         // scroll down
         if (event.getDeltaY() < 0) {
-            current_zoom_level--;
-            rescaleAllGeometries();
+            zoomOut();;
         } else { // scroll up
-            current_zoom_level++;
-            rescaleAllGeometries();
+            zoomIn();
         }
     }
     //TODO Concerns: dragging only works when clicking the canvas,
