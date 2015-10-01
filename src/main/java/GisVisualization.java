@@ -26,6 +26,8 @@ public class GisVisualization {
     private GeometryModel geometryModel;
     private ArrayList<Circle> tooltips;
 
+    private static final float OPACITY_PARAM = 0.7f;
+
     public GisVisualization(final double canvasWidth,
                             final double canvasHeight,
                             final Geometry geometry,
@@ -62,7 +64,7 @@ public class GisVisualization {
                                                        final Geometry geometry,
                                                        final AnchorPane group) {
         GisVisualization gisVis = new GisVisualization(canvasWidth, canvasHeight, geometry, group);
-        gisVis.create2DShape(getRandomColor(0.7f));
+        gisVis.create2DShape(getRandomColor(OPACITY_PARAM));
         group.getChildren().add(gisVis.canvas);
 
         return gisVis;
