@@ -60,6 +60,11 @@ public class Layer extends HBox {
         return layers;
     }
 
+    public final void deleteLayers() {
+        this.parentContainer.getChildren().remove(0, this.parentContainer.getChildren().size());
+        layers.clear();
+    }
+
     private EventHandler<KeyEvent> keyReleasedHandler = new EventHandler<KeyEvent>() {
         @Override
         public void handle(final KeyEvent event) {
@@ -235,7 +240,7 @@ public class Layer extends HBox {
         //Redraw all the layers, only make the toplayer have tooltips
         for (int i = layers.size() - 1; i >= 0; i--) {
             Layer hb = layers.get(i);
-            hb.gisVis.redraw();
+            hb.gisVis.reAddCanvas();
             hb.gisVis.setDisplayTooltips(hb.isSelected.get());
             hb.setUpDisable(false);
             hb.setDownDisable(false);

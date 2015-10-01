@@ -1,13 +1,10 @@
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.WKTReader;
-import javafx.event.EventHandler;
-
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
-//import javafx.scene.Node;
-//import javafx.scene.Parent;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -17,15 +14,25 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import models.GeometryModel;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-public class Controller {
+//import javafx.scene.Node;
+//import javafx.scene.Parent;
 
+public class Controller {
+    /**
+     * Identifies value of zooming (e.g 140% -> 1.4).
+     */
     private static final double ZOOM_FACTOR = 1.4;
+    /**
+     * Current level of zooming (0 -> default).
+     */
+    private int currentZoomLevel = 0;
 
     @FXML
     private TextArea queryInput;
@@ -37,17 +44,24 @@ public class Controller {
     private double dragBaseX, dragBaseY;
     private double dragBase2X, dragBase2Y;
     private Stage stage;
-    private Vector geometries;
+    /**
+     * Stores geometries with original coordinates.
+     */
+    private final Vector originalGeometries;
+    /**
+     * Stored all GisVisualizations.
+     */
+    private final Vector<GisVisualization> gisVisualizations;
     private static List<KeyCode> heldDownKeys = new ArrayList<>();
 
     public Controller() {
-        geometries = new Vector(1, 1);
+        originalGeometries = new Vector(1, 1);
+        gisVisualizations = new Vector(1, 1);
     }
 
     @FXML
     public final void pressed() {
-        drawPolygon(queryInput.getText());
-        upperPane.setOnScroll(getOnScrollEventHandler());
+        drawPolygonFromWKT(queryInput.getText());
 
         vboxLayers.getChildren().add(new HBox());
     }
@@ -56,25 +70,55 @@ public class Controller {
         this.stage = stage;
     }
 
-    public final void drawPolygon(final String poly) {
+    /**
+     * Adds geometry or geometry collection into vector.
+     * @param  geom geometry that has to be saved
+     */
+    public final void saveOriginalGeometries(final Geometry geom) {
+        if (geom instanceof GeometryCollection) {
+            for (int i = 0; i < geom.getNumGeometries(); i++) {
+                originalGeometries.add(geom.getGeometryN(i));
+            }
+        } else {
+            originalGeometries.add(geom);
+        }
+    }
+
+    /**
+     * Creates and saves geometry. Calls methods to create new layer and visualization.
+     * @param poly Well Known Text from user input
+     */
+    public final void drawPolygonFromWKT(final String poly) {
         try {
             //Create a WKT parser for reading WKT input
             GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
             WKTReader reader = new WKTReader(geometryFactory);
-            Geometry p = reader.read(poly);
+            Geometry geom = reader.read(poly);
 
-            if (p instanceof GeometryCollection) {
-                for (int i = 0; i < p.getNumGeometries(); i++) {
-                    refineGeometryClass(p.getGeometryN(i));
-                }
-            } else {
-                refineGeometryClass(p);
+            drawPolygon(geom);
+
+            // clone geometry to save 2 different objects. One with original coordinates,
+            // the other with actual (scaled) coordinates
+            Geometry geomClone = (Geometry) geom.clone();
+            saveOriginalGeometries(geomClone);
+            // scale appropriately to current zoom level
+            if (currentZoomLevel != 0) {
+                rescaleAllGeometries();
             }
         } catch (com.vividsolutions.jts.io.ParseException e) {
             e.printStackTrace();
         }
     }
 
+    public final void drawPolygon(final Geometry geom) {
+        if (geom instanceof GeometryCollection) {
+            for (int i = 0; i < geom.getNumGeometries(); i++) {
+                refineGeometryClass(geom.getGeometryN(i));
+            }
+        } else {
+            refineGeometryClass(geom);
+        }
+    }
     /**
      * Delegates the task of creating the layer for this geometry. Whether it is a plain WKT object,
      * or a composite such as a MultiPolygon.
@@ -108,26 +152,30 @@ public class Controller {
                 this.stage.getHeight(),
                 geometry,
                 upperPane);
-        geometries.add(geometry);
+        gisVisualizations.add(gv);
         Layer hb = new Layer(gv, vboxLayers, geometry.getGeometryType());
         Layer.getLayers().add(hb);
         hb.reorderLayers();
         upperPane.requestFocus();
     }
 
+    public final void zoomIn() {
+        currentZoomLevel++;
+        rescaleAllGeometries();
+    }
 
-    private void zoom(final double d) {
-        upperPane.setScaleX(upperPane.scaleXProperty().get() * d);
-        upperPane.setScaleY(upperPane.scaleYProperty().get() * d);
+    public final void zoomOut() {
+        currentZoomLevel--;
+        rescaleAllGeometries();
     }
 
     public final void handleUpperPaneKeyPresses(final KeyEvent event) {
         switch (event.getText()) {
             case "+":
-                zoom(ZOOM_FACTOR);
+                zoomIn();
                 break;
             case "-":
-                zoom(1 / ZOOM_FACTOR);
+                zoomOut();
                 break;
             default:
                 break;
@@ -139,27 +187,59 @@ public class Controller {
     // areas of pane not filled with canvas does not react
     // Possible solutions: Make a really huge canvas and translate
     // 0,0 to middle of screen. Or find another node and listener to move canvas
-    public final EventHandler<ScrollEvent> getOnScrollEventHandler() {
-        return onScrollEventHandler;
+
+    public final void rescaleAllGeometries() {
+        double currentZoom = Math.pow(ZOOM_FACTOR, currentZoomLevel); // ZOOM_FACTOR ^ ZOOM_LEVEL;
+
+        Geometry geom;
+
+        // resize and redraw all geometries
+        for (int i = 0; i < originalGeometries.size(); i++) {
+            geom = (Geometry) originalGeometries.get(i);
+
+            resizeGeometryModel(geom, gisVisualizations.get(i), currentZoom);
+        }
+        // reorder layers to maintain tooltips display correctly
+        if (!Layer.getLayers().isEmpty()) {
+            Layer.getLayers().get(0).reorderLayers();
+        }
     }
 
     /**
-     * Mouse wheel handler: zoom to pivot point.
+     * Updates coordinates of gisVisualization.
+     * @param originalGeometry that contains original non changed coordinates
+     * @param gisVisualization that contains geometry to change
+     * @param scale for resizing
      */
-    private EventHandler<ScrollEvent> onScrollEventHandler = new EventHandler<ScrollEvent>() {
+    public final void resizeGeometryModel(final Geometry originalGeometry,
+                                          final GisVisualization gisVisualization,
+                                          final double scale) {
+        Coordinate[] coordOrig;
+        Coordinate[] coord;
+        GeometryModel gm = gisVisualization.getGeometryModel();
+        // get original coordinates
+        coordOrig = originalGeometry.getCoordinates();
+        // get actual (scaled) coordinates
+        coord = gm.getGeometry().getCoordinates();
 
-        @Override
-        public void handle(final ScrollEvent event) {
-            if (event.getDeltaY() < 0) {
-                zoom(1 / ZOOM_FACTOR);
-            } else {
-                zoom(ZOOM_FACTOR);
-            }
+        // recalculate
+        for (int j = 0; j < coordOrig.length; j++) {
+            coord[j].x = coordOrig[j].x * scale;
+            coord[j].y = coordOrig[j].y * scale;
         }
 
-    };
+        // redraw
+        gisVisualization.reDraw();
+    }
 
-
+    public final void mouseScrollEvent(final ScrollEvent event) {
+        // scroll down
+        if (event.getDeltaY() < 0) {
+            zoomOut();
+        } else { // scroll up
+            zoomIn();
+        }
+    }
     //TODO Concerns: dragging only works when clicking the canvas,
         //areas of pane not filled with canvas does not react
     //TODO possible solutions: Make a really huge canvas and translate 0,0 to middle of screen.
@@ -214,6 +294,11 @@ public class Controller {
 
 
 
+    public final void wktAreaKeyPressed(final KeyEvent event) {
+        if (event.isAltDown() && event.getCode() == KeyCode.ENTER) {
+            pressed();
+        }
+    }
 
     public final void onAnyKeyPressed(final KeyEvent event) {
         if (!heldDownKeys.contains(event.getCode())) {

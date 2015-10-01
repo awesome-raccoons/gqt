@@ -1,12 +1,13 @@
 package models;
 
+
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.MultiPoint;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
@@ -27,6 +28,7 @@ public abstract class GeometryModel {
     public GeometryModel(final Geometry geometry, final AnchorPane group) {
         this.geometry = geometry;
         this.group = group;
+
     }
 
     public final Geometry getGeometry() {
@@ -58,9 +60,10 @@ public abstract class GeometryModel {
         Circle circle = new Circle(x, y, TOOLTIP_SIZE, color);
         Tooltip tooltip = new Tooltip(x + ", " + y);
         Tooltip.install(circle, tooltip);
-        this.group.getChildren().add(circle);
+        //this.group.getChildren().add(circle);
         return circle;
     }
+
 
     /**
      * Draws a geometry-object with to the screen.
