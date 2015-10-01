@@ -5,6 +5,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -41,15 +42,20 @@ public class Layer extends HBox {
     private Button buttonUp;            //Button for moving layer up a layer
     private Button buttonDown;          //Button for moving layer down a layer
     private String name;                //Name of the layers
+    private String WKTString;           //Original WKT string entered for this layer
+    private TextArea textArea;          //The textarea callback used for showing this layer's WKT string
     private LayerSelectedProperty isSelected;
 
     private static ArrayList<Layer> layers = new ArrayList<>();
 
-    public Layer(final GisVisualization gisVis, final VBox parentContainer, final String name) {
+    public Layer(final GisVisualization gisVis, final VBox parentContainer, final String name,
+                 final String WKTString, final TextArea textArea) {
         this.gisVis = gisVis;
         this.orderID = gisVis.getID();
         this.parentContainer = parentContainer;
         this.name = name;
+        this.WKTString = WKTString;
+        this.textArea = textArea;
         this.isSelected = new LayerSelectedProperty();
         this.setOnMouseClicked(mouseClickedHandler);
         this.setOnKeyReleased(keyReleasedHandler);
@@ -102,11 +108,35 @@ public class Layer extends HBox {
             isSelected.set(!oldValue);
             gisVis.setDisplayTooltips(isSelected.get());
             if (isSelected.get()) {
+                showWKTString();
                 requestFocus();
+            }
+            else
+            {
+                int numberOfSelected = 0;
+                Layer selectedLayer = null;
+                for (Layer l : layers)
+                {
+                    if (l.isSelected.get())
+                    {
+                        selectedLayer = l;
+                        numberOfSelected++;
+                    }
+                }
+                if (numberOfSelected == 1)
+                {
+                     selectedLayer.showWKTString();
+                }
             }
             toggleBackgroundColor(isSelected);
         }
     };
+
+    private void showWKTString()
+    {
+        textArea.clear();
+        textArea.setText(WKTString);
+    }
 
     private void toggleBackgroundColor(final BooleanProperty val) {
         backgroundProperty().bind(Bindings.when(val)
