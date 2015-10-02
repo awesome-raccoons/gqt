@@ -7,7 +7,6 @@ import javafx.scene.shape.Circle;
 import models.GeometryModel;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 /**
  * Created by Johannes on 10.09.2015.
@@ -25,7 +24,7 @@ public class GisVisualization {
     private GeometryModel geometryModel;
     private ArrayList<Circle> tooltips;
 
-    private static final float OPACITY_PARAM = 0.7f;
+    private static ArrayList<Color> colors = new ArrayList<>();
 
     public GisVisualization(final double canvasWidth,
                             final double canvasHeight,
@@ -38,6 +37,17 @@ public class GisVisualization {
         this.graphicsContext = canvas.getGraphicsContext2D();
         this.geometryModel = GeometryModel.getModel(geometry, group);
         this.tooltips = new ArrayList<>();
+        initColors();
+    }
+
+    private static void initColors() {
+        colors.add(Color.RED);
+        colors.add(Color.ORANGE);
+        colors.add(Color.YELLOW);
+        colors.add(Color.GREEN);
+        colors.add(Color.BLUE);
+        colors.add(Color.INDIGO);
+        colors.add(Color.VIOLET);
     }
 
     public final GeometryModel getGeometryModel() {
@@ -86,7 +96,7 @@ public class GisVisualization {
                                                        final Geometry geometry,
                                                        final AnchorPane group) {
         GisVisualization gisVis = new GisVisualization(canvasWidth, canvasHeight, geometry, group);
-        gisVis.create2DShape(getRandomColor(OPACITY_PARAM));
+        gisVis.create2DShape(getColor(gisVis.getID()));
         group.getChildren().add(gisVis.canvas);
 
         return gisVis;
@@ -138,21 +148,17 @@ public class GisVisualization {
         }
     }
 
-    private static final int RGB_PARAM = 255;
+    private static final float OPACITY_PARAM = 0.7f;
 
     /**
-     * Returns a random rgb color with provided opacity.
+     * Returns the next layer color with provided opacity.
      *
-     * @param opacity transparent component, in range 0.0f-1.0f.
      * @return the color.
      */
-    private static Color getRandomColor(final float opacity) {
-        Random r = new Random();
-        return Color.rgb(r.nextInt(RGB_PARAM),
-                r.nextInt(RGB_PARAM),
-                r.nextInt(RGB_PARAM),
-                opacity);
-    }
+    private static Color getColor(final int id) {
+        String colorString = colors.get(id % colors.size()).toString();
+        return Color.web(colorString, OPACITY_PARAM);
+}
 
 
     /**
