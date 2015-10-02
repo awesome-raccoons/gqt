@@ -1,13 +1,12 @@
 package models;
 
-
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.MultiPoint;
-import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.MultiPoint;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
@@ -22,13 +21,15 @@ import java.util.ArrayList;
 public abstract class GeometryModel {
 
     private final Geometry geometry;
+    private final Geometry originalGeometry;
     private final AnchorPane group;
+
     private static final double TOOLTIP_SIZE = 2.5;
 
     public GeometryModel(final Geometry geometry, final AnchorPane group) {
         this.geometry = geometry;
         this.group = group;
-
+        this.originalGeometry = (Geometry) geometry.clone();
     }
 
     public final Geometry getGeometry() {
@@ -37,6 +38,10 @@ public abstract class GeometryModel {
 
     public final AnchorPane getGroup() {
         return this.group;
+    }
+
+    public final Geometry getOriginalGeometry() {
+        return this.originalGeometry;
     }
 
     public static final GeometryModel getModel(final Geometry geometry, final AnchorPane group) {
