@@ -182,7 +182,7 @@ public class Controller {
     }
 
     /**
-     * Update coordinates of geometry in GeometryModel
+     * Update coordinates of geometry in GeometryModel.
      * @param gm that contains geometry to resize
      * @param scale number to multiply coordinates with
      */
