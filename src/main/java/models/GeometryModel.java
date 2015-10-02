@@ -40,7 +40,7 @@ public abstract class GeometryModel {
      * @param geometry
      * @return
      */
-    public static final Geometry holeFunction(Geometry geometry){
+    public static final Geometry holeFunction(final Geometry geometry) {
 
         //Number of interior rings
         int interiorRings = ((Polygon) geometry).getNumInteriorRing();
@@ -48,8 +48,6 @@ public abstract class GeometryModel {
         //Outer ring
         LineString boundary = ((Polygon) geometry).getExteriorRing();
         //LineStrings and CoordinateSequence arrays initializing, one entry per interior ring
-
-        LineString[] holeStrings = new LineString[interiorRings];
         CoordinateSequence[] holeSeqs = new CoordinateSequence[interiorRings];
         CGAlgorithms clock = new CGAlgorithms();
         CoordinateSequence outer = boundary.getCoordinateSequence();
@@ -63,19 +61,18 @@ public abstract class GeometryModel {
         //Puts each ring into the LineString and CoordinateSequence arrays.
         for (int x = 0; x < interiorRings; x++) {
             LineString hole = ((Polygon) geometry).getInteriorRingN(x);
-            holeStrings[x] = hole;
+
             holeSeqs[x] = hole.getCoordinateSequence();
 
 
-            if(isCW){
+            if (isCW) {
                 if (clock.isCCW(holeSeqs[x].toCoordinateArray())) {
                     continue;
                 } else {
                     CoordinateSequences.reverse(holeSeqs[x]);
                 }
-            }
-            else{
-                if(!clock.isCCW(holeSeqs[x].toCoordinateArray())){
+            } else {
+                if (!clock.isCCW(holeSeqs[x].toCoordinateArray())) {
                     continue;
                 } else {
                     CoordinateSequences.reverse(holeSeqs[x]);
@@ -89,8 +86,7 @@ public abstract class GeometryModel {
         GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
 
         //Makes one new LinearRing for each interior ring
-        for(int x = 0; x<interiorRings; x++ )
-        {
+        for (int x = 0; x < interiorRings; x++) {
             LinearRing linear = new GeometryFactory().createLinearRing(holeSeqs[x]);
             holes[x] = linear;
 
@@ -107,7 +103,7 @@ public abstract class GeometryModel {
     public static final GeometryModel getModel(final Geometry geometry, final AnchorPane group) {
         if (geometry instanceof Polygon) {
             boolean hasHoles = ((Polygon) geometry).getNumInteriorRing() > 0;
-            if(hasHoles) {
+            if (hasHoles) {
                 Geometry g = holeFunction(geometry);
                 return new PolygonModel(g, group);
             }
