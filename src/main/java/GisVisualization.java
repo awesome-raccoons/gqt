@@ -1,5 +1,4 @@
 import com.vividsolutions.jts.geom.Geometry;
-
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.AnchorPane;

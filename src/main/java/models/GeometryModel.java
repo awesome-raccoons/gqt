@@ -22,13 +22,14 @@ import java.util.ArrayList;
 public abstract class GeometryModel {
 
     private final Geometry geometry;
+    private final Geometry originalGeometry;
     private final AnchorPane group;
     private static final double TOOLTIP_SIZE = 2.5;
 
     public GeometryModel(final Geometry geometry, final AnchorPane group) {
         this.geometry = geometry;
         this.group = group;
-
+        this.originalGeometry = (Geometry)geometry.clone();
     }
 
     public final Geometry getGeometry() {
@@ -38,6 +39,8 @@ public abstract class GeometryModel {
     public final AnchorPane getGroup() {
         return this.group;
     }
+
+    public final Geometry getOriginalGeometry() { return this.originalGeometry; }
 
     public static final GeometryModel getModel(final Geometry geometry, final AnchorPane group) {
         if (geometry instanceof Polygon) {

@@ -44,10 +44,7 @@ public class Controller {
     private double dragBaseX, dragBaseY;
     private double dragBase2X, dragBase2Y;
     private Stage stage;
-    /**
-     * Stores geometries with original coordinates.
-     */
-    private final Vector originalGeometries;
+
     /**
      * Stored all GisVisualizations.
      */
@@ -55,8 +52,8 @@ public class Controller {
     private static List<KeyCode> heldDownKeys = new ArrayList<>();
 
     public Controller() {
-        originalGeometries = new Vector(1, 1);
         gisVisualizations = new Vector(1, 1);
+
     }
 
     @FXML
@@ -71,20 +68,6 @@ public class Controller {
     }
 
     /**
-     * Adds geometry or geometry collection into vector.
-     * @param  geom geometry that has to be saved
-     */
-    public final void saveOriginalGeometries(final Geometry geom) {
-        if (geom instanceof GeometryCollection) {
-            for (int i = 0; i < geom.getNumGeometries(); i++) {
-                originalGeometries.add(geom.getGeometryN(i));
-            }
-        } else {
-            originalGeometries.add(geom);
-        }
-    }
-
-    /**
      * Creates and saves geometry. Calls methods to create new layer and visualization.
      * @param poly Well Known Text from user input
      */
@@ -96,15 +79,7 @@ public class Controller {
             Geometry geom = reader.read(poly);
 
             drawPolygon(geom);
-
-            // clone geometry to save 2 different objects. One with original coordinates,
-            // the other with actual (scaled) coordinates
-            Geometry geomClone = (Geometry) geom.clone();
-            saveOriginalGeometries(geomClone);
-            // scale appropriately to current zoom level
-            if (currentZoomLevel != 0) {
-                rescaleAllGeometries();
-            }
+            rescaleAllGeometries();
         } catch (com.vividsolutions.jts.io.ParseException e) {
             e.printStackTrace();
         }
@@ -190,14 +165,15 @@ public class Controller {
 
     public final void rescaleAllGeometries() {
         double currentZoom = Math.pow(ZOOM_FACTOR, currentZoomLevel); // ZOOM_FACTOR ^ ZOOM_LEVEL;
-
-        Geometry geom;
+        GisVisualization gv;
 
         // resize and redraw all geometries
-        for (int i = 0; i < originalGeometries.size(); i++) {
-            geom = (Geometry) originalGeometries.get(i);
+        for (int i = 0; i < gisVisualizations.size(); i++) {
+            gv = (GisVisualization) gisVisualizations.get(i);
 
-            resizeGeometryModel(geom, gisVisualizations.get(i), currentZoom);
+            resizeGeometryModel(gv.getGeometryModel(), currentZoom);
+            // redraw
+            gisVisualizations.get(i).reDraw();
         }
         // reorder layers to maintain tooltips display correctly
         if (!Layer.getLayers().isEmpty()) {
@@ -206,19 +182,17 @@ public class Controller {
     }
 
     /**
-     * Updates coordinates of gisVisualization.
-     * @param originalGeometry that contains original non changed coordinates
-     * @param gisVisualization that contains geometry to change
-     * @param scale for resizing
+     * Update coordinates of geometry in GeometryModel
+     * @param gm that contains geometry to resize
+     * @param scale number to multiply coordinates with
      */
-    public final void resizeGeometryModel(final Geometry originalGeometry,
-                                          final GisVisualization gisVisualization,
+    public final void resizeGeometryModel(final GeometryModel gm,
                                           final double scale) {
         Coordinate[] coordOrig;
         Coordinate[] coord;
-        GeometryModel gm = gisVisualization.getGeometryModel();
+
         // get original coordinates
-        coordOrig = originalGeometry.getCoordinates();
+        coordOrig = gm.getOriginalGeometry().getCoordinates();
         // get actual (scaled) coordinates
         coord = gm.getGeometry().getCoordinates();
 
@@ -227,9 +201,6 @@ public class Controller {
             coord[j].x = coordOrig[j].x * scale;
             coord[j].y = coordOrig[j].y * scale;
         }
-
-        // redraw
-        gisVisualization.reDraw();
     }
 
     public final void mouseScrollEvent(final ScrollEvent event) {
@@ -305,6 +276,7 @@ public class Controller {
             heldDownKeys.add(event.getCode());
         }
     }
+
 
     public final void onAnyKeyReleased(final KeyEvent event) {
         heldDownKeys.remove(event.getCode());
