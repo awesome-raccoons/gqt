@@ -22,9 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-//import javafx.scene.Node;
-//import javafx.scene.Parent;
-
 public class Controller {
     /**
      * Identifies value of zooming (e.g 140% -> 1.4).
@@ -49,11 +46,9 @@ public class Controller {
     /**
      * Stored all GisVisualizations.
      */
-    private final Vector<GisVisualization> gisVisualizations;
     private static List<KeyCode> heldDownKeys = new ArrayList<>();
 
     public Controller() {
-        gisVisualizations = new Vector(1, 1);
 
     }
 
@@ -96,6 +91,9 @@ public class Controller {
         }
     }
 
+    /**
+     * Displays an alert dialog when trying to draw an invalid WKT string.
+     */
     public final void showWKTParseErrorMessage()
     {
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -135,11 +133,8 @@ public class Controller {
      */
     private void createLayer(final Geometry geometry, String poly) {
         GisVisualization gv = GisVisualization.createVisualization(
-                this.stage.getWidth(),
-                this.stage.getHeight(),
                 geometry,
                 upperPane);
-        gisVisualizations.add(gv);
         Layer hb = new Layer(gv, vboxLayers, geometry.getGeometryType(), poly, queryInput);
         Layer.getLayers().add(hb);
         hb.reorderLayers();
@@ -171,17 +166,23 @@ public class Controller {
 
     public final void rescaleAllGeometries() {
         double currentZoom = Math.pow(ZOOM_FACTOR, currentZoomLevel); // ZOOM_FACTOR ^ ZOOM_LEVEL;
-
+        AnchorPane plotViewGroup = GisVisualization.getGroup();
+        //Make sure to reset the GisVisualization, this empties the canvas and tooltips
+        GisVisualization.reset();
         // resize and redraw all geometries
-        for (GisVisualization gisVisualization : gisVisualizations) {
+        for (Layer layer : Layer.getLayers()) {
+            GisVisualization gisVisualization = layer.getGisVis();
             resizeGeometryModel(gisVisualization.getGeometryModel(), currentZoom);
             // redraw
-            gisVisualization.reDraw();
+            gisVisualization.redraw2DShape();
+            //Move and add all tooltips
+            gisVisualization.moveTooltips(currentZoom);
+            //Only add them if the corresponding layer is checked and selected.
+            if (layer.getIfTooltipsShouldBeDisplayed()) {
+                plotViewGroup.getChildren().addAll(gisVisualization.getTooltips());
+            }
         }
-        // reorder layers to maintain tooltips display correctly
-        if (!Layer.getLayers().isEmpty()) {
-            Layer.getLayers().get(0).reorderLayers();
-        }
+
     }
 
     /**
