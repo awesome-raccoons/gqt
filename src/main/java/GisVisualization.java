@@ -62,7 +62,7 @@ public class GisVisualization {
      * and will be ignored on all subsequent layer creations.
      * @param group The parent container in the drawing window.
      */
-    private static void createCanvas(AnchorPane group) {
+    private static void createCanvas(final AnchorPane group) {
         if (canvas == null) {
             canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
             graphicsContext = canvas.getGraphicsContext2D();
@@ -140,8 +140,7 @@ public class GisVisualization {
      * @param zoomFactor    The ratio of zoom to be applied
      */
     public final void moveTooltips(final double zoomFactor) {
-        for (int i = 0; i < tooltips.size(); i++)
-        {
+        for (int i = 0; i < tooltips.size(); i++) {
             tooltips.get(i).setCenterX(originalTooltips.get(i).getCenterX() * zoomFactor);
             tooltips.get(i).setCenterY(originalTooltips.get(i).getCenterY() * zoomFactor);
         }

@@ -142,8 +142,7 @@ public class Layer extends HBox {
     private static ArrayList<Layer> getAllSelectedLayers() {
         ArrayList<Layer> selectedLayers = new ArrayList<>();
         for (Layer l : layers) {
-            if (l.isSelected.get())
-            {
+            if (l.isSelected.get()) {
                 selectedLayers.add(l);
             }
         }
