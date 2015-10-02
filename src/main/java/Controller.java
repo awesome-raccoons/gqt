@@ -20,7 +20,6 @@ import org.geotools.geometry.jts.JTSFactoryFinder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 public class Controller {
     /**
@@ -81,7 +80,7 @@ public class Controller {
         }
     }
 
-    public final void drawGeometry(final Geometry geom, String poly) {
+    public final void drawGeometry(final Geometry geom, final String poly) {
         if (geom instanceof GeometryCollection) {
             for (int i = 0; i < geom.getNumGeometries(); i++) {
                 refineGeometryClass(geom.getGeometryN(i), poly);
@@ -94,12 +93,11 @@ public class Controller {
     /**
      * Displays an alert dialog when trying to draw an invalid WKT string.
      */
-    public final void showWKTParseErrorMessage()
-    {
+    public final void showWKTParseErrorMessage() {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error parsing WKT");
         alert.setHeaderText("Invalid WKT");
-        String s ="The WKT string entered is of unknown geometry type ";
+        String s = "The WKT string entered is of unknown geometry type ";
         alert.setContentText(s);
         alert.show();
     }
@@ -109,7 +107,7 @@ public class Controller {
      * or a composite such as a MultiPolygon.
      * @param geometry geometry to consider.
      */
-    private void refineGeometryClass(final Geometry geometry, String poly) {
+    private void refineGeometryClass(final Geometry geometry, final String poly) {
         if (geometry instanceof GeometryCollection) {
             createLayersFromMultiples(geometry, poly);
         } else {
@@ -121,7 +119,7 @@ public class Controller {
      * Assumes the given geometry is of a multiple type, and creates a layer for each.
      * @param geometry geometry to consider.
      */
-    private void createLayersFromMultiples(final Geometry geometry, String poly) {
+    private void createLayersFromMultiples(final Geometry geometry, final String poly) {
         for (int i = 0; i < geometry.getNumGeometries(); i++) {
             createLayer(geometry.getGeometryN(i), poly);
         }
@@ -131,7 +129,7 @@ public class Controller {
      * Creates a layer for the given geometry.
      * @param geometry geometry to draw to a layer.
      */
-    private void createLayer(final Geometry geometry, String poly) {
+    private void createLayer(final Geometry geometry, final String poly) {
         GisVisualization gv = GisVisualization.createVisualization(
                 geometry,
                 upperPane);

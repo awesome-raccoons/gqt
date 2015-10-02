@@ -29,18 +29,18 @@ public class Layer extends HBox {
     private final GisVisualization gisVis;     //The drawing model
     private final VBox parentContainer;        //Container where layers are put
     private String name;                       //Name of the layers
-    private String WKTString;                  //Original WKT string entered for this layer
-    private TextArea textArea;                 //The textarea callback used for showing this layer's WKT string
+    private String wktString;                  //Original WKT string entered for this layer
+    private TextArea textArea;
     private LayerSelectedProperty isSelected;
     private CheckBox showOrHideCheckbox;
     private static ArrayList<Layer> layers = new ArrayList<>();
 
     public Layer(final GisVisualization gisVis, final VBox parentContainer, final String name,
-                 final String WKTString, final TextArea textArea) {
+                 final String wktString, final TextArea textArea) {
         this.gisVis = gisVis;
         this.parentContainer = parentContainer;
         this.name = name;
-        this.WKTString = WKTString;
+        this.wktString = wktString;
         this.textArea = textArea;
         this.isSelected = new LayerSelectedProperty();
         this.setOnMouseClicked(mouseClickedHandler);
@@ -100,22 +100,24 @@ public class Layer extends HBox {
 
             int numberOfSelectedLayers = getNumberOfSelectedLayers();
 
-            if (numberOfSelectedLayers == 0)
+            if (numberOfSelectedLayers == 0) {
                 textArea.clear();
+            }
 
-            else if (numberOfSelectedLayers == 1)
+            else if (numberOfSelectedLayers == 1) {
                 getAllSelectedLayers().get(0).showWKTString();
+            }
 
-            else if (numberOfSelectedLayers > 1)
+            else if (numberOfSelectedLayers > 1) {
                 textArea.setDisable(true);
+            }
 
 
             toggleBackgroundColor(isSelected);
         }
     };
 
-    public boolean getIfTooltipsShouldBeDisplayed()
-    {
+    public final boolean getIfTooltipsShouldBeDisplayed() {
         return isSelected.get() && showOrHideCheckbox.isSelected();
     }
 
@@ -123,13 +125,10 @@ public class Layer extends HBox {
      * Returns the number of selected layers whose selected property is true.
      * @return number of selected layers.
      */
-    private static int getNumberOfSelectedLayers()
-    {
+    private static int getNumberOfSelectedLayers() {
         int numberOfSelected = 0;
-        for (Layer l : layers)
-        {
-            if (l.isSelected.get())
-            {
+        for (Layer l : layers) {
+            if (l.isSelected.get()) {
                 numberOfSelected++;
             }
         }
@@ -140,11 +139,9 @@ public class Layer extends HBox {
      * Returns a list of selected layers.
      * @return the list.
      */
-    private static ArrayList<Layer> getAllSelectedLayers()
-    {
+    private static ArrayList<Layer> getAllSelectedLayers() {
         ArrayList<Layer> selectedLayers = new ArrayList<>();
-        for (Layer l : layers)
-        {
+        for (Layer l : layers) {
             if (l.isSelected.get())
             {
                 selectedLayers.add(l);
@@ -168,10 +165,9 @@ public class Layer extends HBox {
     /**
      * Clears the WKT input text area and displays the WKT string used to draw this layer.
      */
-    private void showWKTString()
-    {
+    private void showWKTString() {
         textArea.clear();
-        textArea.setText(WKTString);
+        textArea.setText(wktString);
     }
 
     /**
@@ -250,8 +246,7 @@ public class Layer extends HBox {
      * Redraws all geometries to the canvas, in the same order as they appear in the layer view.
      * The bottom layer is drawn at the bottom of the drawing stack.
      */
-    public static void redrawAll()
-    {
+    public static void redrawAll() {
         GisVisualization.reset();
 
         for (int i = layers.size() - 1; i >= 0; i--) {
@@ -267,8 +262,7 @@ public class Layer extends HBox {
      * Checks or unchecks all the selected layers.
      * This is useful for showing/hiding several layers at once.
      */
-    private void checkShowOrHideCheckboxes()
-    {
+    private void checkShowOrHideCheckboxes() {
         if (isSelected.get()) {
             boolean checkedValue = showOrHideCheckbox.isSelected();
             for (Layer l : getAllSelectedLayers()) {
@@ -281,8 +275,7 @@ public class Layer extends HBox {
         return layers;
     }
 
-    public GisVisualization getGisVis()
-    {
+    public final GisVisualization getGisVis() {
         return this.gisVis;
     }
 

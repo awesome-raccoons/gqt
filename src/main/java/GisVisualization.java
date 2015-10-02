@@ -1,7 +1,6 @@
 import com.vividsolutions.jts.geom.Geometry;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -18,8 +17,8 @@ public class GisVisualization {
     private static int idCounter = 0;       //Static counter for IDs
     private static AnchorPane group;        //Root node all canvases will be drawn to
 
-    private static int CANVAS_WIDTH = 5000;
-    private static int CANVAS_HEIGHT = 5000;
+    private static final int CANVAS_WIDTH = 5000;
+    private static final int CANVAS_HEIGHT = 5000;
     private static final float OPACITY_PARAM = 0.7f;
     private static Canvas canvas;
     private static GraphicsContext graphicsContext;
@@ -59,13 +58,12 @@ public class GisVisualization {
 
     /**
      * Creates a canvas, graphicsContext and fixes all setup required for drawing geometries.
-     * This will only happen the first time a layer is setup, and will be ignored on all subsequent layer creations.
+     * This will only happen the first time a layer is setup,
+     * and will be ignored on all subsequent layer creations.
      * @param group The parent container in the drawing window.
      */
-    private static void createCanvas(AnchorPane group)
-    {
-        if (canvas == null)
-        {
+    private static void createCanvas(AnchorPane group) {
+        if (canvas == null) {
             canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
             graphicsContext = canvas.getGraphicsContext2D();
             group.getChildren().add(canvas);
@@ -106,8 +104,7 @@ public class GisVisualization {
      * Removes all elements in the plot view. Including tooltips and canvas.
      * Then adds the canvas again, and clears its contents.
      */
-    public static void reset()
-    {
+    public static void reset() {
         group.getChildren().clear();
         group.getChildren().add(GisVisualization.getCanvas());
         graphicsContext.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -142,12 +139,11 @@ public class GisVisualization {
      * Moved tooltips are added to the scene
      * @param zoomFactor    The ratio of zoom to be applied
      */
-    public final void moveTooltips(double zoomFactor)
-    {
+    public final void moveTooltips(final double zoomFactor) {
         for (int i = 0; i < tooltips.size(); i++)
         {
-            tooltips.get(i).setCenterX(originalTooltips.get(i).getCenterX()*zoomFactor);
-            tooltips.get(i).setCenterY(originalTooltips.get(i).getCenterY()*zoomFactor);
+            tooltips.get(i).setCenterX(originalTooltips.get(i).getCenterX() * zoomFactor);
+            tooltips.get(i).setCenterY(originalTooltips.get(i).getCenterY() * zoomFactor);
         }
     }
 
@@ -175,18 +171,15 @@ public class GisVisualization {
      * This is the same for all layers.
      * @return  The canvas.
      */
-    public static Canvas getCanvas()
-    {
+    public static Canvas getCanvas() {
         return canvas;
     }
 
-    public static AnchorPane getGroup()
-    {
+    public static AnchorPane getGroup() {
         return group;
     }
 
-    public ArrayList<Circle> getTooltips()
-    {
+    public final ArrayList<Circle> getTooltips() {
         return this.tooltips;
     }
 
@@ -194,7 +187,7 @@ public class GisVisualization {
         GisVisualization.idCounter += 1;
     }
 
-    public static ArrayList<Circle> cloneList(ArrayList<Circle> circles) {
+    public static ArrayList<Circle> cloneList(final ArrayList<Circle> circles) {
        ArrayList<Circle> clonedList = new ArrayList<Circle>(circles.size());
         for (Circle c : circles) {
             clonedList.add(new Circle(c.getCenterX(), c.getCenterY(), c.getRadius(), c.getFill()));
