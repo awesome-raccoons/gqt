@@ -102,13 +102,9 @@ public class Layer extends HBox {
 
             if (numberOfSelectedLayers == 0) {
                 textArea.clear();
-            }
-
-            else if (numberOfSelectedLayers == 1) {
+            } else if (numberOfSelectedLayers == 1) {
                 getAllSelectedLayers().get(0).showWKTString();
-            }
-
-            else if (numberOfSelectedLayers > 1) {
+            } else if (numberOfSelectedLayers > 1) {
                 textArea.setDisable(true);
             }
 
