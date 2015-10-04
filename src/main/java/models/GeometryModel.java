@@ -1,7 +1,5 @@
 package models;
 
-
-
 import com.vividsolutions.jts.algorithm.CGAlgorithms;
 import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.LinearRing;
@@ -109,15 +107,14 @@ public abstract class GeometryModel {
         LinearRing shellR = new GeometryFactory().createLinearRing(shell);
 
         //Making the new polygon
-        Geometry p = new Polygon(shellR, holes, geometryFactory);
-        return p;
+        return new Polygon(shellR, holes, geometryFactory);
     }
 
     public final Geometry getOriginalGeometry() {
         return this.originalGeometry;
     }
 
-    public static final GeometryModel getModel(final Geometry geometry, final AnchorPane group) {
+    public static GeometryModel getModel(final Geometry geometry, final AnchorPane group) {
         if (geometry instanceof Polygon) {
             boolean hasHoles = ((Polygon) geometry).getNumInteriorRing() > 0;
             if (hasHoles) {
@@ -143,7 +140,6 @@ public abstract class GeometryModel {
         Circle circle = new Circle(x, y, TOOLTIP_SIZE, color);
         Tooltip tooltip = new Tooltip(x + ", " + y);
         Tooltip.install(circle, tooltip);
-        //this.group.getChildren().add(circle);
         return circle;
     }
 

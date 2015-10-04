@@ -3,12 +3,11 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -27,37 +26,43 @@ import java.util.Collections;
 
 public class Layer extends HBox {
 
-    //TODO style buttons with better representation, generally improve layer visuals
-    //TODO Make upper layer act as front layer
-    //TODO Make layers in layerview draggable
-    //TODO Todo enable selecting color
-    //TODO Suggestion: make layer hbox selectable, when selected show tooltips.
-
-
     private final GisVisualization gisVis;     //The drawing model
     private final VBox parentContainer;        //Container where layers are put
-
-    private int orderID;                //Defines the drawing order, highest value is drawn last
-    private Button buttonUp;            //Button for moving layer up a layer
-    private Button buttonDown;          //Button for moving layer down a layer
-    private String name;                //Name of the layers
+    private String name;                       //Name of the layers
+    private String wktString;                  //Original WKT string entered for this layer
+    private TextArea textArea;
     private LayerSelectedProperty isSelected;
-
+    private CheckBox showOrHideCheckbox;
     private static ArrayList<Layer> layers = new ArrayList<>();
 
-    public Layer(final GisVisualization gisVis, final VBox parentContainer, final String name) {
+    public Layer(final GisVisualization gisVis, final VBox parentContainer, final String name,
+                 final String wktString, final TextArea textArea) {
         this.gisVis = gisVis;
-        this.orderID = gisVis.getID();
         this.parentContainer = parentContainer;
         this.name = name;
+        this.wktString = wktString;
+        this.textArea = textArea;
         this.isSelected = new LayerSelectedProperty();
         this.setOnMouseClicked(mouseClickedHandler);
         this.setOnKeyReleased(keyReleasedHandler);
         createLayer();
     }
 
-    public static ArrayList<Layer> getLayers() {
-        return layers;
+    /**
+     * Creates a layer for this Layer object.
+     */
+    public final void createLayer() {
+        showOrHideCheckbox = new CheckBox();
+        showOrHideCheckbox.setOnAction(event -> {
+            checkShowOrHideCheckboxes();
+            redrawAll();
+        });
+        showOrHideCheckbox.setSelected(true);
+        TextField tf = new TextField(this.name + " " + gisVis.getID());
+        VBox vb = new VBox();
+        this.getChildren().add(showOrHideCheckbox);
+        this.getChildren().add(tf);
+        this.getChildren().add(vb);
     }
 
     public final void deleteLayers() {
@@ -65,18 +70,81 @@ public class Layer extends HBox {
         layers.clear();
     }
 
-    private EventHandler<KeyEvent> keyReleasedHandler = new EventHandler<KeyEvent>() {
-        @Override
-        public void handle(final KeyEvent event) {
-            if (event.getCode() == KeyCode.DOWN) {
-                //Move selected layers down
-                moveSelectedLayers(1);
-            } else if (event.getCode() == KeyCode.UP) {
-                //Move selected layers up
-                moveSelectedLayers(-1);
-            }
+    private EventHandler<KeyEvent> keyReleasedHandler = event -> {
+        if (event.getCode() == KeyCode.DOWN) {
+            //Move selected layers down
+            moveSelectedLayers(1);
+        } else if (event.getCode() == KeyCode.UP) {
+            //Move selected layers up
+            moveSelectedLayers(-1);
         }
     };
+
+    private EventHandler<MouseEvent> mouseClickedHandler = new EventHandler<MouseEvent>() {
+        @Override
+        public void handle(final MouseEvent event) {
+            textArea.setDisable(false);
+            //CTRL is pressed select additional, otherwise unselected previously selected
+            boolean oldValue = isSelected.get();
+            if (!Controller.isKeyHeldDown(KeyCode.CONTROL)) {
+                deselectAllLayers();
+            }
+
+            //Toggle selection and display tooltips if it is selected
+            isSelected.set(!oldValue);
+            gisVis.setDisplayTooltips(getIfTooltipsShouldBeDisplayed());
+            if (isSelected.get()) {
+                showWKTString();
+                requestFocus();
+            }
+
+            int numberOfSelectedLayers = getNumberOfSelectedLayers();
+
+            if (numberOfSelectedLayers == 0) {
+                textArea.clear();
+            } else if (numberOfSelectedLayers == 1) {
+                getAllSelectedLayers().get(0).showWKTString();
+            } else if (numberOfSelectedLayers > 1) {
+                textArea.setDisable(true);
+            }
+
+
+            toggleBackgroundColor(isSelected);
+        }
+    };
+
+    public final boolean getIfTooltipsShouldBeDisplayed() {
+        return isSelected.get() && showOrHideCheckbox.isSelected();
+    }
+
+    /**
+     * Returns the number of selected layers whose selected property is true.
+     * @return number of selected layers.
+     */
+    private static int getNumberOfSelectedLayers() {
+        int numberOfSelected = 0;
+        for (Layer l : layers) {
+            if (l.isSelected.get()) {
+                numberOfSelected++;
+            }
+        }
+        return numberOfSelected;
+    }
+
+    /**
+     * Returns a list of selected layers.
+     * @return the list.
+     */
+    private static ArrayList<Layer> getAllSelectedLayers() {
+        ArrayList<Layer> selectedLayers = new ArrayList<>();
+        for (Layer l : layers) {
+            if (l.isSelected.get()) {
+                selectedLayers.add(l);
+            }
+        }
+
+        return selectedLayers;
+    }
 
     /**
      * Deselects all layers, disables their tooltip and returns background color to normal.
@@ -89,25 +157,18 @@ public class Layer extends HBox {
         }
     }
 
-    private EventHandler<MouseEvent> mouseClickedHandler = new EventHandler<MouseEvent>() {
-        @Override
-        public void handle(final MouseEvent event) {
-            //CTRL is pressed select additional, otherwise unselected previously selected
-            boolean oldValue = isSelected.get();
-            if (!Controller.isKeyHeldDown(KeyCode.CONTROL)) {
-                deselectAllLayers();
-            }
+    /**
+     * Clears the WKT input text area and displays the WKT string used to draw this layer.
+     */
+    private void showWKTString() {
+        textArea.clear();
+        textArea.setText(wktString);
+    }
 
-            //Toggle selection and display tooltips if it is selected
-            isSelected.set(!oldValue);
-            gisVis.setDisplayTooltips(isSelected.get());
-            if (isSelected.get()) {
-                requestFocus();
-            }
-            toggleBackgroundColor(isSelected);
-        }
-    };
-
+    /**
+     * Toggles the background color depending on current selection.
+     * @param val   BooleanProperty to evaluate.
+     */
     private void toggleBackgroundColor(final BooleanProperty val) {
         backgroundProperty().bind(Bindings.when(val)
                 .then(new Background(
@@ -116,70 +177,6 @@ public class Layer extends HBox {
                 .otherwise(new Background(
                         new BackgroundFill(Color.TRANSPARENT,
                                 CornerRadii.EMPTY, Insets.EMPTY))));
-    }
-
-    /**
-     * Creates a layer for this Layer object.
-     */
-    public final void createLayer() {
-
-        CheckBox cb = new CheckBox();
-        cb.setOnAction(event -> this.gisVis.toggleVisibility());
-
-        cb.setSelected(true);
-
-        //TODO style textfield with css so it looks like a label when not highlighted
-        TextField tf = new TextField(this.name + " " + gisVis.getID());
-
-        buttonUp = new Button("Up");
-        buttonUp.setOnAction(event -> {
-            moveSelectedLayers(1);
-            this.orderID--;
-            Layer.layers.get(this.orderID).setOrderID(this.orderID + 1);
-            reorderLayers();
-        });
-        buttonDown = new Button("Down");
-        buttonDown.setOnAction(event -> {
-            this.orderID++;
-            Layer.layers.get(this.orderID).setOrderID(this.orderID - 1);
-            reorderLayers();
-        });
-
-        //TODO style up and down but
-
-        VBox vb = new VBox();
-        //vb.getChildren().add(buttonUp);
-        //vb.getChildren().add(buttonDown);
-
-        this.getChildren().add(cb);
-        this.getChildren().add(tf);
-        this.getChildren().add(vb);
-    }
-
-    public final int getOrderID() {
-        return this.orderID;
-    }
-
-    public final void setOrderID(final int id) {
-        this.orderID = id;
-    }
-
-    /**
-     * Disable or enable the up button.
-     *
-     * @param b If True, disables button. Enables if false.
-     */
-    public final void setUpDisable(final boolean b) {
-        buttonUp.setDisable(b);
-    }
-
-    /**
-     * Disable or enable the down button.
-     *
-     * @param b If True, disables button. Enables if false.
-     */
-    public final void setDownDisable(final boolean b) {
-        buttonDown.setDisable(b);
     }
 
     /**
@@ -226,32 +223,55 @@ public class Layer extends HBox {
         reorderLayers();
     }
 
-
     /**
      * Reorders the layers according to their position in the layers list.
      */
     public final void reorderLayers() {
-        AnchorPane group = gisVis.getGroup();
+
+        redrawAll();
 
         this.parentContainer.getChildren().remove(0, this.parentContainer.getChildren().size());
-
-        group.getChildren().remove(0, group.getChildren().size());
-
-        //Redraw all the layers, only make the toplayer have tooltips
-        for (int i = layers.size() - 1; i >= 0; i--) {
-            Layer hb = layers.get(i);
-            hb.gisVis.reAddCanvas();
-            hb.gisVis.setDisplayTooltips(hb.isSelected.get());
-            hb.setUpDisable(false);
-            hb.setDownDisable(false);
-        }
 
         for (Layer layer : layers) {
             this.parentContainer.getChildren().add(layer);
         }
+    }
 
-        layers.get(0).setUpDisable(true);
-        layers.get(layers.size() - 1).setDownDisable(true);
+    /**
+     * Redraws all geometries to the canvas, in the same order as they appear in the layer view.
+     * The bottom layer is drawn at the bottom of the drawing stack.
+     */
+    public static void redrawAll() {
+        GisVisualization.reset();
+
+        for (int i = layers.size() - 1; i >= 0; i--) {
+            Layer hb = layers.get(i);
+            if (hb.showOrHideCheckbox.isSelected()) {
+                hb.gisVis.create2DShapeAndTooltips();
+                hb.gisVis.setDisplayTooltips(hb.isSelected.get());
+            }
+        }
+    }
+
+    /**
+     * Checks or unchecks all the selected layers.
+     * This is useful for showing/hiding several layers at once.
+     */
+    private void checkShowOrHideCheckboxes() {
+        if (isSelected.get()) {
+            boolean checkedValue = showOrHideCheckbox.isSelected();
+            for (Layer l : getAllSelectedLayers()) {
+                l.showOrHideCheckbox.setSelected(checkedValue);
+            }
+        }
+    }
+
+    public static ArrayList<Layer> getLayers() {
+        return layers;
+    }
+
+    public final GisVisualization getGisVis() {
+        return this.gisVis;
     }
 
 }

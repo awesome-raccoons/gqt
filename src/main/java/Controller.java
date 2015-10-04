@@ -5,6 +5,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.WKTReader;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -19,10 +20,6 @@ import org.geotools.geometry.jts.JTSFactoryFinder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
-
-//import javafx.scene.Node;
-//import javafx.scene.Parent;
 
 public class Controller {
     /**
@@ -48,11 +45,9 @@ public class Controller {
     /**
      * Stored all GisVisualizations.
      */
-    private final Vector<GisVisualization> gisVisualizations;
     private static List<KeyCode> heldDownKeys = new ArrayList<>();
 
     public Controller() {
-        gisVisualizations = new Vector(1, 1);
 
     }
 
@@ -78,32 +73,45 @@ public class Controller {
             WKTReader reader = new WKTReader(geometryFactory);
             Geometry geom = reader.read(poly);
 
-            drawPolygon(geom);
+            drawGeometry(geom, poly);
             rescaleAllGeometries();
         } catch (com.vividsolutions.jts.io.ParseException e) {
-            e.printStackTrace();
+            showWKTParseErrorMessage();
         }
     }
 
-    public final void drawPolygon(final Geometry geom) {
+    public final void drawGeometry(final Geometry geom, final String poly) {
         if (geom instanceof GeometryCollection) {
             for (int i = 0; i < geom.getNumGeometries(); i++) {
-                refineGeometryClass(geom.getGeometryN(i));
+                refineGeometryClass(geom.getGeometryN(i), poly);
             }
         } else {
-            refineGeometryClass(geom);
+            refineGeometryClass(geom, poly);
         }
     }
+
+    /**
+     * Displays an alert dialog when trying to draw an invalid WKT string.
+     */
+    public final void showWKTParseErrorMessage() {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error parsing WKT");
+        alert.setHeaderText("Invalid WKT");
+        String s = "The WKT string entered is of unknown geometry type ";
+        alert.setContentText(s);
+        alert.show();
+    }
+
     /**
      * Delegates the task of creating the layer for this geometry. Whether it is a plain WKT object,
      * or a composite such as a MultiPolygon.
      * @param geometry geometry to consider.
      */
-    private void refineGeometryClass(final Geometry geometry) {
+    private void refineGeometryClass(final Geometry geometry, final String poly) {
         if (geometry instanceof GeometryCollection) {
-            createLayersFromMultiples(geometry);
+            createLayersFromMultiples(geometry, poly);
         } else {
-            createLayer(geometry);
+            createLayer(geometry, poly);
         }
     }
 
@@ -111,9 +119,9 @@ public class Controller {
      * Assumes the given geometry is of a multiple type, and creates a layer for each.
      * @param geometry geometry to consider.
      */
-    private void createLayersFromMultiples(final Geometry geometry) {
+    private void createLayersFromMultiples(final Geometry geometry, final String poly) {
         for (int i = 0; i < geometry.getNumGeometries(); i++) {
-            createLayer(geometry.getGeometryN(i));
+            createLayer(geometry.getGeometryN(i), poly);
         }
     }
 
@@ -121,14 +129,11 @@ public class Controller {
      * Creates a layer for the given geometry.
      * @param geometry geometry to draw to a layer.
      */
-    private void createLayer(final Geometry geometry) {
+    private void createLayer(final Geometry geometry, final String poly) {
         GisVisualization gv = GisVisualization.createVisualization(
-                this.stage.getWidth(),
-                this.stage.getHeight(),
                 geometry,
                 upperPane);
-        gisVisualizations.add(gv);
-        Layer hb = new Layer(gv, vboxLayers, geometry.getGeometryType());
+        Layer hb = new Layer(gv, vboxLayers, geometry.getGeometryType(), poly, queryInput);
         Layer.getLayers().add(hb);
         hb.reorderLayers();
         upperPane.requestFocus();
@@ -157,28 +162,25 @@ public class Controller {
         }
     }
 
-    // TODO
-    // Concerns: dragging only works when clicking the canvas,
-    // areas of pane not filled with canvas does not react
-    // Possible solutions: Make a really huge canvas and translate
-    // 0,0 to middle of screen. Or find another node and listener to move canvas
-
     public final void rescaleAllGeometries() {
         double currentZoom = Math.pow(ZOOM_FACTOR, currentZoomLevel); // ZOOM_FACTOR ^ ZOOM_LEVEL;
-        GisVisualization gv;
-
+        AnchorPane plotViewGroup = GisVisualization.getGroup();
+        //Make sure to reset the GisVisualization, this empties the canvas and tooltips
+        GisVisualization.reset();
         // resize and redraw all geometries
-        for (int i = 0; i < gisVisualizations.size(); i++) {
-            gv = (GisVisualization) gisVisualizations.get(i);
-
-            resizeGeometryModel(gv.getGeometryModel(), currentZoom);
+        for (Layer layer : Layer.getLayers()) {
+            GisVisualization gisVisualization = layer.getGisVis();
+            resizeGeometryModel(gisVisualization.getGeometryModel(), currentZoom);
             // redraw
-            gisVisualizations.get(i).reDraw();
+            gisVisualization.redraw2DShape();
+            //Move and add all tooltips
+            gisVisualization.moveTooltips(currentZoom);
+            //Only add them if the corresponding layer is checked and selected.
+            if (layer.getIfTooltipsShouldBeDisplayed()) {
+                plotViewGroup.getChildren().addAll(gisVisualization.getTooltips());
+            }
         }
-        // reorder layers to maintain tooltips display correctly
-        if (!Layer.getLayers().isEmpty()) {
-            Layer.getLayers().get(0).reorderLayers();
-        }
+
     }
 
     /**
@@ -211,10 +213,6 @@ public class Controller {
             zoomIn();
         }
     }
-    //TODO Concerns: dragging only works when clicking the canvas,
-        //areas of pane not filled with canvas does not react
-    //TODO possible solutions: Make a really huge canvas and translate 0,0 to middle of screen.
-        // Or find another node and listener to move canvas
 
     /**
      * Called when the mouse press the upperPane.
@@ -248,23 +246,6 @@ public class Controller {
         this.stage.getScene().setCursor(Cursor.DEFAULT);
     }
 
-
-
-    /*private Node isChildFocused(final Parent parent) {
-        for (Node node : parent.getChildrenUnmodifiable()) {
-            if (node.isFocused()) {
-                return node;
-            } else if (node instanceof Parent) {
-                if (isChildFocused((Parent) node) != null) {
-                    return node;
-                }
-            }
-        }
-        return null;
-    }*/
-
-
-
     public final void wktAreaKeyPressed(final KeyEvent event) {
         if (event.isAltDown() && event.getCode() == KeyCode.ENTER) {
             pressed();
@@ -276,7 +257,6 @@ public class Controller {
             heldDownKeys.add(event.getCode());
         }
     }
-
 
     public final void onAnyKeyReleased(final KeyEvent event) {
         heldDownKeys.remove(event.getCode());
