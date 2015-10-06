@@ -6,6 +6,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Polygon;
 
 import java.util.ArrayList;
 
@@ -30,6 +31,7 @@ public class PolygonModel extends GeometryModel {
             Circle tooltip = createToolTip(coordinates[i].x, coordinates[i].y, Color.BLACK);
             tooltips.add(tooltip);
         }
+
 
         graphicsContext.fillPolygon(xCoordinates, yCoordinates, coordinates.length);
         graphicsContext.setStroke(((Color) graphicsContext.getFill()).darker());

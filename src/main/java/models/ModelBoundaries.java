@@ -1,0 +1,93 @@
+package models;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+
+/**
+ * Created by David on 2.10.2015.
+ */
+public class ModelBoundaries {
+    /**
+     *  the minimum x-coordinate
+     */
+    private double minX;
+
+    /**
+     *  the maximum x-coordinate
+     */
+    private double maxX;
+
+    /**
+     *  the minimum y-coordinate
+     */
+    private double minY;
+
+    /**
+     *  the maximum y-coordinate
+     */
+    private double maxY;
+
+    public ModelBoundaries() {
+        clear();
+    }
+
+    public final void clear() {
+        minX = minY = maxX = maxY = 0;
+    }
+
+    public final double getWidth() {
+        return (maxX - minX);
+    }
+
+    public final double getHeight() {
+        return (maxY - minY);
+    }
+
+    public final void include(double x, double y){
+        if(this.isNull()) {
+            this.maxX = x;
+            this.minX = x;
+            this.maxY = y;
+            this.minY = y;
+        } else {
+            if(x < this.minX) {
+                this.minX = x;
+            }
+
+            if(x > this.maxX) {
+                this.maxX = x;
+            }
+
+            if(y < this.minY) {
+                this.minY = y;
+            }
+
+            if(y > this.maxY) {
+                this.maxY = y;
+            }
+        }
+    }
+
+    public final void include (Coordinate coord) {
+        include(coord.x, coord.y);
+    }
+
+    public final void include (Coordinate[] coordinates) {
+        for (int i = 0; i < coordinates.length; i++) {
+            include(coordinates[i]);
+        }
+    }
+
+    public final void includeGeometry (Geometry geometry) {
+        include(geometry.getCoordinates());
+    }
+
+    public final void update (Geometry geometry) {
+        clear();
+        includeGeometry(geometry);
+    }
+
+    private boolean isNull() {
+        return minX == 0.0D && minY == 0.0D && this.getWidth() <= 0.0D && this.getHeight() <= 0.0D;
+    }
+}

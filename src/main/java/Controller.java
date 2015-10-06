@@ -13,8 +13,10 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
 import models.GeometryModel;
+import models.ModelBoundaries;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 
 import java.util.ArrayList;
@@ -34,6 +36,9 @@ public class Controller {
      */
     private int currentZoomLevel = 0;
 
+    private double currentOffsetX = 0;
+    private double currentOffsetY = 0;
+
     @FXML
     private TextArea queryInput;
     @FXML
@@ -43,7 +48,9 @@ public class Controller {
 
     private double dragBaseX, dragBaseY;
     private double dragBase2X, dragBase2Y;
+    private double dragBeginX, dragBeginY;
     private Stage stage;
+    private ModelBoundaries modelBoundaries;
 
     /**
      * Stored all GisVisualizations.
@@ -53,7 +60,7 @@ public class Controller {
 
     public Controller() {
         gisVisualizations = new Vector(1, 1);
-
+        modelBoundaries = new ModelBoundaries();
     }
 
     @FXML
@@ -79,6 +86,7 @@ public class Controller {
             Geometry geom = reader.read(poly);
 
             drawPolygon(geom);
+
             rescaleAllGeometries();
         } catch (com.vividsolutions.jts.io.ParseException e) {
             e.printStackTrace();
@@ -163,15 +171,25 @@ public class Controller {
     // Possible solutions: Make a really huge canvas and translate
     // 0,0 to middle of screen. Or find another node and listener to move canvas
 
+    /**
+     * Change coordinates of all geometries by scale of current zoom and move center of view from
+     * top-left corner to the middle. (0, 0) coordinate is in the middle
+     */
     public final void rescaleAllGeometries() {
         double currentZoom = Math.pow(ZOOM_FACTOR, currentZoomLevel); // ZOOM_FACTOR ^ ZOOM_LEVEL;
+        double centerX = upperPane.getWidth() / 2;
+        double centerY = upperPane.getHeight() / 2;
         GisVisualization gv;
+        GeometryModel gm;
 
+        modelBoundaries.clear();
         // resize and redraw all geometries
         for (int i = 0; i < gisVisualizations.size(); i++) {
             gv = (GisVisualization) gisVisualizations.get(i);
+            gm = gv.getGeometryModel();
 
-            resizeGeometryModel(gv.getGeometryModel(), currentZoom);
+            gm.transformGeometry(currentZoom, this.currentOffsetX + centerX, this.currentOffsetY + centerY);
+            modelBoundaries.includeGeometry(gm.getGeometry());
             // redraw
             gisVisualizations.get(i).reDraw();
         }
@@ -182,24 +200,26 @@ public class Controller {
     }
 
     /**
-     * Update coordinates of geometry in GeometryModel.
-     * @param gm that contains geometry to resize
-     * @param scale number to multiply coordinates with
+     * Changes coordinates of all geometries.
+     * @param offsetX change of X coordinates
+     * @param offsetY change of Y coordinates
      */
-    public final void resizeGeometryModel(final GeometryModel gm,
-                                          final double scale) {
-        Coordinate[] coordOrig;
-        Coordinate[] coord;
+    public final void moveAllGeometries(double offsetX, double offsetY) {
+        GisVisualization gv;
 
-        // get original coordinates
-        coordOrig = gm.getOriginalGeometry().getCoordinates();
-        // get actual (scaled) coordinates
-        coord = gm.getGeometry().getCoordinates();
-
-        // recalculate
-        for (int j = 0; j < coordOrig.length; j++) {
-            coord[j].x = coordOrig[j].x * scale;
-            coord[j].y = coordOrig[j].y * scale;
+        modelBoundaries.clear();
+        // resize and redraw all geometries
+        for (int i = 0; i < gisVisualizations.size(); i++) {
+            gv = (GisVisualization) gisVisualizations.get(i);
+            GeometryModel gm = gv.getGeometryModel();
+            gm.moveGeometry(offsetX, offsetY);
+            modelBoundaries.includeGeometry(gm.getGeometry());
+            // redraw
+            gisVisualizations.get(i).reDraw();
+        }
+        // reorder layers to maintain tooltips display correctly
+        if (!Layer.getLayers().isEmpty()) {
+            Layer.getLayers().get(0).reorderLayers();
         }
     }
 
@@ -228,6 +248,8 @@ public class Controller {
         dragBaseY = upperPane.translateYProperty().get();
         dragBase2X = event.getSceneX();
         dragBase2Y = event.getSceneY();
+        dragBeginX = dragBase2X;
+        dragBeginY = dragBase2Y;
     }
 
     /**
@@ -237,15 +259,20 @@ public class Controller {
      */
     public final void upperPaneMouseDragged(final MouseEvent event) {
         this.stage.getScene().setCursor(Cursor.MOVE);
-        upperPane.setTranslateX(dragBaseX + (event.getSceneX() - dragBase2X));
-        upperPane.setTranslateY(dragBaseY + (event.getSceneY() - dragBase2Y));
+        double offsetX = (event.getSceneX() - dragBase2X);
+        dragBase2X = event.getSceneX();
+        double offsetY = (event.getSceneY() - dragBase2Y);
+        dragBase2Y = event.getSceneY();
+        moveAllGeometries(offsetX, offsetY);
     }
 
     /**
      * Called when mouse releases on upperPane. Makes sure cursor goes back to normal.
      */
-    public final void upperPaneMouseReleased() {
+    public final void upperPaneMouseReleased(final MouseEvent event) {
         this.stage.getScene().setCursor(Cursor.DEFAULT);
+        this.currentOffsetX += event.getSceneX() - dragBeginX;
+        this.currentOffsetY += event.getSceneY() - dragBeginY;
     }
 
 

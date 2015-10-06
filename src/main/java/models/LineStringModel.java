@@ -6,6 +6,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
 
 import java.util.ArrayList;
 
@@ -20,6 +21,7 @@ public class LineStringModel extends GeometryModel {
     public final ArrayList<Circle> drawAndCreateToolTips(final GraphicsContext graphicsContext) {
         ArrayList<Circle> tooltips = new ArrayList<>();
         Coordinate[] coordinates = this.getGeometry().getCoordinates();
+
         graphicsContext.moveTo(coordinates[0].x, coordinates[0].y);
         graphicsContext.setLineWidth(2.0);
 
