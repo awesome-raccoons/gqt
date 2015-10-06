@@ -33,8 +33,8 @@ public class Layer extends HBox {
     private TextArea textArea;
     private LayerSelectedProperty isSelected;
     private CheckBox showOrHideCheckbox;
+    private TextField layerName;
     private static ArrayList<Layer> layers = new ArrayList<>();
-    public TextField layerName;
 
     public Layer(final GisVisualization gisVis, final VBox parentContainer, final String name,
                  final String wktString, final TextArea textArea) {
@@ -72,12 +72,12 @@ public class Layer extends HBox {
         this.getChildren().add(vb);
     }
 
-    private void updateLayerName()
-    {
-        layerName.setText((gisVis != null) ? this.name + " " + gisVis.getID() : "Empty");
+    private void updateLayerName() {
+        String newName = (gisVis != null) ? this.name + " " + gisVis.getID() : "Empty";
+        layerName.setText(newName);
     }
 
-    public final void handleLayerKeyPresses(KeyEvent event) {
+    public final void handleLayerKeyPresses(final KeyEvent event) {
         if (event.getCode() == KeyCode.DOWN) {
             //Move selected layers down
             moveSelectedLayers(1);
@@ -124,7 +124,7 @@ public class Layer extends HBox {
      * Returns a list of selected layers.
      * @return the list.
      */
-    private static ArrayList<Layer> getAllSelectedLayers(boolean filterEmpty) {
+    private static ArrayList<Layer> getAllSelectedLayers(final boolean filterEmpty) {
         ArrayList<Layer> selectedLayers = new ArrayList<>();
         for (Layer l : getLayers(filterEmpty)) {
             if (l.isSelected.get()) {
@@ -226,8 +226,7 @@ public class Layer extends HBox {
         layers.forEach(Layer::addLayerToView);
     }
 
-    public final void addLayerToView()
-    {
+    public final void addLayerToView() {
         this.parentContainer.getChildren().add(this);
     }
 
@@ -237,11 +236,9 @@ public class Layer extends HBox {
      */
     public static void redrawAll() {
         GisVisualization.reset();
-        System.out.println("--------------");
         for (int i = getLayers(false).size() - 1; i >= 0; i--) {
             Layer layer = layers.get(i);
             if (layer.showOrHideCheckbox.isSelected() && layer.gisVis != null) {
-                System.out.println(layer.layerName.getText());
                 layer.gisVis.create2DShapeAndTooltips();
                 layer.gisVis.setDisplayTooltips(layer.isSelected.get());
             }
@@ -294,11 +291,10 @@ public class Layer extends HBox {
      * @param filterEmpty Whether to filter out the empty layers in the returned clone
      * @return a copy of the list of layers
      */
-    public static ArrayList<Layer> getLayers(boolean filterEmpty) {
+    public static ArrayList<Layer> getLayers(final boolean filterEmpty) {
         if (filterEmpty) {
             ArrayList<Layer> layerCopy = new ArrayList<>();
-            for (Layer l : layers)
-            {
+            for (Layer l : layers) {
                 if (l.gisVis != null) {
                     layerCopy.add(l);
                 }
@@ -313,19 +309,19 @@ public class Layer extends HBox {
         return this.gisVis;
     }
 
-    public final void setGisVis(GisVisualization newGisVis) {
+    public final void setGisVis(final GisVisualization newGisVis) {
         if (newGisVis != null) {
             this.gisVis = newGisVis;
             showOrHideCheckbox.setDisable(false);
         }
     }
 
-    public final void setName(String name) {
+    public final void setName(final String name) {
         this.name = name;
         updateLayerName();
     }
 
-    public final void setWKTString(String WKTString) {
+    public final void setWKTString(final String wktString) {
         this.wktString = WKTString;
     }
 

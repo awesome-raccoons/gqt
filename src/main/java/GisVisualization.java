@@ -56,7 +56,7 @@ public class GisVisualization {
         return this.geometryModel;
     }
 
-    public final void setGeometryModel(Geometry geometry) {
+    public final void setGeometryModel(final Geometry geometry) {
         this.geometryModel = GeometryModel.getModel(geometry, group);
     }
 

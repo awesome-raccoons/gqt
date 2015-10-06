@@ -141,8 +141,7 @@ public class Controller {
                 l.setGisVis(GisVisualization.createVisualization(
                         geometry,
                         upperPane));
-            }
-            else {
+            } else {
                 l.getGisVis().setGeometryModel(geometry);
             }
             l.setWKTString(poly);
