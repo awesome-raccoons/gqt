@@ -12,7 +12,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import models.GeometryModel;
@@ -47,15 +46,17 @@ public class Controller {
      */
     private static List<KeyCode> heldDownKeys = new ArrayList<>();
 
-    public Controller() {
-
+    @FXML
+    public final void updateLayer() {
+        drawPolygonFromWKT(queryInput.getText());
     }
 
-    @FXML
-    public final void pressed() {
-        drawPolygonFromWKT(queryInput.getText());
-
-        vboxLayers.getChildren().add(new HBox());
+    public final void createEmptyLayer() {
+        Layer l = new Layer(null, vboxLayers, null, "", queryInput);
+        Layer.getLayers(false).add(l);
+        l.addLayerToView();
+        //To ensure the latest new layer will be selected.
+        l.handleLayerMousePress();
     }
 
     public final void setStage(final Stage stage) {
@@ -67,16 +68,20 @@ public class Controller {
      * @param poly Well Known Text from user input
      */
     public final void drawPolygonFromWKT(final String poly) {
-        try {
-            //Create a WKT parser for reading WKT input
-            GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
-            WKTReader reader = new WKTReader(geometryFactory);
-            Geometry geom = reader.read(poly);
-
-            drawGeometry(geom, poly);
-            rescaleAllGeometries();
-        } catch (com.vividsolutions.jts.io.ParseException e) {
+        if (poly.equals("")) {
             showWKTParseErrorMessage();
+        } else {
+            try {
+                //Create a WKT parser for reading WKT input
+                GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
+                WKTReader reader = new WKTReader(geometryFactory);
+                Geometry geom = reader.read(poly);
+
+                drawGeometry(geom, poly);
+                rescaleAllGeometries();
+            } catch (com.vividsolutions.jts.io.ParseException e) {
+                showWKTParseErrorMessage();
+            }
         }
     }
 
@@ -111,7 +116,7 @@ public class Controller {
         if (geometry instanceof GeometryCollection) {
             createLayersFromMultiples(geometry, poly);
         } else {
-            createLayer(geometry, poly);
+            updateLayerFigure(geometry, poly);
         }
     }
 
@@ -121,7 +126,7 @@ public class Controller {
      */
     private void createLayersFromMultiples(final Geometry geometry, final String poly) {
         for (int i = 0; i < geometry.getNumGeometries(); i++) {
-            createLayer(geometry.getGeometryN(i), poly);
+            updateLayerFigure(geometry.getGeometryN(i), poly);
         }
     }
 
@@ -129,14 +134,23 @@ public class Controller {
      * Creates a layer for the given geometry.
      * @param geometry geometry to draw to a layer.
      */
-    private void createLayer(final Geometry geometry, final String poly) {
-        GisVisualization gv = GisVisualization.createVisualization(
-                geometry,
-                upperPane);
-        Layer hb = new Layer(gv, vboxLayers, geometry.getGeometryType(), poly, queryInput);
-        Layer.getLayers().add(hb);
-        hb.reorderLayers();
-        upperPane.requestFocus();
+    private void updateLayerFigure(final Geometry geometry, final String poly) {
+        Layer l = Layer.getSelectedLayer();
+        if (l != null) {
+            if (l.getGisVis() == null) {
+                l.setGisVis(GisVisualization.createVisualization(
+                        geometry,
+                        upperPane));
+            }
+            else {
+                l.getGisVis().setGeometryModel(geometry);
+            }
+            l.setWKTString(poly);
+            l.setName(geometry.getGeometryType());
+
+            l.reorderLayers();
+            upperPane.requestFocus();
+        }
     }
 
     public final void zoomIn() {
@@ -168,11 +182,12 @@ public class Controller {
         //Make sure to reset the GisVisualization, this empties the canvas and tooltips
         GisVisualization.reset();
         // resize and redraw all geometries
-        for (Layer layer : Layer.getLayers()) {
+        for (int i = Layer.getLayers(true).size() - 1; i >= 0; i--) {
+            Layer layer = Layer.getLayers(true).get(i);
             GisVisualization gisVisualization = layer.getGisVis();
             resizeGeometryModel(gisVisualization.getGeometryModel(), currentZoom);
             // redraw
-            gisVisualization.redraw2DShape();
+            layer.redraw2DShape();
             //Move and add all tooltips
             gisVisualization.moveTooltips(currentZoom);
             //Only add them if the corresponding layer is checked and selected.
@@ -248,7 +263,7 @@ public class Controller {
 
     public final void wktAreaKeyPressed(final KeyEvent event) {
         if (event.isAltDown() && event.getCode() == KeyCode.ENTER) {
-            pressed();
+            updateLayer();
         }
     }
 

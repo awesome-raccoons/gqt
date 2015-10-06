@@ -40,10 +40,11 @@
                                                 <VBox fx:id="vboxLayers" prefHeight="112.0" prefWidth="216.0" />
                                              </content>
                                           </ScrollPane>
-                                          <TextArea fx:id="queryInput" onKeyPressed="#wktAreaKeyPressed" pickOnBounds="false" prefHeight="127.0" prefWidth="602.0" />
+                                          <TextArea fx:id="queryInput" onKeyPressed="#wktAreaKeyPressed" pickOnBounds="false" prefHeight="127.0" prefWidth="602.0" disable="true" />
                                        </children>
                                     </GridPane>
-                                    <Button fx:id="submit" layoutX="23.0" layoutY="7.0" mnemonicParsing="false" onAction="#pressed" text="Submit" />
+                                    <Button fx:id="submit" layoutX="23.0" layoutY="7.0" mnemonicParsing="false" onAction="#updateLayer" text="Update" />
+                                     <Button fx:id="edit" layoutX="500.0" layoutY="7.0" mnemonicParsing="false" onAction="#createEmptyLayer" text="Create Layer" />
                                  </children>
                               </AnchorPane>
                         </content>
