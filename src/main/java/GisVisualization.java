@@ -28,7 +28,6 @@ public class GisVisualization {
     private Color color;
     private ArrayList<GeometryModel> geometryModelList;
     private ArrayList<Circle> tooltips;
-    private ArrayList<Circle> originalTooltips;
 
     private static ArrayList<Color> colors = new ArrayList<>();
 
@@ -132,7 +131,6 @@ public class GisVisualization {
         for (GeometryModel gm : geometryModelList) {
             tooltips.addAll(gm.drawAndCreateToolTips(graphicsContext));
         }
-        originalTooltips = cloneList(tooltips);
     }
 
     /**

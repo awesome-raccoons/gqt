@@ -35,7 +35,6 @@ public class Controller {
     @FXML
     private VBox vboxLayers;
 
-    private double dragBaseX, dragBaseY;
     private double dragBase2X, dragBase2Y;
     private double dragBeginX, dragBeginY;
     private Stage stage;
@@ -86,7 +85,6 @@ public class Controller {
         double centerX = upperPane.getWidth() / 2;
         double centerY = upperPane.getHeight() / 2;
         ArrayList<GeometryModel> geometryModelList;
-        GisVisualization gv;
         AnchorPane plotViewGroup = GisVisualization.getGroup();
         //Make sure to reset the GisVisualization, this empties the canvas and tooltips
         GisVisualization.reset();
@@ -244,8 +242,6 @@ public class Controller {
     public final void upperPaneMousePressed(final MouseEvent event) {
         upperPane.requestFocus();
 
-        dragBaseX = upperPane.translateXProperty().get();
-        dragBaseY = upperPane.translateYProperty().get();
         dragBase2X = event.getSceneX();
         dragBase2Y = event.getSceneY();
         dragBeginX = dragBase2X;

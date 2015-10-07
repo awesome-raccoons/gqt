@@ -58,25 +58,25 @@ public class ModelBoundaries {
     }
 
     public final double getMiddleX() {
-        return ((minX + maxX) / 2);
+        return (minX + maxX) / 2;
     }
 
     public final double getMiddleY() {
-        return ((minY + maxY) / 2);
+        return (minY + maxY) / 2;
     }
 
 
 
     public final double getWidth() {
-        return (maxX - minX);
+        return maxX - minX;
     }
 
     public final double getHeight() {
-        return (maxY - minY);
+        return maxY - minY;
     }
 
     public final void include(final double x, final double y) {
-        if ((this.isNull()) && (!defined)) {
+        if (this.isNull() && !defined) {
             this.maxX = x;
             this.minX = x;
             this.maxY = y;
