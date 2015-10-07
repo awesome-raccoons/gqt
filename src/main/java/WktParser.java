@@ -20,7 +20,7 @@ public class WktParser {
     private ArrayList<Geometry> geometries;
     private AnchorPane group;
 
-    public WktParser(Layer layer, AnchorPane group) {
+    public WktParser(final Layer layer, final AnchorPane group) {
         this.layer = layer;
         this.geometries = new ArrayList<>();
         this.group = group;
@@ -35,7 +35,7 @@ public class WktParser {
         }
     }
 
-    public void printAllFoundGeometries() {
+    public final void printAllFoundGeometries() {
         System.out.println("Total size: " + geometries.size());
         for (Geometry g : geometries) {
             System.out.println("is valid: " + g.isValid());
@@ -111,8 +111,7 @@ public class WktParser {
         if (layer != null) {
             if (layer.getGisVis() == null) {
                     layer.setGisVis(new GisVisualization(group));
-                }
-            else {
+            } else {
                 layer.getGisVis().clearGeometryModelList();
             }
             for (Geometry geometry : geometries) {

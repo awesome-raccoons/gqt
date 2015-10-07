@@ -51,7 +51,7 @@ public class GisVisualization {
         this.color = getColor(this.id);
     }
 
-    public GisVisualization (final AnchorPane group) {
+    public GisVisualization(final AnchorPane group) {
         this.id = idCounter;
         this.geometryModelList = new ArrayList<>();
         incrementCounter();
@@ -217,7 +217,7 @@ public class GisVisualization {
         return clonedList;
     }
 
-    public final void addGeometry(Geometry geometry) {
+    public final void addGeometry(final Geometry geometry) {
         geometryModelList.add(GeometryModel.getModel(geometry, group));
     }
 }
