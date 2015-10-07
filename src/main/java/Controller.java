@@ -220,6 +220,7 @@ public class Controller {
                 break;
             case "/":
                 resetView();
+                break;
             default:
                 break;
         }
@@ -241,7 +242,6 @@ public class Controller {
      */
     public final void upperPaneMousePressed(final MouseEvent event) {
         upperPane.requestFocus();
-
         dragBase2X = event.getSceneX();
         dragBase2Y = event.getSceneY();
         dragBeginX = dragBase2X;
