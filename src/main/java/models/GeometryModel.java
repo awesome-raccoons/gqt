@@ -1,7 +1,18 @@
 package models;
 
 import com.vividsolutions.jts.algorithm.CGAlgorithms;
-import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.CoordinateSequences;
+import com.vividsolutions.jts.geom.CoordinateSequence;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
@@ -19,7 +30,7 @@ public abstract class GeometryModel {
     private final Geometry geometry;
     private final Geometry originalGeometry;
     private final AnchorPane group;
-    public final ModelBoundaries modelBoundaries;
+    private final ModelBoundaries modelBoundaries;
 
     private static final double TOOLTIP_SIZE = 2.5;
 
@@ -45,12 +56,12 @@ public abstract class GeometryModel {
      * @param offsetX moves geometry on X axis
      * @param offsetY moves geometry on Y axis
      */
-    public final void transformGeometry(double scale, double offsetX, double offsetY) {
+    public final void transformGeometry(final double scale, final double offsetX, final double offsetY) {
         Coordinate[] coord = this.geometry.getCoordinates();
         Coordinate[] coordOrig = this.originalGeometry.getCoordinates();
         for (int j = 0; j < coordOrig.length; j++) {
-            coord[j].x = (coordOrig[j].x ) * scale + offsetX;
-            coord[j].y = (coordOrig[j].y ) * scale + offsetY;
+            coord[j].x = (coordOrig[j].x) * scale + offsetX;
+            coord[j].y = (coordOrig[j].y) * scale + offsetY;
         }
         this.modelBoundaries.update(this.geometry);
     }
@@ -60,7 +71,7 @@ public abstract class GeometryModel {
      * @param offsetX moves geometry on X axis
      * @param offsetY moves geometry on X axis
      */
-    public final void moveGeometry(double offsetX, double offsetY) {
+    public final void moveGeometry(final double offsetX, final double offsetY) {
         Coordinate[] coord = this.geometry.getCoordinates();
         for (int j = 0; j < coord.length; j++) {
             coord[j].x += offsetX;

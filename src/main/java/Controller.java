@@ -72,7 +72,7 @@ public class Controller {
         this.stage = stage;
     }
 
-    public final double getZoomScale(double zoomFactor, int zoomLevel) {
+    public final double getZoomScale(final double zoomFactor, final int zoomLevel) {
         return Math.pow(zoomFactor, zoomLevel);
     }
 
@@ -81,7 +81,8 @@ public class Controller {
      * top-left corner to the middle. (0, 0) coordinate is in the middle
      */
     public final void rescaleAllGeometries() {
-        double currentZoom = getZoomScale(ZOOM_FACTOR, currentZoomLevel);  // ZOOM_FACTOR ^ ZOOM_LEVEL;
+        // ZOOM_FACTOR ^ ZOOM_LEVEL;
+        double currentZoom = getZoomScale(ZOOM_FACTOR, currentZoomLevel);
         double centerX = upperPane.getWidth() / 2;
         double centerY = upperPane.getHeight() / 2;
         ArrayList<GeometryModel> geometryModelList;
@@ -96,7 +97,9 @@ public class Controller {
             GisVisualization gisVisualization = layer.getGisVis();
             geometryModelList = gisVisualization.getGeometryModelList();
             for (GeometryModel gm : geometryModelList) {
-                gm.transformGeometry(currentZoom, this.currentOffsetX + centerX, this.currentOffsetY + centerY);
+                gm.transformGeometry(currentZoom,
+                        this.currentOffsetX + centerX,
+                        this.currentOffsetY + centerY);
             }
             // redraw
             layer.redraw2DShape();
@@ -114,7 +117,7 @@ public class Controller {
      * @param offsetX change of X coordinates
      * @param offsetY change of Y coordinates
      */
-    public final void moveAllGeometries(double offsetX, double offsetY) {
+    public final void moveAllGeometries(final double offsetX, final double offsetY) {
         AnchorPane plotViewGroup = GisVisualization.getGroup();
 
         //Make sure to reset the GisVisualization, this empties the canvas and tooltips
@@ -139,11 +142,11 @@ public class Controller {
         }
     }
 
-    private final double logZoomFactor(double x) {
-        return Math.log(x)/Math.log(ZOOM_FACTOR);
+    private double logZoomFactor(final double x) {
+        return Math.log(x) / Math.log(ZOOM_FACTOR);
     }
 
-    private final ModelBoundaries fillBoundariesWithLayers(ArrayList<Layer> layers) {
+    private ModelBoundaries fillBoundariesWithLayers(final ArrayList<Layer> layers) {
         ModelBoundaries boundaries = new ModelBoundaries();
         for (int i = layers.size() - 1; i >= 0; i--) {
             Layer layer = layers.get(i);
@@ -162,13 +165,14 @@ public class Controller {
     }
 
     public final void zoomToFitSelected() {
-        ModelBoundaries modelBoundaries = fillBoundariesWithLayers(Layer.getAllSelectedLayers(true));
+        ModelBoundaries modelBoundaries =
+                fillBoundariesWithLayers(Layer.getAllSelectedLayers(true));
         zoomToFit(modelBoundaries);
     }
     /**
      * Scales geometries to fit to current view.
      */
-    public final void zoomToFit(ModelBoundaries modelBoundaries) {
+    public final void zoomToFit(final ModelBoundaries modelBoundaries) {
         double scaleX = upperPane.getWidth() / modelBoundaries.getWidth();
         double scaleY = upperPane.getHeight() / modelBoundaries.getHeight();
         double scaleMin = Math.min(scaleX, scaleY);
@@ -179,11 +183,11 @@ public class Controller {
         if (zoomLevel < 0) {
             zoomLevel--;
         }
-        currentZoomLevel = (int)zoomLevel;
+        currentZoomLevel = (int) zoomLevel;
 
         double zoomScale = getZoomScale(ZOOM_FACTOR, currentZoomLevel);
-        this.currentOffsetX = - (modelBoundaries.getMiddleX() * zoomScale);
-        this.currentOffsetY = - (modelBoundaries.getMiddleY() * zoomScale);
+        this.currentOffsetX = -(modelBoundaries.getMiddleX() * zoomScale);
+        this.currentOffsetY = -(modelBoundaries.getMiddleY() * zoomScale);
 
         rescaleAllGeometries();
     }
