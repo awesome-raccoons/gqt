@@ -19,6 +19,7 @@ import models.GeometryModel;
 import models.ModelBoundaries;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 
+import java.rmi.MarshalException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -86,7 +87,7 @@ public class Controller {
             Geometry geom = reader.read(poly);
 
             drawPolygon(geom);
-
+            modelBoundaries.includeGeometry(geom);
             rescaleAllGeometries();
         } catch (com.vividsolutions.jts.io.ParseException e) {
             e.printStackTrace();
@@ -142,28 +143,6 @@ public class Controller {
         upperPane.requestFocus();
     }
 
-    public final void zoomIn() {
-        currentZoomLevel++;
-        rescaleAllGeometries();
-    }
-
-    public final void zoomOut() {
-        currentZoomLevel--;
-        rescaleAllGeometries();
-    }
-
-    public final void handleUpperPaneKeyPresses(final KeyEvent event) {
-        switch (event.getText()) {
-            case "+":
-                zoomIn();
-                break;
-            case "-":
-                zoomOut();
-                break;
-            default:
-                break;
-        }
-    }
 
     // TODO
     // Concerns: dragging only works when clicking the canvas,
@@ -171,25 +150,29 @@ public class Controller {
     // Possible solutions: Make a really huge canvas and translate
     // 0,0 to middle of screen. Or find another node and listener to move canvas
 
+
+    public final double getZoomScale(double zoomFactor, int zoomLevel) {
+        return Math.pow(zoomFactor, zoomLevel);
+    }
     /**
      * Change coordinates of all geometries by scale of current zoom and move center of view from
      * top-left corner to the middle. (0, 0) coordinate is in the middle
      */
     public final void rescaleAllGeometries() {
-        double currentZoom = Math.pow(ZOOM_FACTOR, currentZoomLevel); // ZOOM_FACTOR ^ ZOOM_LEVEL;
+        double currentZoom = getZoomScale(ZOOM_FACTOR, currentZoomLevel);  // ZOOM_FACTOR ^ ZOOM_LEVEL;
         double centerX = upperPane.getWidth() / 2;
         double centerY = upperPane.getHeight() / 2;
         GisVisualization gv;
         GeometryModel gm;
 
-        modelBoundaries.clear();
+        //modelBoundaries.clear();
         // resize and redraw all geometries
         for (int i = 0; i < gisVisualizations.size(); i++) {
             gv = (GisVisualization) gisVisualizations.get(i);
             gm = gv.getGeometryModel();
 
             gm.transformGeometry(currentZoom, this.currentOffsetX + centerX, this.currentOffsetY + centerY);
-            modelBoundaries.includeGeometry(gm.getGeometry());
+          //  modelBoundaries.includeGeometry(gm.getGeometry());
             // redraw
             gisVisualizations.get(i).reDraw();
         }
@@ -207,13 +190,12 @@ public class Controller {
     public final void moveAllGeometries(double offsetX, double offsetY) {
         GisVisualization gv;
 
-        modelBoundaries.clear();
         // resize and redraw all geometries
         for (int i = 0; i < gisVisualizations.size(); i++) {
-            gv = (GisVisualization) gisVisualizations.get(i);
+            gv = gisVisualizations.get(i);
             GeometryModel gm = gv.getGeometryModel();
             gm.moveGeometry(offsetX, offsetY);
-            modelBoundaries.includeGeometry(gm.getGeometry());
+            //modelBoundaries.includeGeometry(gm.getGeometry());
             // redraw
             gisVisualizations.get(i).reDraw();
         }
@@ -222,6 +204,70 @@ public class Controller {
             Layer.getLayers().get(0).reorderLayers();
         }
     }
+
+   /* public final void calculateBoundaries() {
+        GisVisualization gv;
+        for (int i = 0; i < gisVisualizations.size(); i++) {
+            gv = gisVisualizations.get(i);
+            GeometryModel gm = gv.getGeometryModel();
+            modelBoundaries.includeGeometry(gm.getGeometry());
+        }
+    }*/
+
+    private final double logZoomFactor(double x) {
+        return Math.log(x)/Math.log(ZOOM_FACTOR);
+    }
+
+    /**
+     * Scales geometries to fit to current view.
+     * @param fitBoundaries ModelBoundaries of objects that has to be included in a view
+     */
+    public final void zoomToFit(ModelBoundaries fitBoundaries) {
+        double scaleX = upperPane.getWidth() / fitBoundaries.getWidth();
+        double scaleY = upperPane.getHeight() / fitBoundaries.getHeight();
+        double scaleMin = Math.min(scaleX, scaleY);
+        int zoomLevel;
+
+        zoomLevel = (int) logZoomFactor(scaleMin);
+        // correction because of truncating negative numbers in a way that doesn't fit this purpose
+        if (zoomLevel < 0) {
+            zoomLevel--;
+        }
+        currentZoomLevel = zoomLevel;
+
+        double zoomScale = getZoomScale(ZOOM_FACTOR, currentZoomLevel);
+        this.currentOffsetX = - (fitBoundaries.getMiddleX() * zoomScale);
+        this.currentOffsetY = - (fitBoundaries.getMiddleY() * zoomScale);
+
+        rescaleAllGeometries();
+    }
+    public final void zoomIn() {
+        currentZoomLevel++;
+        rescaleAllGeometries();
+    }
+
+    public final void zoomOut() {
+        currentZoomLevel--;
+        rescaleAllGeometries();
+    }
+
+    public final void handleUpperPaneKeyPresses(final KeyEvent event) {
+        switch (event.getText()) {
+            case "+":
+                zoomIn();
+
+                break;
+            case "-":
+                zoomOut();
+                break;
+            case "*":
+                zoomToFit(this.modelBoundaries);
+                break;
+            default:
+                break;
+        }
+    }
+
 
     public final void mouseScrollEvent(final ScrollEvent event) {
         // scroll down
@@ -244,6 +290,7 @@ public class Controller {
     public final void upperPaneMousePressed(final MouseEvent event) {
         upperPane.requestFocus();
 
+        //modelBoundaries.clear();
         dragBaseX = upperPane.translateXProperty().get();
         dragBaseY = upperPane.translateYProperty().get();
         dragBase2X = event.getSceneX();
@@ -273,6 +320,7 @@ public class Controller {
         this.stage.getScene().setCursor(Cursor.DEFAULT);
         this.currentOffsetX += event.getSceneX() - dragBeginX;
         this.currentOffsetY += event.getSceneY() - dragBeginY;
+        //calculateBoundaries();
     }
 
 

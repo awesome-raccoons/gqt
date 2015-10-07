@@ -27,13 +27,31 @@ public class ModelBoundaries {
      */
     private double maxY;
 
+    private boolean defined = false;
+
     public ModelBoundaries() {
         clear();
+        defined = false;
     }
 
     public final void clear() {
         minX = minY = maxX = maxY = 0;
     }
+
+    public final double getMinX() { return minX; }
+    public final double getMinY() { return minY; }
+    public final double getMaxX() { return maxX; }
+    public final double getMaxY() { return maxY; }
+
+    public final double getMiddleX() {
+        return ((minX + maxX)/2);
+    }
+
+    public final double getMiddleY() {
+        return ((minY + maxY)/2);
+    }
+
+
 
     public final double getWidth() {
         return (maxX - minX);
@@ -44,11 +62,12 @@ public class ModelBoundaries {
     }
 
     public final void include(double x, double y){
-        if(this.isNull()) {
+        if((this.isNull()) && (defined == false)) {
             this.maxX = x;
             this.minX = x;
             this.maxY = y;
             this.minY = y;
+            this.defined = true;
         } else {
             if(x < this.minX) {
                 this.minX = x;
