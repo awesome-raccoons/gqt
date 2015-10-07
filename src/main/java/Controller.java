@@ -1,11 +1,5 @@
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.io.WKTReader;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
-import javafx.scene.control.Alert;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -16,13 +10,10 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import models.GeometryModel;
 import models.ModelBoundaries;
-import org.geotools.geometry.jts.JTSFactoryFinder;
 
-import java.rmi.MarshalException;
-import java.security.Key;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
+
 
 public class Controller {
     /**
@@ -36,8 +27,6 @@ public class Controller {
 
     private double currentOffsetX = 0;
     private double currentOffsetY = 0;
-
-    private ModelBoundaries modelBoundaries;
 
     @FXML
     private TextArea queryInput;
@@ -57,8 +46,6 @@ public class Controller {
     private static List<KeyCode> heldDownKeys = new ArrayList<>();
 
     public Controller() {
-        //gisVisualizations = new Vector(1, 1);
-        modelBoundaries = new ModelBoundaries();
 
     }
 
@@ -68,13 +55,8 @@ public class Controller {
         WktParser wktParser = new WktParser(Layer.getSelectedLayer(), upperPane);
         boolean result = wktParser.parseWktString(queryInput.getText());
         if (result) {
-            //wktParser.printAllFoundGeometries();
             wktParser.updateLayerGeometries();
             rescaleAllGeometries();
-            ArrayList<GeometryModel> geometryModelList = wktParser.getLayer().getGisVis().getGeometryModelList();
-            for (GeometryModel gm : geometryModelList) {
-                modelBoundaries.includeGeometry(gm.getOriginalGeometry());
-            }
         }
     }
 
@@ -93,6 +75,7 @@ public class Controller {
     public final double getZoomScale(double zoomFactor, int zoomLevel) {
         return Math.pow(zoomFactor, zoomLevel);
     }
+
     /**
      * Change coordinates of all geometries by scale of current zoom and move center of view from
      * top-left corner to the middle. (0, 0) coordinate is in the middle
@@ -132,7 +115,6 @@ public class Controller {
      * @param offsetY change of Y coordinates
      */
     public final void moveAllGeometries(double offsetX, double offsetY) {
-        GisVisualization gv;
         AnchorPane plotViewGroup = GisVisualization.getGroup();
 
         //Make sure to reset the GisVisualization, this empties the canvas and tooltips
@@ -142,6 +124,7 @@ public class Controller {
             Layer layer = Layer.getLayers(true).get(i);
             GisVisualization gisVisualization = layer.getGisVis();
 
+            // moving geometries to a List descreased dragging performance
             for (GeometryModel gm : gisVisualization.getGeometryModelList()) {
                 gm.moveGeometry(offsetX, offsetY);
             }
@@ -160,12 +143,34 @@ public class Controller {
         return Math.log(x)/Math.log(ZOOM_FACTOR);
     }
 
+    private final ModelBoundaries fillBoundariesWithLayers(ArrayList<Layer> layers) {
+        ModelBoundaries boundaries = new ModelBoundaries();
+        for (int i = layers.size() - 1; i >= 0; i--) {
+            Layer layer = layers.get(i);
+            GisVisualization gisVisualization = layer.getGisVis();
+
+            for (GeometryModel gm : gisVisualization.getGeometryModelList()) {
+                boundaries.includeGeometry(gm.getOriginalGeometry());
+            }
+        }
+        return boundaries;
+    }
+
+    public final void zoomToFitAll() {
+        ModelBoundaries modelBoundaries = fillBoundariesWithLayers(Layer.getLayers(true));
+        zoomToFit(modelBoundaries);
+    }
+
+    public final void zoomToFitSelected() {
+        ModelBoundaries modelBoundaries = fillBoundariesWithLayers(Layer.getAllSelectedLayers(true));
+        zoomToFit(modelBoundaries);
+    }
     /**
      * Scales geometries to fit to current view.
      */
-    public final void zoomToFit() {
-        double scaleX = upperPane.getWidth() / this.modelBoundaries.getWidth();
-        double scaleY = upperPane.getHeight() / this.modelBoundaries.getHeight();
+    public final void zoomToFit(ModelBoundaries modelBoundaries) {
+        double scaleX = upperPane.getWidth() / modelBoundaries.getWidth();
+        double scaleY = upperPane.getHeight() / modelBoundaries.getHeight();
         double scaleMin = Math.min(scaleX, scaleY);
         double zoomLevel;
 
@@ -177,8 +182,8 @@ public class Controller {
         currentZoomLevel = (int)zoomLevel;
 
         double zoomScale = getZoomScale(ZOOM_FACTOR, currentZoomLevel);
-        this.currentOffsetX = - (this.modelBoundaries.getMiddleX() * zoomScale);
-        this.currentOffsetY = - (this.modelBoundaries.getMiddleY() * zoomScale);
+        this.currentOffsetX = - (modelBoundaries.getMiddleX() * zoomScale);
+        this.currentOffsetY = - (modelBoundaries.getMiddleY() * zoomScale);
 
         rescaleAllGeometries();
     }
@@ -209,7 +214,7 @@ public class Controller {
                 zoomOut();
                 break;
             case "*":
-                zoomToFit();
+                zoomToFitSelected();
                 break;
             case "/":
                 resetView();

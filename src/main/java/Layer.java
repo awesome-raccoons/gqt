@@ -124,7 +124,7 @@ public class Layer extends HBox {
      * Returns a list of selected layers.
      * @return the list.
      */
-    private static ArrayList<Layer> getAllSelectedLayers(final boolean filterEmpty) {
+    public static ArrayList<Layer> getAllSelectedLayers(final boolean filterEmpty) {
         ArrayList<Layer> selectedLayers = new ArrayList<>();
         for (Layer l : getLayers(filterEmpty)) {
             if (l.isSelected.get()) {

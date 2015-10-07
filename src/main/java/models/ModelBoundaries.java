@@ -3,6 +3,8 @@ package models;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 
+import java.util.ArrayList;
+
 /**
  * Created by David on 2.10.2015.
  */
