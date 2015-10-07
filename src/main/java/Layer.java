@@ -34,6 +34,7 @@ public class Layer extends HBox {
     private LayerSelectedProperty isSelected;
     private CheckBox showOrHideCheckbox;
     private TextField layerName;
+    private ArrayList<Layer> subLayers;
     private static ArrayList<Layer> layers = new ArrayList<>();
 
     public Layer(final GisVisualization gisVis, final VBox parentContainer, final String name,
@@ -44,6 +45,7 @@ public class Layer extends HBox {
         this.wktString = wktString;
         this.textArea = textArea;
         this.isSelected = new LayerSelectedProperty();
+        this.subLayers = new ArrayList<>();
         EventHandler<MouseEvent> mouseClickedHandler = event -> handleLayerMousePress();
         this.setOnMouseClicked(mouseClickedHandler);
         EventHandler<KeyEvent> keyReleasedHandler = this::handleLayerKeyPresses;
@@ -332,5 +334,9 @@ public class Layer extends HBox {
         return null;
     }
 
-
+    public final void addSubLayer(Layer layer) {
+        if (!subLayers.contains(layer)) {
+            subLayers.add(layer);
+        }
+    }
 }
