@@ -25,18 +25,37 @@ public class GisVisualization {
 
     private int id;
     private Color color;
-    private GeometryModel geometryModel;
+    private ArrayList<GeometryModel> geometryModelList;
     private ArrayList<Circle> tooltips;
     private ArrayList<Circle> originalTooltips;
 
     private static ArrayList<Color> colors = new ArrayList<>();
 
+    /**
+     * /**
+     * Creates a geometry from the given points and draw it on the canvas.
+     * Also creates tooltips for each point in the geometry.
+     *
+     * @param geometry      The geometry object to visualize.
+     * @param group         The group the polygon will be drawn to.
+     */
     public GisVisualization(final Geometry geometry,
                             final AnchorPane group) {
         this.id = idCounter;
+        this.geometryModelList = new ArrayList<>();
         incrementCounter();
         createCanvas(group);
-        this.geometryModel = GeometryModel.getModel(geometry, group);
+        this.geometryModelList.add(GeometryModel.getModel(geometry, group));
+        this.tooltips = new ArrayList<>();
+        initColors();
+        this.color = getColor(this.id);
+    }
+
+    public GisVisualization(final AnchorPane group) {
+        this.id = idCounter;
+        this.geometryModelList = new ArrayList<>();
+        incrementCounter();
+        createCanvas(group);
         this.tooltips = new ArrayList<>();
         initColors();
         this.color = getColor(this.id);
@@ -52,12 +71,12 @@ public class GisVisualization {
         colors.add(Color.VIOLET);
     }
 
-    public final GeometryModel getGeometryModel() {
-        return this.geometryModel;
+    public final ArrayList<GeometryModel> getGeometryModelList() {
+        return this.geometryModelList;
     }
 
-    public final void setGeometryModel(final Geometry geometry) {
-        this.geometryModel = GeometryModel.getModel(geometry, group);
+    public final void clearGeometryModelList() {
+        geometryModelList.clear();
     }
 
     /**
@@ -83,13 +102,7 @@ public class GisVisualization {
      * @param group         The group the polygon will be drawn at.
      * @return a GisVisualization object.
      */
-    public static GisVisualization createVisualization(final Geometry geometry,
-                                                       final AnchorPane group) {
-        GisVisualization gisVis = new GisVisualization(geometry, group);
-        //gisVis.create2DShapeAndTooltips();
 
-        return gisVis;
-    }
 
     public final void setDisplayTooltips(final boolean display) {
         if (display) {
@@ -125,7 +138,9 @@ public class GisVisualization {
         graphicsContext.setFill(this.color);
         graphicsContext.setStroke(this.color);
 
-        tooltips.addAll(geometryModel.drawAndCreateToolTips(graphicsContext));
+        for (GeometryModel gm : geometryModelList) {
+            tooltips.addAll(gm.drawAndCreateToolTips(graphicsContext));
+        }
         originalTooltips = cloneList(tooltips);
     }
 
@@ -136,7 +151,9 @@ public class GisVisualization {
         graphicsContext.setFill(this.color);
         graphicsContext.setStroke(this.color);
 
-        geometryModel.drawAndCreateToolTips(graphicsContext);
+        for (GeometryModel gm : geometryModelList) {
+            gm.drawAndCreateToolTips(graphicsContext);
+        }
     }
 
     /**
@@ -198,5 +215,9 @@ public class GisVisualization {
             clonedList.add(new Circle(c.getCenterX(), c.getCenterY(), c.getRadius(), c.getFill()));
         }
         return clonedList;
+    }
+
+    public final void addGeometry(final Geometry geometry) {
+        geometryModelList.add(GeometryModel.getModel(geometry, group));
     }
 }

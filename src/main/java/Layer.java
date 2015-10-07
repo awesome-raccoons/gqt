@@ -331,6 +331,4 @@ public class Layer extends HBox {
         }
         return null;
     }
-
-
 }

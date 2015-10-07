@@ -1,11 +1,6 @@
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.io.WKTReader;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
-import javafx.scene.control.Alert;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -15,7 +10,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import models.GeometryModel;
-import org.geotools.geometry.jts.JTSFactoryFinder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,9 +40,15 @@ public class Controller {
      */
     private static List<KeyCode> heldDownKeys = new ArrayList<>();
 
+
     @FXML
     public final void updateLayer() {
-        drawPolygonFromWKT(queryInput.getText());
+        WktParser wktParser = new WktParser(Layer.getSelectedLayer(), upperPane);
+        boolean result = wktParser.parseWktString(queryInput.getText());
+        if (result) {
+            //wktParser.printAllFoundGeometries();
+            wktParser.updateLayerGeometries();
+        }
     }
 
     public final void createEmptyLayer() {
@@ -63,94 +63,6 @@ public class Controller {
         this.stage = stage;
     }
 
-    /**
-     * Creates and saves geometry. Calls methods to create new layer and visualization.
-     * @param poly Well Known Text from user input
-     */
-    public final void drawPolygonFromWKT(final String poly) {
-        if (poly.equals("")) {
-            showWKTParseErrorMessage();
-        } else {
-            try {
-                //Create a WKT parser for reading WKT input
-                GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
-                WKTReader reader = new WKTReader(geometryFactory);
-                Geometry geom = reader.read(poly);
-
-                drawGeometry(geom, poly);
-                rescaleAllGeometries();
-            } catch (com.vividsolutions.jts.io.ParseException e) {
-                showWKTParseErrorMessage();
-            }
-        }
-    }
-
-    public final void drawGeometry(final Geometry geom, final String poly) {
-        if (geom instanceof GeometryCollection) {
-            for (int i = 0; i < geom.getNumGeometries(); i++) {
-                refineGeometryClass(geom.getGeometryN(i), poly);
-            }
-        } else {
-            refineGeometryClass(geom, poly);
-        }
-    }
-
-    /**
-     * Displays an alert dialog when trying to draw an invalid WKT string.
-     */
-    public final void showWKTParseErrorMessage() {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error parsing WKT");
-        alert.setHeaderText("Invalid WKT");
-        String s = "The WKT string entered is of unknown geometry type ";
-        alert.setContentText(s);
-        alert.show();
-    }
-
-    /**
-     * Delegates the task of creating the layer for this geometry. Whether it is a plain WKT object,
-     * or a composite such as a MultiPolygon.
-     * @param geometry geometry to consider.
-     */
-    private void refineGeometryClass(final Geometry geometry, final String poly) {
-        if (geometry instanceof GeometryCollection) {
-            createLayersFromMultiples(geometry, poly);
-        } else {
-            updateLayerFigure(geometry, poly);
-        }
-    }
-
-    /**
-     * Assumes the given geometry is of a multiple type, and creates a layer for each.
-     * @param geometry geometry to consider.
-     */
-    private void createLayersFromMultiples(final Geometry geometry, final String poly) {
-        for (int i = 0; i < geometry.getNumGeometries(); i++) {
-            updateLayerFigure(geometry.getGeometryN(i), poly);
-        }
-    }
-
-    /**
-     * Creates a layer for the given geometry.
-     * @param geometry geometry to draw to a layer.
-     */
-    private void updateLayerFigure(final Geometry geometry, final String poly) {
-        Layer l = Layer.getSelectedLayer();
-        if (l != null) {
-            if (l.getGisVis() == null) {
-                l.setGisVis(GisVisualization.createVisualization(
-                        geometry,
-                        upperPane));
-            } else {
-                l.getGisVis().setGeometryModel(geometry);
-            }
-            l.setWKTString(poly);
-            l.setName(geometry.getGeometryType());
-
-            l.reorderLayers();
-            upperPane.requestFocus();
-        }
-    }
 
     public final void zoomIn() {
         currentZoomLevel++;
@@ -184,7 +96,9 @@ public class Controller {
         for (int i = Layer.getLayers(true).size() - 1; i >= 0; i--) {
             Layer layer = Layer.getLayers(true).get(i);
             GisVisualization gisVisualization = layer.getGisVis();
-            resizeGeometryModel(gisVisualization.getGeometryModel(), currentZoom);
+            for (GeometryModel gm : gisVisualization.getGeometryModelList()) {
+                resizeGeometryModel(gm, currentZoom);
+            }
             // redraw
             layer.redraw2DShape();
             //Move and add all tooltips
@@ -279,4 +193,6 @@ public class Controller {
     public static boolean isKeyHeldDown(final KeyCode code) {
         return heldDownKeys.contains(code);
     }
+
+
 }
