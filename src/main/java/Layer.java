@@ -322,7 +322,7 @@ public class Layer extends HBox {
     }
 
     public final void setWKTString(final String wktString) {
-        this.wktString = WKTString;
+        this.wktString = wktString;
     }
 
     public static Layer getSelectedLayer() {
