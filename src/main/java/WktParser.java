@@ -44,6 +44,10 @@ public class WktParser {
 
     }
 
+    public final Layer getLayer() {
+        return this.layer;
+    }
+
 
     /**
      * Creates and saves geometry. Calls methods to create new layer and visualization.
@@ -59,7 +63,6 @@ public class WktParser {
                 this.inputString = poly;
                 this.upperMostGeometryType = geom.getGeometryType();
                 extractAllGeometries(geom);
-                //rescaleAllGeometries();
             } catch (com.vividsolutions.jts.io.ParseException e) {
                 showWKTParseErrorMessage();
                 return false;
@@ -105,7 +108,6 @@ public class WktParser {
 
     /**
      * Creates a layer for the given geometry.
-     * @param geometry geometry to draw to a layer.
      */
     public final void updateLayerGeometries() {
         if (layer != null) {

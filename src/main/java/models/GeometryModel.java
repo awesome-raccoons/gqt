@@ -1,18 +1,18 @@
 package models;
 
 import com.vividsolutions.jts.algorithm.CGAlgorithms;
-import com.vividsolutions.jts.geom.CoordinateSequence;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.CoordinateSequences;
-
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.CoordinateSequences;
+import com.vividsolutions.jts.geom.CoordinateSequence;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
@@ -30,6 +30,7 @@ public abstract class GeometryModel {
     private final Geometry geometry;
     private final Geometry originalGeometry;
     private final AnchorPane group;
+    private final ModelBoundaries modelBoundaries;
 
     private static final double TOOLTIP_SIZE = 2.5;
 
@@ -37,6 +38,8 @@ public abstract class GeometryModel {
         this.geometry = geometry;
         this.group = group;
         this.originalGeometry = (Geometry) geometry.clone();
+        this.modelBoundaries = new ModelBoundaries();
+        this.modelBoundaries.includeGeometry(this.geometry);
     }
 
     public final Geometry getGeometry() {
@@ -46,6 +49,39 @@ public abstract class GeometryModel {
     public final AnchorPane getGroup() {
         return this.group;
     }
+
+    /**
+     * Recalculates new coordinates based on original coordinates, scale and current offset.
+     * @param scale multiplies original coordinates to fit current zoom level
+     * @param offsetX moves geometry on X axis
+     * @param offsetY moves geometry on Y axis
+     */
+    public final void transformGeometry(final double scale,
+                                        final double offsetX,
+                                        final double offsetY) {
+        Coordinate[] coord = this.geometry.getCoordinates();
+        Coordinate[] coordOrig = this.originalGeometry.getCoordinates();
+        for (int j = 0; j < coordOrig.length; j++) {
+            coord[j].x = (coordOrig[j].x) * scale + offsetX;
+            coord[j].y = (coordOrig[j].y) * scale + offsetY;
+        }
+        this.modelBoundaries.update(this.geometry);
+    }
+
+    /**
+     * Changes geometry coordinates to move it on X and Y axis.
+     * @param offsetX moves geometry on X axis
+     * @param offsetY moves geometry on X axis
+     */
+    public final void moveGeometry(final double offsetX, final double offsetY) {
+        Coordinate[] coord = this.geometry.getCoordinates();
+        for (int j = 0; j < coord.length; j++) {
+            coord[j].x += offsetX;
+            coord[j].y += offsetY;
+        }
+        //this.modelBoundaries.update(this.geometry);
+    }
+
 
     /**
      * Reverses hole orientation if needed. All geometries with holes go through here.
@@ -114,13 +150,9 @@ public abstract class GeometryModel {
         return this.originalGeometry;
     }
 
-    public static GeometryModel getModel(final Geometry geometry, final AnchorPane group) {
+
+    public static final GeometryModel getModel(final Geometry geometry, final AnchorPane group) {
         if (geometry instanceof Polygon) {
-            boolean hasHoles = ((Polygon) geometry).getNumInteriorRing() > 0;
-            if (hasHoles) {
-                Geometry g = holeFunction(geometry);
-                return new PolygonModel(g, group);
-            }
             return new PolygonModel(geometry, group);
         } else if (geometry instanceof Point) {
             return new PointModel(geometry, group);
@@ -136,10 +168,12 @@ public abstract class GeometryModel {
         return null;
     }
 
-    public final Circle createToolTip(final double x, final double y, final Paint color) {
+    public final Circle createToolTip(final double x, final double y,
+                                      final double origX, final double origY, final Paint color) {
         Circle circle = new Circle(x, y, TOOLTIP_SIZE, color);
-        Tooltip tooltip = new Tooltip(x + ", " + y);
+        Tooltip tooltip = new Tooltip(origX + ", " + origY);
         Tooltip.install(circle, tooltip);
+        //this.group.getChildren().add(circle);
         return circle;
     }
 

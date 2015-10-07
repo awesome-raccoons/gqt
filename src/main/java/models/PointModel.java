@@ -1,5 +1,6 @@
 package models;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 import javafx.scene.canvas.GraphicsContext;
@@ -24,11 +25,13 @@ public class PointModel extends GeometryModel {
     public final ArrayList<Circle> drawAndCreateToolTips(final GraphicsContext graphicsContext) {
         ArrayList<Circle> tooltips = new ArrayList<>();
         Point point = (Point) this.getGeometry();
+        Coordinate[] origCoordinates = this.getOriginalGeometry().getCoordinates();
         graphicsContext.fillOval(
                 point.getX() - POINT_SIZE * ADJUSTMENT_FACTOR,
                 point.getY() - POINT_SIZE * ADJUSTMENT_FACTOR,
                 POINT_SIZE, POINT_SIZE);
-        Circle tooltip = createToolTip(point.getX(), point.getY(), Color.TRANSPARENT);
+        Circle tooltip = createToolTip(point.getX(), point.getY(),
+                origCoordinates[0].x, origCoordinates[0].y, Color.TRANSPARENT);
         tooltips.add(tooltip);
         return tooltips;
     }

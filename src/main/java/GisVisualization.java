@@ -1,3 +1,4 @@
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -27,7 +28,6 @@ public class GisVisualization {
     private Color color;
     private ArrayList<GeometryModel> geometryModelList;
     private ArrayList<Circle> tooltips;
-    private ArrayList<Circle> originalTooltips;
 
     private static ArrayList<Color> colors = new ArrayList<>();
 
@@ -94,16 +94,6 @@ public class GisVisualization {
         }
     }
 
-    /**
-     * Creates a geometry from the given points and draw it on the canvas.
-     * Also creates tooltips for each point in the geometry.
-     *
-     * @param geometry      The geometry object to visualize.
-     * @param group         The group the polygon will be drawn at.
-     * @return a GisVisualization object.
-     */
-
-
     public final void setDisplayTooltips(final boolean display) {
         if (display) {
             for (Circle c : tooltips) {
@@ -141,7 +131,6 @@ public class GisVisualization {
         for (GeometryModel gm : geometryModelList) {
             tooltips.addAll(gm.drawAndCreateToolTips(graphicsContext));
         }
-        originalTooltips = cloneList(tooltips);
     }
 
     /**
@@ -157,15 +146,18 @@ public class GisVisualization {
     }
 
     /**
-     * Moves the tooltips to accommodate for any zoom.
-     * Tooltips are always scaled based on their original value to avoid decimal errors
+     * Moves the tooltips according to current coordinates!
+     * Tooltips are always equivalent to coordinates
      * Moved tooltips are added to the scene
-     * @param zoomFactor    The ratio of zoom to be applied
      */
-    public final void moveTooltips(final double zoomFactor) {
-        for (int i = 0; i < tooltips.size(); i++) {
-            tooltips.get(i).setCenterX(originalTooltips.get(i).getCenterX() * zoomFactor);
-            tooltips.get(i).setCenterY(originalTooltips.get(i).getCenterY() * zoomFactor);
+    public final void moveTooltips() {
+        Coordinate[] coord;
+        for (GeometryModel gm : geometryModelList) {
+            coord = gm.getGeometry().getCoordinates();
+            for (int i = 0; i < coord.length; i++) {
+                tooltips.get(i).setCenterX(coord[i].x);
+                tooltips.get(i).setCenterY(coord[i].y);
+            }
         }
     }
 

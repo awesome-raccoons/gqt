@@ -20,17 +20,21 @@ public class LineStringModel extends GeometryModel {
     public final ArrayList<Circle> drawAndCreateToolTips(final GraphicsContext graphicsContext) {
         ArrayList<Circle> tooltips = new ArrayList<>();
         Coordinate[] coordinates = this.getGeometry().getCoordinates();
+        Coordinate[] origCoordinates = this.getOriginalGeometry().getCoordinates();
+
         graphicsContext.moveTo(coordinates[0].x, coordinates[0].y);
         graphicsContext.setLineWidth(2.0);
 
         graphicsContext.setFill(Color.BLACK);
 
-        Circle tooltip = createToolTip(coordinates[0].x, coordinates[0].y, Color.BLACK);
+        Circle tooltip = createToolTip(coordinates[0].x, coordinates[0].y,
+                origCoordinates[0].x, origCoordinates[0].y, Color.BLACK);
         tooltips.add(tooltip);
         for (int i = 1; i < coordinates.length; i++) {
             graphicsContext.strokeLine(coordinates[i - 1].x, coordinates[i - 1].y,
                     coordinates[i].x, coordinates[i].y);
-            tooltip = createToolTip(coordinates[i].x, coordinates[i].y, Color.BLACK);
+            tooltip = createToolTip(coordinates[i].x, coordinates[i].y,
+                    origCoordinates[i].x, origCoordinates[i].y, Color.BLACK);
             tooltips.add(tooltip);
         }
 

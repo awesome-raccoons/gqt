@@ -73,7 +73,13 @@ public class Layer extends HBox {
     }
 
     private void updateLayerName() {
-        String newName = (gisVis != null) ? this.name + " " + gisVis.getID() : "Empty";
+        //String newName = (gisVis != null) ? this.name + " " + gisVis.getID() : "Empty";
+        String newName;
+        if (gisVis != null) {
+            newName = this.name + " " + gisVis.getID();
+        } else {
+            newName = "Empty";
+        }
         layerName.setText(newName);
     }
 
@@ -124,7 +130,7 @@ public class Layer extends HBox {
      * Returns a list of selected layers.
      * @return the list.
      */
-    private static ArrayList<Layer> getAllSelectedLayers(final boolean filterEmpty) {
+    public static ArrayList<Layer> getAllSelectedLayers(final boolean filterEmpty) {
         ArrayList<Layer> selectedLayers = new ArrayList<>();
         for (Layer l : getLayers(filterEmpty)) {
             if (l.isSelected.get()) {
