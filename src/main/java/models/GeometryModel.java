@@ -56,7 +56,9 @@ public abstract class GeometryModel {
      * @param offsetX moves geometry on X axis
      * @param offsetY moves geometry on Y axis
      */
-    public final void transformGeometry(final double scale, final double offsetX, final double offsetY) {
+    public final void transformGeometry(final double scale,
+                                        final double offsetX,
+                                        final double offsetY) {
         Coordinate[] coord = this.geometry.getCoordinates();
         Coordinate[] coordOrig = this.originalGeometry.getCoordinates();
         for (int j = 0; j < coordOrig.length; j++) {

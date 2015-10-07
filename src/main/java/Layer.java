@@ -73,7 +73,13 @@ public class Layer extends HBox {
     }
 
     private void updateLayerName() {
-        String newName = (gisVis != null) ? this.name + " " + gisVis.getID() : "Empty";
+        //String newName = (gisVis != null) ? this.name + " " + gisVis.getID() : "Empty";
+        String newName;
+        if (gisVis != null) {
+            newName = this.name + " " + gisVis.getID();
+        } else {
+            newName = "Empty";
+        }
         layerName.setText(newName);
     }
 

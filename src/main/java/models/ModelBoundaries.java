@@ -35,7 +35,10 @@ public class ModelBoundaries {
     }
 
     public final void clear() {
-        minX = minY = maxX = maxY = 0;
+        minX = 0;
+        minY = 0;
+        maxX = 0;
+        maxY = 0;
     }
 
     public final double getMinX() {
