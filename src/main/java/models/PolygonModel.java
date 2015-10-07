@@ -23,12 +23,14 @@ public class PolygonModel extends GeometryModel {
         ArrayList<Circle> tooltips = new ArrayList<>();
 
         Coordinate[] coordinates = this.getGeometry().getCoordinates();
+        Coordinate[] origCoordinates = this.getOriginalGeometry().getCoordinates();
         double[] xCoordinates = new double[coordinates.length];
         double[] yCoordinates = new double[coordinates.length];
         for (int i = 0; i < coordinates.length; i++) {
             xCoordinates[i] = coordinates[i].x;
             yCoordinates[i] = coordinates[i].y;
-            Circle tooltip = createToolTip(coordinates[i].x, coordinates[i].y, Color.BLACK);
+            Circle tooltip = createToolTip(coordinates[i].x, coordinates[i].y,
+                    origCoordinates[i].x, origCoordinates[i].y, Color.BLACK);
             tooltips.add(tooltip);
         }
 

@@ -1,3 +1,4 @@
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -7,7 +8,6 @@ import javafx.scene.shape.Circle;
 import models.GeometryModel;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 /**
  * Created by Johannes on 10.09.2015.
@@ -16,92 +16,83 @@ import java.util.Random;
 public class GisVisualization {
 
     private static int idCounter = 0;       //Static counter for IDs
-    private AnchorPane group;         //Root node all canvases will be drawn to
+    private static AnchorPane group;        //Root node all canvases will be drawn to
+
+    private static final int CANVAS_WIDTH = 5000;
+    private static final int CANVAS_HEIGHT = 5000;
+    private static final float OPACITY_PARAM = 0.7f;
+    private static Canvas canvas;
+    private static GraphicsContext graphicsContext;
 
     private int id;
-
-    private Canvas canvas;
-    private GraphicsContext graphicsContext;
+    private Color color;
     private GeometryModel geometryModel;
     private ArrayList<Circle> tooltips;
+    private ArrayList<Circle> originalTooltips;
 
-    private static final float OPACITY_PARAM = 0.7f;
+    private static ArrayList<Color> colors = new ArrayList<>();
 
-    public GisVisualization(final double canvasWidth,
-                            final double canvasHeight,
-                            final Geometry geometry,
+    public GisVisualization(final Geometry geometry,
                             final AnchorPane group) {
         this.id = idCounter;
         incrementCounter();
-        this.group = group;
-        this.canvas = new Canvas(canvasWidth, canvasHeight);
-        this.graphicsContext = canvas.getGraphicsContext2D();
+        createCanvas(group);
         this.geometryModel = GeometryModel.getModel(geometry, group);
         this.tooltips = new ArrayList<>();
+        initColors();
+        this.color = getColor(this.id);
+    }
+
+    private static void initColors() {
+        colors.add(Color.RED);
+        colors.add(Color.ORANGE);
+        colors.add(Color.YELLOW);
+        colors.add(Color.GREEN);
+        colors.add(Color.BLUE);
+        colors.add(Color.INDIGO);
+        colors.add(Color.VIOLET);
     }
 
     public final GeometryModel getGeometryModel() {
         return this.geometryModel;
     }
 
-    private static void incrementCounter() {
-        GisVisualization.idCounter += 1;
-    }
-
-    public final AnchorPane getGroup() {
-        return this.group;
-    }
-
-    public final GraphicsContext getGraphicsContext() {
-        return this.graphicsContext;
-    }
-
-    public final void clearGraphicsContext() {
-        this.canvas.getGraphicsContext2D().clearRect(0, 0,
-                this.canvas.getWidth(),
-                this.canvas.getHeight());
-        this.setDisplayTooltips(false);
-        tooltips.clear();
-    }
-
-    public final void reDraw() {
-        this.clearGraphicsContext();
-        ArrayList<Circle> partialTooltips =
-                this.geometryModel.drawAndCreateToolTips(this.graphicsContext);
-        tooltips.addAll(partialTooltips);
+    public final void setGeometryModel(final Geometry geometry) {
+        this.geometryModel = GeometryModel.getModel(geometry, group);
     }
 
     /**
-     * Creates a polygon from the given points and draw it on the canvas.
-     * Also creates tooltips for each point in the polygon.
+     * Creates a canvas, graphicsContext and fixes all setup required for drawing geometries.
+     * This will only happen the first time a layer is setup,
+     * and will be ignored on all subsequent layer creations.
+     * @param group The parent container in the drawing window.
+     */
+    private static void createCanvas(final AnchorPane group) {
+        if (canvas == null) {
+            canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
+            graphicsContext = canvas.getGraphicsContext2D();
+            group.getChildren().add(canvas);
+            GisVisualization.group = group;
+        }
+    }
+
+    /**
+     * Creates a geometry from the given points and draw it on the canvas.
+     * Also creates tooltips for each point in the geometry.
      *
-     * @param canvasWidth  Width of the canvas the GIS-visualization will drawn to.
-     * @param canvasHeight Height of the canvas the GIS-visualization will drawn to.
      * @param geometry      The geometry object to visualize.
      * @param group         The group the polygon will be drawn at.
      * @return a GisVisualization object.
      */
-    public static GisVisualization createVisualization(final double canvasWidth,
-                                                       final double canvasHeight,
-                                                       final Geometry geometry,
+    public static GisVisualization createVisualization(final Geometry geometry,
                                                        final AnchorPane group) {
-        GisVisualization gisVis = new GisVisualization(canvasWidth, canvasHeight, geometry, group);
-        gisVis.create2DShape(getRandomColor(OPACITY_PARAM));
-        group.getChildren().add(gisVis.canvas);
+        GisVisualization gisVis = new GisVisualization(geometry, group);
+        //gisVis.create2DShapeAndTooltips();
 
         return gisVis;
     }
 
-
-    /**
-     * Redraws this GisVisualization object and tooltips to its given group.
-     */
-    public final void reAddCanvas() {
-        group.getChildren().add(this.canvas);
-    }
-
     public final void setDisplayTooltips(final boolean display) {
-        //group.getChildren().remove(0, group.getChildren().size());
         if (display) {
             for (Circle c : tooltips) {
                 group.getChildren().add(c);
@@ -114,46 +105,64 @@ public class GisVisualization {
     }
 
     /**
-     * Creates a polygon using this GisVisualization object's graphicsContext.
-     * @param color The color of the polygon
+     * Reset the canvas.
+     * Removes all elements in the plot view. Including tooltips and canvas.
+     * Then adds the canvas again, and clears its contents.
      */
-    private void create2DShape(final Color color) {
-
-        this.graphicsContext.setFill(color);
-        this.graphicsContext.setStroke(color);
-
-        //This GisVisualization object can contain any geometry
-        //There check its instance and draw accordingly
-
-        ArrayList<Circle> partialTooltips =
-                geometryModel.drawAndCreateToolTips(this.graphicsContext);
-
-        tooltips.addAll(partialTooltips);
-    }
-
-    public final void toggleVisibility() {
-        this.canvas.setVisible(!canvas.isVisible());
-        for (Circle c : this.tooltips) {
-            c.setVisible(canvas.isVisible());
+    public static void reset() {
+        if (group != null) {
+            group.getChildren().clear();
+            group.getChildren().add(GisVisualization.getCanvas());
+            graphicsContext.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         }
     }
 
-    private static final int RGB_PARAM = 255;
-
     /**
-     * Returns a random rgb color with provided opacity.
-     *
-     * @param opacity transparent component, in range 0.0f-1.0f.
-     * @return the color.
+     * Creates a geometry using the geometryModel class to delegate the drawing according to type.
+     * Also creates tooltips and copies them in an original tooltip list
      */
-    private static Color getRandomColor(final float opacity) {
-        Random r = new Random();
-        return Color.rgb(r.nextInt(RGB_PARAM),
-                r.nextInt(RGB_PARAM),
-                r.nextInt(RGB_PARAM),
-                opacity);
+    public final void create2DShapeAndTooltips() {
+        tooltips.clear();
+        graphicsContext.setFill(this.color);
+        graphicsContext.setStroke(this.color);
+
+
+        tooltips.addAll(geometryModel.drawAndCreateToolTips(graphicsContext));
+        originalTooltips = cloneList(tooltips);
     }
 
+    /**
+     * creates a geometry, but does not handle anything about its tooltips.
+     */
+    public final void redraw2DShape() {
+        graphicsContext.setFill(this.color);
+        graphicsContext.setStroke(this.color);
+
+        geometryModel.drawAndCreateToolTips(graphicsContext);
+    }
+
+    /**
+     * Moves the tooltips according to current coordinates!
+     * Tooltips are always equivalent to coordinates
+     * Moved tooltips are added to the scene
+     */
+    public final void moveTooltips() {
+        Coordinate[] coord = this.geometryModel.getGeometry().getCoordinates();
+        for (int i = 0; i < coord.length; i++) {
+            tooltips.get(i).setCenterX(coord[i].x);
+            tooltips.get(i).setCenterY(coord[i].y);
+        }
+    }
+
+    /**
+     * Returns the next layer color with provided opacity.
+     *
+     * @return the color.
+     */
+    private static Color getColor(final int id) {
+        String colorString = colors.get(id % colors.size()).toString();
+        return Color.web(colorString, OPACITY_PARAM);
+}
 
     /**
      * Get the ID for this GisVisualization object.
@@ -164,4 +173,32 @@ public class GisVisualization {
         return this.id;
     }
 
+    /**
+     * Get the canvas used to draw all geometries.
+     * This is the same for all layers.
+     * @return  The canvas.
+     */
+    public static Canvas getCanvas() {
+        return canvas;
+    }
+
+    public static AnchorPane getGroup() {
+        return group;
+    }
+
+    public final ArrayList<Circle> getTooltips() {
+        return this.tooltips;
+    }
+
+    private static void incrementCounter() {
+        GisVisualization.idCounter += 1;
+    }
+
+    public static ArrayList<Circle> cloneList(final ArrayList<Circle> circles) {
+       ArrayList<Circle> clonedList = new ArrayList<Circle>(circles.size());
+        for (Circle c : circles) {
+            clonedList.add(new Circle(c.getCenterX(), c.getCenterY(), c.getRadius(), c.getFill()));
+        }
+        return clonedList;
+    }
 }

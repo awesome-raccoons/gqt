@@ -1,18 +1,13 @@
 package models;
 
-import com.sun.javafx.sg.prism.NGShape;
+import com.vividsolutions.jts.algorithm.CGAlgorithms;
 import com.vividsolutions.jts.geom.*;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
-import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.referencing.CRS;
-import org.opengis.geometry.Boundary;
-import org.opengis.geometry.BoundingBox;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.geometry.jts.JTSFactoryFinder;
 
 import java.util.ArrayList;
 
@@ -44,10 +39,6 @@ public abstract class GeometryModel {
         return this.group;
     }
 
-    public final Geometry getOriginalGeometry() {
-        return this.originalGeometry;
-    }
-
     /**
      * Recalculates new coordinates based on original coordinates, scale and current offset.
      * @param scale multiplies original coordinates to fit current zoom level
@@ -75,8 +66,77 @@ public abstract class GeometryModel {
             coord[j].x += offsetX;
             coord[j].y += offsetY;
         }
-        this.modelBoundaries.update(this.geometry);
+        //this.modelBoundaries.update(this.geometry);
     }
+
+
+    /**
+     * Reverses hole orientation if needed. All geometries with holes go through here.
+     * @param geometry
+     * @return
+     */
+    public static final Geometry holeFunction(final Geometry geometry) {
+
+        //Number of interior rings
+        int interiorRings = ((Polygon) geometry).getNumInteriorRing();
+
+        //Outer ring
+        LineString boundary = ((Polygon) geometry).getExteriorRing();
+        //LineStrings and CoordinateSequence arrays initializing, one entry per interior ring
+        CoordinateSequence[] holeSeqs = new CoordinateSequence[interiorRings];
+        CGAlgorithms clock = new CGAlgorithms();
+        CoordinateSequence outer = boundary.getCoordinateSequence();
+
+        //Checking if the outer ring is clockwise or not
+        boolean isCW = !clock.isCCW(outer.toCoordinateArray());
+
+
+        //If outer ring is clockwise, inner ring should be counterclockwise. If it isn't, change it
+        //If outer ring is CCW, make inner ring CW.
+        //Puts each ring into the LineString and CoordinateSequence arrays.
+        for (int x = 0; x < interiorRings; x++) {
+            LineString hole = ((Polygon) geometry).getInteriorRingN(x);
+
+            holeSeqs[x] = hole.getCoordinateSequence();
+
+
+            if (isCW) {
+                if (clock.isCCW(holeSeqs[x].toCoordinateArray())) {
+                    continue;
+                } else {
+                    CoordinateSequences.reverse(holeSeqs[x]);
+                }
+            } else {
+                if (!clock.isCCW(holeSeqs[x].toCoordinateArray())) {
+                    continue;
+                } else {
+                    CoordinateSequences.reverse(holeSeqs[x]);
+                }
+            }
+
+        }
+        CoordinateSequence shell = boundary.getCoordinateSequence();
+
+        LinearRing[] holes = new LinearRing[interiorRings];
+        GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
+
+        //Makes one new LinearRing for each interior ring
+        for (int x = 0; x < interiorRings; x++) {
+            LinearRing linear = new GeometryFactory().createLinearRing(holeSeqs[x]);
+            holes[x] = linear;
+
+        }
+        //One LinearRing for the outer ring
+        LinearRing shellR = new GeometryFactory().createLinearRing(shell);
+
+        //Making the new polygon
+        return new Polygon(shellR, holes, geometryFactory);
+    }
+
+    public final Geometry getOriginalGeometry() {
+        return this.originalGeometry;
+    }
+
 
     public static final GeometryModel getModel(final Geometry geometry, final AnchorPane group) {
         if (geometry instanceof Polygon) {
@@ -95,9 +155,10 @@ public abstract class GeometryModel {
         return null;
     }
 
-    public final Circle createToolTip(final double x, final double y, final Paint color) {
+    public final Circle createToolTip(final double x, final double y,
+                                      final double origX, final double origY, final Paint color) {
         Circle circle = new Circle(x, y, TOOLTIP_SIZE, color);
-        Tooltip tooltip = new Tooltip(x + ", " + y);
+        Tooltip tooltip = new Tooltip(origX + ", " + origY);
         Tooltip.install(circle, tooltip);
         //this.group.getChildren().add(circle);
         return circle;

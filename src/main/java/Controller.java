@@ -5,27 +5,24 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.WKTReader;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
 import models.GeometryModel;
 import models.ModelBoundaries;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 
 import java.rmi.MarshalException;
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
-
-//import javafx.scene.Node;
-//import javafx.scene.Parent;
 
 public class Controller {
     /**
@@ -40,6 +37,8 @@ public class Controller {
     private double currentOffsetX = 0;
     private double currentOffsetY = 0;
 
+    private ModelBoundaries modelBoundaries;
+
     @FXML
     private TextArea queryInput;
     @FXML
@@ -51,7 +50,6 @@ public class Controller {
     private double dragBase2X, dragBase2Y;
     private double dragBeginX, dragBeginY;
     private Stage stage;
-    private ModelBoundaries modelBoundaries;
 
     /**
      * Stored all GisVisualizations.
@@ -62,13 +60,20 @@ public class Controller {
     public Controller() {
         gisVisualizations = new Vector(1, 1);
         modelBoundaries = new ModelBoundaries();
+
     }
 
     @FXML
-    public final void pressed() {
+    public final void updateLayer() {
         drawPolygonFromWKT(queryInput.getText());
+    }
 
-        vboxLayers.getChildren().add(new HBox());
+    public final void createEmptyLayer() {
+        Layer l = new Layer(null, vboxLayers, null, "", queryInput);
+        Layer.getLayers(false).add(l);
+        l.addLayerToView();
+        //To ensure the latest new layer will be selected.
+        l.handleLayerMousePress();
     }
 
     public final void setStage(final Stage stage) {
@@ -80,39 +85,56 @@ public class Controller {
      * @param poly Well Known Text from user input
      */
     public final void drawPolygonFromWKT(final String poly) {
-        try {
-            //Create a WKT parser for reading WKT input
-            GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
-            WKTReader reader = new WKTReader(geometryFactory);
-            Geometry geom = reader.read(poly);
+        if (poly.equals("")) {
+            showWKTParseErrorMessage();
+        } else {
+            try {
+                //Create a WKT parser for reading WKT input
+                GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
+                WKTReader reader = new WKTReader(geometryFactory);
+                Geometry geom = reader.read(poly);
 
-            drawPolygon(geom);
-            modelBoundaries.includeGeometry(geom);
-            rescaleAllGeometries();
-        } catch (com.vividsolutions.jts.io.ParseException e) {
-            e.printStackTrace();
+                drawGeometry(geom, poly);
+                modelBoundaries.includeGeometry(geom);
+                rescaleAllGeometries();
+            } catch (com.vividsolutions.jts.io.ParseException e) {
+                showWKTParseErrorMessage();
+            }
         }
     }
 
-    public final void drawPolygon(final Geometry geom) {
+    public final void drawGeometry(final Geometry geom, final String poly) {
         if (geom instanceof GeometryCollection) {
             for (int i = 0; i < geom.getNumGeometries(); i++) {
-                refineGeometryClass(geom.getGeometryN(i));
+                refineGeometryClass(geom.getGeometryN(i), poly);
             }
         } else {
-            refineGeometryClass(geom);
+            refineGeometryClass(geom, poly);
         }
     }
+
+    /**
+     * Displays an alert dialog when trying to draw an invalid WKT string.
+     */
+    public final void showWKTParseErrorMessage() {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error parsing WKT");
+        alert.setHeaderText("Invalid WKT");
+        String s = "The WKT string entered is of unknown geometry type ";
+        alert.setContentText(s);
+        alert.show();
+    }
+
     /**
      * Delegates the task of creating the layer for this geometry. Whether it is a plain WKT object,
      * or a composite such as a MultiPolygon.
      * @param geometry geometry to consider.
      */
-    private void refineGeometryClass(final Geometry geometry) {
+    private void refineGeometryClass(final Geometry geometry, final String poly) {
         if (geometry instanceof GeometryCollection) {
-            createLayersFromMultiples(geometry);
+            createLayersFromMultiples(geometry, poly);
         } else {
-            createLayer(geometry);
+            updateLayerFigure(geometry, poly);
         }
     }
 
@@ -120,9 +142,9 @@ public class Controller {
      * Assumes the given geometry is of a multiple type, and creates a layer for each.
      * @param geometry geometry to consider.
      */
-    private void createLayersFromMultiples(final Geometry geometry) {
+    private void createLayersFromMultiples(final Geometry geometry, final String poly) {
         for (int i = 0; i < geometry.getNumGeometries(); i++) {
-            createLayer(geometry.getGeometryN(i));
+            updateLayerFigure(geometry.getGeometryN(i), poly);
         }
     }
 
@@ -130,17 +152,22 @@ public class Controller {
      * Creates a layer for the given geometry.
      * @param geometry geometry to draw to a layer.
      */
-    private void createLayer(final Geometry geometry) {
-        GisVisualization gv = GisVisualization.createVisualization(
-                this.stage.getWidth(),
-                this.stage.getHeight(),
-                geometry,
-                upperPane);
-        gisVisualizations.add(gv);
-        Layer hb = new Layer(gv, vboxLayers, geometry.getGeometryType());
-        Layer.getLayers().add(hb);
-        hb.reorderLayers();
-        upperPane.requestFocus();
+    private void updateLayerFigure(final Geometry geometry, final String poly) {
+        Layer l = Layer.getSelectedLayer();
+        if (l != null) {
+            if (l.getGisVis() == null) {
+                l.setGisVis(GisVisualization.createVisualization(
+                        geometry,
+                        upperPane));
+            } else {
+                l.getGisVis().setGeometryModel(geometry);
+            }
+            l.setWKTString(poly);
+            l.setName(geometry.getGeometryType());
+
+            l.reorderLayers();
+            upperPane.requestFocus();
+        }
     }
 
 
@@ -163,22 +190,24 @@ public class Controller {
         double centerX = upperPane.getWidth() / 2;
         double centerY = upperPane.getHeight() / 2;
         GisVisualization gv;
-        GeometryModel gm;
+        AnchorPane plotViewGroup = GisVisualization.getGroup();
+        //Make sure to reset the GisVisualization, this empties the canvas and tooltips
+        GisVisualization.reset();
 
-        //modelBoundaries.clear();
         // resize and redraw all geometries
-        for (int i = 0; i < gisVisualizations.size(); i++) {
-            gv = (GisVisualization) gisVisualizations.get(i);
-            gm = gv.getGeometryModel();
-
+        for (int i = Layer.getLayers(true).size() - 1; i >= 0; i--) {
+            Layer layer = Layer.getLayers(true).get(i);
+            GisVisualization gisVisualization = layer.getGisVis();
+            GeometryModel gm = gisVisualization.getGeometryModel();
             gm.transformGeometry(currentZoom, this.currentOffsetX + centerX, this.currentOffsetY + centerY);
-          //  modelBoundaries.includeGeometry(gm.getGeometry());
             // redraw
-            gisVisualizations.get(i).reDraw();
-        }
-        // reorder layers to maintain tooltips display correctly
-        if (!Layer.getLayers().isEmpty()) {
-            Layer.getLayers().get(0).reorderLayers();
+            layer.redraw2DShape();
+            //Move and add all tooltips
+            gisVisualization.moveTooltips();
+            //Only add them if the corresponding layer is checked and selected.
+            if (layer.getIfTooltipsShouldBeDisplayed()) {
+                plotViewGroup.getChildren().addAll(gisVisualization.getTooltips());
+            }
         }
     }
 
@@ -189,30 +218,27 @@ public class Controller {
      */
     public final void moveAllGeometries(double offsetX, double offsetY) {
         GisVisualization gv;
+        AnchorPane plotViewGroup = GisVisualization.getGroup();
 
+        //Make sure to reset the GisVisualization, this empties the canvas and tooltips
+        GisVisualization.reset();
         // resize and redraw all geometries
-        for (int i = 0; i < gisVisualizations.size(); i++) {
-            gv = gisVisualizations.get(i);
-            GeometryModel gm = gv.getGeometryModel();
+        for (int i = Layer.getLayers(true).size() - 1; i >= 0; i--) {
+            Layer layer = Layer.getLayers(true).get(i);
+            GisVisualization gisVisualization = layer.getGisVis();
+            GeometryModel gm = gisVisualization.getGeometryModel();
             gm.moveGeometry(offsetX, offsetY);
-            //modelBoundaries.includeGeometry(gm.getGeometry());
+
             // redraw
-            gisVisualizations.get(i).reDraw();
-        }
-        // reorder layers to maintain tooltips display correctly
-        if (!Layer.getLayers().isEmpty()) {
-            Layer.getLayers().get(0).reorderLayers();
+            layer.redraw2DShape();
+            //Move and add all tooltips
+            gisVisualization.moveTooltips();
+            //Only add them if the corresponding layer is checked and selected.
+            if (layer.getIfTooltipsShouldBeDisplayed()) {
+                plotViewGroup.getChildren().addAll(gisVisualization.getTooltips());
+            }
         }
     }
-
-   /* public final void calculateBoundaries() {
-        GisVisualization gv;
-        for (int i = 0; i < gisVisualizations.size(); i++) {
-            gv = gisVisualizations.get(i);
-            GeometryModel gm = gv.getGeometryModel();
-            modelBoundaries.includeGeometry(gm.getGeometry());
-        }
-    }*/
 
     private final double logZoomFactor(double x) {
         return Math.log(x)/Math.log(ZOOM_FACTOR);
@@ -222,22 +248,30 @@ public class Controller {
      * Scales geometries to fit to current view.
      * @param fitBoundaries ModelBoundaries of objects that has to be included in a view
      */
-    public final void zoomToFit(ModelBoundaries fitBoundaries) {
-        double scaleX = upperPane.getWidth() / fitBoundaries.getWidth();
-        double scaleY = upperPane.getHeight() / fitBoundaries.getHeight();
+    public final void zoomToFit() {
+        double scaleX = upperPane.getWidth() / this.modelBoundaries.getWidth();
+        double scaleY = upperPane.getHeight() / this.modelBoundaries.getHeight();
         double scaleMin = Math.min(scaleX, scaleY);
-        int zoomLevel;
+        double zoomLevel;
 
         zoomLevel = (int) logZoomFactor(scaleMin);
         // correction because of truncating negative numbers in a way that doesn't fit this purpose
         if (zoomLevel < 0) {
             zoomLevel--;
         }
-        currentZoomLevel = zoomLevel;
+        currentZoomLevel = (int)zoomLevel;
 
         double zoomScale = getZoomScale(ZOOM_FACTOR, currentZoomLevel);
-        this.currentOffsetX = - (fitBoundaries.getMiddleX() * zoomScale);
-        this.currentOffsetY = - (fitBoundaries.getMiddleY() * zoomScale);
+        this.currentOffsetX = - (this.modelBoundaries.getMiddleX() * zoomScale);
+        this.currentOffsetY = - (this.modelBoundaries.getMiddleY() * zoomScale);
+
+        rescaleAllGeometries();
+    }
+
+    public final void resetView() {
+        currentZoomLevel = 0;
+        this.currentOffsetX = 0;
+        this.currentOffsetY = 0;
 
         rescaleAllGeometries();
     }
@@ -261,8 +295,10 @@ public class Controller {
                 zoomOut();
                 break;
             case "*":
-                zoomToFit(this.modelBoundaries);
+                zoomToFit();
                 break;
+            case "/":
+                resetView();
             default:
                 break;
         }
@@ -277,10 +313,6 @@ public class Controller {
             zoomIn();
         }
     }
-    //TODO Concerns: dragging only works when clicking the canvas,
-        //areas of pane not filled with canvas does not react
-    //TODO possible solutions: Make a really huge canvas and translate 0,0 to middle of screen.
-        // Or find another node and listener to move canvas
 
     /**
      * Called when the mouse press the upperPane.
@@ -290,7 +322,6 @@ public class Controller {
     public final void upperPaneMousePressed(final MouseEvent event) {
         upperPane.requestFocus();
 
-        //modelBoundaries.clear();
         dragBaseX = upperPane.translateXProperty().get();
         dragBaseY = upperPane.translateYProperty().get();
         dragBase2X = event.getSceneX();
@@ -323,26 +354,9 @@ public class Controller {
         //calculateBoundaries();
     }
 
-
-
-    /*private Node isChildFocused(final Parent parent) {
-        for (Node node : parent.getChildrenUnmodifiable()) {
-            if (node.isFocused()) {
-                return node;
-            } else if (node instanceof Parent) {
-                if (isChildFocused((Parent) node) != null) {
-                    return node;
-                }
-            }
-        }
-        return null;
-    }*/
-
-
-
     public final void wktAreaKeyPressed(final KeyEvent event) {
         if (event.isAltDown() && event.getCode() == KeyCode.ENTER) {
-            pressed();
+            updateLayer();
         }
     }
 
@@ -351,7 +365,6 @@ public class Controller {
             heldDownKeys.add(event.getCode());
         }
     }
-
 
     public final void onAnyKeyReleased(final KeyEvent event) {
         heldDownKeys.remove(event.getCode());
