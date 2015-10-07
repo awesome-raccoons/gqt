@@ -56,6 +56,10 @@ public class GisVisualization {
         return this.geometryModel;
     }
 
+    public final void setGeometryModel(final Geometry geometry) {
+        this.geometryModel = GeometryModel.getModel(geometry, group);
+    }
+
     /**
      * Creates a canvas, graphicsContext and fixes all setup required for drawing geometries.
      * This will only happen the first time a layer is setup,
@@ -82,7 +86,7 @@ public class GisVisualization {
     public static GisVisualization createVisualization(final Geometry geometry,
                                                        final AnchorPane group) {
         GisVisualization gisVis = new GisVisualization(geometry, group);
-        gisVis.create2DShapeAndTooltips();
+        //gisVis.create2DShapeAndTooltips();
 
         return gisVis;
     }
@@ -105,9 +109,11 @@ public class GisVisualization {
      * Then adds the canvas again, and clears its contents.
      */
     public static void reset() {
-        group.getChildren().clear();
-        group.getChildren().add(GisVisualization.getCanvas());
-        graphicsContext.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        if (group != null) {
+            group.getChildren().clear();
+            group.getChildren().add(GisVisualization.getCanvas());
+            graphicsContext.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        }
     }
 
     /**

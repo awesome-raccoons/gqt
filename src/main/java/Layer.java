@@ -26,13 +26,14 @@ import java.util.Collections;
 
 public class Layer extends HBox {
 
-    private final GisVisualization gisVis;     //The drawing model
     private final VBox parentContainer;        //Container where layers are put
+    private GisVisualization gisVis;            //The drawing model
     private String name;                       //Name of the layers
     private String wktString;                  //Original WKT string entered for this layer
     private TextArea textArea;
     private LayerSelectedProperty isSelected;
     private CheckBox showOrHideCheckbox;
+    private TextField layerName;
     private static ArrayList<Layer> layers = new ArrayList<>();
 
     public Layer(final GisVisualization gisVis, final VBox parentContainer, final String name,
@@ -43,34 +44,40 @@ public class Layer extends HBox {
         this.wktString = wktString;
         this.textArea = textArea;
         this.isSelected = new LayerSelectedProperty();
+        EventHandler<MouseEvent> mouseClickedHandler = event -> handleLayerMousePress();
         this.setOnMouseClicked(mouseClickedHandler);
+        EventHandler<KeyEvent> keyReleasedHandler = this::handleLayerKeyPresses;
         this.setOnKeyReleased(keyReleasedHandler);
+
         createLayer();
     }
+
 
     /**
      * Creates a layer for this Layer object.
      */
     public final void createLayer() {
         showOrHideCheckbox = new CheckBox();
+        showOrHideCheckbox.setDisable(gisVis == null);
         showOrHideCheckbox.setOnAction(event -> {
             checkShowOrHideCheckboxes();
             redrawAll();
         });
         showOrHideCheckbox.setSelected(true);
-        TextField tf = new TextField(this.name + " " + gisVis.getID());
+        layerName = new TextField();
+        updateLayerName();
         VBox vb = new VBox();
         this.getChildren().add(showOrHideCheckbox);
-        this.getChildren().add(tf);
+        this.getChildren().add(layerName);
         this.getChildren().add(vb);
     }
 
-    public final void deleteLayers() {
-        this.parentContainer.getChildren().remove(0, this.parentContainer.getChildren().size());
-        layers.clear();
+    private void updateLayerName() {
+        String newName = (gisVis != null) ? this.name + " " + gisVis.getID() : "Empty";
+        layerName.setText(newName);
     }
 
-    private EventHandler<KeyEvent> keyReleasedHandler = event -> {
+    public final void handleLayerKeyPresses(final KeyEvent event) {
         if (event.getCode() == KeyCode.DOWN) {
             //Move selected layers down
             moveSelectedLayers(1);
@@ -78,66 +85,48 @@ public class Layer extends HBox {
             //Move selected layers up
             moveSelectedLayers(-1);
         }
-    };
-
-    private EventHandler<MouseEvent> mouseClickedHandler = new EventHandler<MouseEvent>() {
-        @Override
-        public void handle(final MouseEvent event) {
-            textArea.setDisable(false);
-            //CTRL is pressed select additional, otherwise unselected previously selected
-            boolean oldValue = isSelected.get();
-            if (!Controller.isKeyHeldDown(KeyCode.CONTROL)) {
-                deselectAllLayers();
-            }
-
-            //Toggle selection and display tooltips if it is selected
-            isSelected.set(!oldValue);
-            gisVis.setDisplayTooltips(getIfTooltipsShouldBeDisplayed());
-            if (isSelected.get()) {
-                showWKTString();
-                requestFocus();
-            }
-
-            int numberOfSelectedLayers = getNumberOfSelectedLayers();
-
-            if (numberOfSelectedLayers == 0) {
-                textArea.clear();
-            } else if (numberOfSelectedLayers == 1) {
-                getAllSelectedLayers().get(0).showWKTString();
-            } else if (numberOfSelectedLayers > 1) {
-                textArea.setDisable(true);
-            }
-
-
-            toggleBackgroundColor(isSelected);
-        }
-    };
-
-    public final boolean getIfTooltipsShouldBeDisplayed() {
-        return isSelected.get() && showOrHideCheckbox.isSelected();
     }
 
-    /**
-     * Returns the number of selected layers whose selected property is true.
-     * @return number of selected layers.
-     */
-    private static int getNumberOfSelectedLayers() {
-        int numberOfSelected = 0;
-        for (Layer l : layers) {
-            if (l.isSelected.get()) {
-                numberOfSelected++;
-            }
+    public final void handleLayerMousePress() {
+        textArea.setDisable(false);
+        //CTRL is pressed select additional, otherwise unselected previously selected
+        boolean oldValue = isSelected.get();
+        if (!Controller.isKeyHeldDown(KeyCode.CONTROL)) {
+            deselectAllLayers();
         }
-        return numberOfSelected;
+
+        //Toggle selection and display tooltips if it is selected
+        isSelected.set(!oldValue);
+        if (gisVis != null) {
+            gisVis.setDisplayTooltips(getIfTooltipsShouldBeDisplayed());
+        }
+        if (isSelected.get()) {
+            showWKTString();
+            requestFocus();
+        }
+
+        int numberOfSelectedLayers = getNumberOfSelectedLayers();
+
+        if (numberOfSelectedLayers == 0) {
+            textArea.clear();
+            textArea.setDisable(true);
+        } else if (numberOfSelectedLayers == 1) {
+            getAllSelectedLayers(false).get(0).showWKTString();
+        } else if (numberOfSelectedLayers > 1) {
+            textArea.setDisable(true);
+        }
+
+
+        toggleBackgroundColor(isSelected);
     }
 
     /**
      * Returns a list of selected layers.
      * @return the list.
      */
-    private static ArrayList<Layer> getAllSelectedLayers() {
+    private static ArrayList<Layer> getAllSelectedLayers(final boolean filterEmpty) {
         ArrayList<Layer> selectedLayers = new ArrayList<>();
-        for (Layer l : layers) {
+        for (Layer l : getLayers(filterEmpty)) {
             if (l.isSelected.get()) {
                 selectedLayers.add(l);
             }
@@ -150,9 +139,11 @@ public class Layer extends HBox {
      * Deselects all layers, disables their tooltip and returns background color to normal.
      */
     public final void deselectAllLayers() {
-        for (Layer l : layers) {
+        for (Layer l : getLayers(false)) {
             l.isSelected.set(false);
-            l.gisVis.setDisplayTooltips(false);
+            if (l.gisVis != null) {
+                l.gisVis.setDisplayTooltips(false);
+            }
             l.toggleBackgroundColor(l.isSelected);
         }
     }
@@ -192,7 +183,7 @@ public class Layer extends HBox {
         //Create a list of numbers from 0...n where n is the amount of layers
         //Is there an easier more convenient way to do this?
         ArrayList<Integer> iteratorList = new ArrayList<>();
-        for (int i = 0; i < Layer.getLayers().size(); i++) {
+        for (int i = 0; i < Layer.getLayers(false).size(); i++) {
             iteratorList.add(i);
         }
 
@@ -200,21 +191,21 @@ public class Layer extends HBox {
             Collections.reverse(iteratorList);
         }
         for (int i : iteratorList) {
-            Layer currentLayer = Layer.getLayers().get(i);
+            Layer currentLayer = Layer.getLayers(false).get(i);
 
             if (!checkedLayers.contains(currentLayer)) {
                 checkedLayers.add(currentLayer);
 
                 if (currentLayer.isSelected.get()) {
-                    Layer l = Layer.getLayers().remove(i);
+                    Layer l = Layer.getLayers(false).remove(i);
                     int newPos = i + offset;
 
-                    if (newPos >= Layer.getLayers().size()) {
-                        Layer.getLayers().add(l);
+                    if (newPos >= Layer.getLayers(false).size()) {
+                        Layer.getLayers(false).add(l);
                     } else if (newPos < 0) {
-                        Layer.getLayers().add(0, l);
+                        Layer.getLayers(false).add(0, l);
                     } else {
-                        Layer.getLayers().add(newPos, l);
+                        Layer.getLayers(false).add(newPos, l);
                     }
                 }
             }
@@ -232,9 +223,11 @@ public class Layer extends HBox {
 
         this.parentContainer.getChildren().remove(0, this.parentContainer.getChildren().size());
 
-        for (Layer layer : layers) {
-            this.parentContainer.getChildren().add(layer);
-        }
+        layers.forEach(Layer::addLayerToView);
+    }
+
+    public final void addLayerToView() {
+        this.parentContainer.getChildren().add(this);
     }
 
     /**
@@ -243,13 +236,22 @@ public class Layer extends HBox {
      */
     public static void redrawAll() {
         GisVisualization.reset();
-
-        for (int i = layers.size() - 1; i >= 0; i--) {
-            Layer hb = layers.get(i);
-            if (hb.showOrHideCheckbox.isSelected()) {
-                hb.gisVis.create2DShapeAndTooltips();
-                hb.gisVis.setDisplayTooltips(hb.isSelected.get());
+        for (int i = getLayers(false).size() - 1; i >= 0; i--) {
+            Layer layer = layers.get(i);
+            if (layer.showOrHideCheckbox.isSelected() && layer.gisVis != null) {
+                layer.gisVis.create2DShapeAndTooltips();
+                layer.gisVis.setDisplayTooltips(layer.isSelected.get());
             }
+        }
+    }
+
+    /**
+     * Redraws the current GisVisualization if it is checked.
+     * Delegates the tasks further to GisVisualization
+     */
+    public final void redraw2DShape() {
+        if (showOrHideCheckbox.isSelected()) {
+            this.gisVis.redraw2DShape();
         }
     }
 
@@ -260,18 +262,75 @@ public class Layer extends HBox {
     private void checkShowOrHideCheckboxes() {
         if (isSelected.get()) {
             boolean checkedValue = showOrHideCheckbox.isSelected();
-            for (Layer l : getAllSelectedLayers()) {
+            for (Layer l : getAllSelectedLayers(true)) {
                 l.showOrHideCheckbox.setSelected(checkedValue);
             }
         }
     }
 
-    public static ArrayList<Layer> getLayers() {
+    public final boolean getIfTooltipsShouldBeDisplayed() {
+        return isSelected.get() && showOrHideCheckbox.isSelected();
+    }
+
+    /**
+     * Returns the number of selected layers whose selected property is true.
+     * @return number of selected layers.
+     */
+    private static int getNumberOfSelectedLayers() {
+        int numberOfSelected = 0;
+        for (Layer l : layers) {
+            if (l.isSelected.get()) {
+                numberOfSelected++;
+            }
+        }
+        return numberOfSelected;
+    }
+
+    /**
+     * Get a copy of a list of all current layers.
+     * @param filterEmpty Whether to filter out the empty layers in the returned clone
+     * @return a copy of the list of layers
+     */
+    public static ArrayList<Layer> getLayers(final boolean filterEmpty) {
+        if (filterEmpty) {
+            ArrayList<Layer> layerCopy = new ArrayList<>();
+            for (Layer l : layers) {
+                if (l.gisVis != null) {
+                    layerCopy.add(l);
+                }
+            }
+
+            return layerCopy;
+        }
         return layers;
     }
 
     public final GisVisualization getGisVis() {
         return this.gisVis;
     }
+
+    public final void setGisVis(final GisVisualization newGisVis) {
+        if (newGisVis != null) {
+            this.gisVis = newGisVis;
+            showOrHideCheckbox.setDisable(false);
+        }
+    }
+
+    public final void setName(final String name) {
+        this.name = name;
+        updateLayerName();
+    }
+
+    public final void setWKTString(final String wktString) {
+        this.wktString = wktString;
+    }
+
+    public static Layer getSelectedLayer() {
+        if (getNumberOfSelectedLayers() == 1) {
+            return getAllSelectedLayers(false).get(0);
+        }
+        return null;
+    }
+
 
 }
