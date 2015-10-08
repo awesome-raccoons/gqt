@@ -120,7 +120,8 @@ public class ModelBoundaries {
         includeGeometry(geometry);
     }
 
-    public boolean isNull() {
-        return minX == 0.0D && minY == 0.0D && this.getWidth() <= 0.0D && this.getHeight() <= 0.0D && !defined;
+    public final boolean isNull() {
+        return minX == 0.0D && minY == 0.0D && this.getWidth() <= 0.0D
+                && this.getHeight() <= 0.0D && !defined;
     }
 }
