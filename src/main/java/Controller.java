@@ -125,7 +125,7 @@ public class Controller {
             Layer layer = Layer.getLayers(true).get(i);
             GisVisualization gisVisualization = layer.getGisVis();
 
-            // moving geometries to a List descreased dragging performance
+            // moving geometries to a List decreased dragging performance
             for (GeometryModel gm : gisVisualization.getGeometryModelList()) {
                 gm.moveGeometry(offsetX, offsetY);
             }
@@ -167,16 +167,25 @@ public class Controller {
                 fillBoundariesWithLayers(Layer.getAllSelectedLayers(true));
         zoomToFit(modelBoundaries);
     }
+
+    public final void zoomToFitVisible() {
+        ModelBoundaries modelBoundaries =
+                fillBoundariesWithLayers(Layer.getAllVisibleLayers(true));
+        zoomToFit(modelBoundaries);
+    }
     /**
      * Scales geometries to fit to current view.
      */
     public final void zoomToFit(final ModelBoundaries modelBoundaries) {
+        if (modelBoundaries.isNull()) {
+            return;
+        }
         double scaleX = upperPane.getWidth() / modelBoundaries.getWidth();
         double scaleY = upperPane.getHeight() / modelBoundaries.getHeight();
         double scaleMin = Math.min(scaleX, scaleY);
         double zoomLevel;
 
-        zoomLevel = (int) logZoomFactor(scaleMin);
+        zoomLevel = logZoomFactor(scaleMin);
         // correction because of truncating negative numbers in a way that doesn't fit this purpose
         if (zoomLevel < 0) {
             zoomLevel--;
@@ -216,7 +225,8 @@ public class Controller {
                 zoomOut();
                 break;
             case "*":
-                zoomToFitSelected();
+                //zoomToFitSelected();
+                zoomToFitVisible();
                 break;
             case "/":
                 resetView();

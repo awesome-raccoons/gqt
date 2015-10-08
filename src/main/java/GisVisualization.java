@@ -152,11 +152,12 @@ public class GisVisualization {
      */
     public final void moveTooltips() {
         Coordinate[] coord;
+        int tooltipIndex = 0;
         for (GeometryModel gm : geometryModelList) {
             coord = gm.getGeometry().getCoordinates();
-            for (int i = 0; i < coord.length; i++) {
-                tooltips.get(i).setCenterX(coord[i].x);
-                tooltips.get(i).setCenterY(coord[i].y);
+            for (int i = 0; i < coord.length; i++, tooltipIndex++) {
+                tooltips.get(tooltipIndex).setCenterX(coord[i].x);
+                tooltips.get(tooltipIndex).setCenterY(coord[i].y);
             }
         }
     }

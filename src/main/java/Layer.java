@@ -141,6 +141,17 @@ public class Layer extends HBox {
         return selectedLayers;
     }
 
+    public static ArrayList<Layer> getAllVisibleLayers(final boolean filterEmpty) {
+        ArrayList<Layer> selectedLayers = new ArrayList<>();
+        for (Layer l : getLayers(filterEmpty)) {
+            if (l.showOrHideCheckbox.isSelected()) {
+                selectedLayers.add(l);
+            }
+        }
+
+        return selectedLayers;
+    }
+
     /**
      * Deselects all layers, disables their tooltip and returns background color to normal.
      */
