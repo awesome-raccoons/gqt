@@ -76,7 +76,7 @@ public class ModelBoundaries {
     }
 
     public final void include(final double x, final double y) {
-        if (this.isNull() && !defined) {
+        if (this.isNull()) {
             this.maxX = x;
             this.minX = x;
             this.maxY = y;
@@ -120,7 +120,7 @@ public class ModelBoundaries {
         includeGeometry(geometry);
     }
 
-    private boolean isNull() {
-        return minX == 0.0D && minY == 0.0D && this.getWidth() <= 0.0D && this.getHeight() <= 0.0D;
+    public boolean isNull() {
+        return minX == 0.0D && minY == 0.0D && this.getWidth() <= 0.0D && this.getHeight() <= 0.0D && !defined;
     }
 }

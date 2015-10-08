@@ -15,7 +15,7 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#onAnyKeyPressed" onKeyReleased="#onAnyKeyReleased" prefHeight="600.0" prefWidth="862.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
    <children>
-      <SplitPane dividerPositions="0.5" layoutX="320.0" layoutY="130.0" orientation="VERTICAL" prefHeight="600.0" prefWidth="800.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <SplitPane dividerPositions="0.5" layoutX="320.0" layoutY="130.0" orientation="VERTICAL" prefHeight="600.0" prefWidth="969.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="-107.0" AnchorPane.topAnchor="0.0">
         <items>
           <AnchorPane fx:id="upperPane" focusTraversable="true" minHeight="0.0" minWidth="0.0" onKeyPressed="#handleUpperPaneKeyPresses" onMouseDragged="#upperPaneMouseDragged" onMousePressed="#upperPaneMousePressed" onMouseReleased="#upperPaneMouseReleased" onScroll="#mouseScrollEvent" prefHeight="100.0" prefWidth="160.0" />
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="205.0" prefWidth="798.0">
@@ -47,7 +47,8 @@
                                      <Button fx:id="edit" layoutX="500.0" layoutY="7.0" mnemonicParsing="false" onAction="#createEmptyLayer" text="Create Layer" />
                                     <Button fx:id="zoomToFitButton" layoutX="679.0" layoutY="7.0" minWidth="77.0" mnemonicParsing="false" onAction="#zoomToFitAll" text="Fit All" />
                                     <Button fx:id="resetViewButton" layoutX="594.0" layoutY="7.0" mnemonicParsing="false" onAction="#resetView" text="Reset View" />
-                                    <Button fx:id="zoomToFitSelected" layoutX="769.0" layoutY="7.0" mnemonicParsing="false" onAction="#zoomToFitSelected" text="Fit Selected" />
+                                    <Button fx:id="zoomToFitSelectedButton" layoutX="769.0" layoutY="7.0" mnemonicParsing="false" onAction="#zoomToFitSelected" text="Fit Selected" />
+                                    <Button fx:id="zoomToFitVisibleButton" layoutX="859.0" layoutY="7.0" mnemonicParsing="false" onAction="#zoomToFitVisible" text="Fit Visible" />
                                  </children>
                               </AnchorPane>
                         </content>
