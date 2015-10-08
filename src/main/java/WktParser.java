@@ -112,7 +112,7 @@ public class WktParser {
     public final void updateLayerGeometries() {
         if (layer != null) {
             if (layer.getGisVis() == null) {
-                    layer.setGisVis(new GisVisualization(group));
+                layer.setGisVis(new GisVisualization(group));
             } else {
                 layer.getGisVis().clearGeometryModelList();
             }
@@ -120,8 +120,9 @@ public class WktParser {
                 layer.getGisVis().addGeometry(geometry);
             }
             layer.setWKTString(inputString);
-            layer.setName(upperMostGeometryType);
-
+            if (layer.getLayerName().equals("Empty")) {
+                layer.setName(upperMostGeometryType);
+            }
             layer.reorderLayers();
         }
     }

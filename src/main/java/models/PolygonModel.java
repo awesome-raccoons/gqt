@@ -1,6 +1,9 @@
 package models;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.CoordinateSequence;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Geometry;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.AnchorPane;
@@ -35,13 +38,39 @@ public class PolygonModel extends GeometryModel {
 
 
         graphicsContext.fillPolygon(xCoordinates, yCoordinates, coordinates.length);
-        graphicsContext.setStroke(((Color) graphicsContext.getFill()).darker());
-        for (int i = 1; i < coordinates.length; i++) {
-            graphicsContext.strokeLine(coordinates[i - 1].x, coordinates[i - 1].y,
-                    coordinates[i].x, coordinates[i].y);
-        }
+
+        drawOutLines(graphicsContext);
 
         return tooltips;
+    }
+
+    private void strokeCoordinateSequence(final CoordinateSequence cs,
+                                          final GraphicsContext graphicsContext) {
+        for (int i = 1; i < cs.size(); i++) {
+                graphicsContext.strokeLine(cs.getCoordinate(i - 1).x, cs.getCoordinate(i - 1).y,
+                        cs.getCoordinate(i).x, cs.getCoordinate(i).y);
+            }
+    }
+
+    private void drawOutLines(final GraphicsContext graphicsContext) {
+        Polygon polygon = (Polygon) getGeometry();
+
+        graphicsContext.setStroke(Color.BLACK);
+
+        if (polygon.getNumInteriorRing() > 0) {
+            int interiorRings = polygon.getNumInteriorRing();
+
+            for (int x = 0; x < interiorRings; x++) {
+                LineString hole = polygon.getInteriorRingN(x);
+
+                strokeCoordinateSequence(hole.getCoordinateSequence(), graphicsContext);
+            }
+        }
+
+        LineString outer = polygon.getExteriorRing();
+
+        strokeCoordinateSequence(outer.getCoordinateSequence(), graphicsContext);
+
     }
 
 }

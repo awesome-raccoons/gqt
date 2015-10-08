@@ -60,7 +60,7 @@ public class Controller {
     }
 
     public final void createEmptyLayer() {
-        Layer l = new Layer(null, vboxLayers, null, "", queryInput);
+        Layer l = new Layer(null, vboxLayers, "Empty", "", queryInput);
         Layer.getLayers(false).add(l);
         l.addLayerToView();
         //To ensure the latest new layer will be selected.

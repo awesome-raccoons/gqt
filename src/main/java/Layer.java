@@ -73,14 +73,10 @@ public class Layer extends HBox {
     }
 
     private void updateLayerName() {
-        //String newName = (gisVis != null) ? this.name + " " + gisVis.getID() : "Empty";
-        String newName;
         if (gisVis != null) {
-            newName = this.name + " " + gisVis.getID();
-        } else {
-            newName = "Empty";
+            this.name += " " + gisVis.getID();
         }
-        layerName.setText(newName);
+        layerName.setText(this.name);
     }
 
     public final void handleLayerKeyPresses(final KeyEvent event) {
@@ -332,6 +328,12 @@ public class Layer extends HBox {
             showOrHideCheckbox.setDisable(false);
         }
     }
+
+    public final String getLayerName() {
+        return layerName.getText();
+    }
+
+
 
     public final void setName(final String name) {
         this.name = name;
