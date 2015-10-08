@@ -1,6 +1,10 @@
 package models;
 
-import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.CoordinateSequence;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Geometry;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
@@ -40,7 +44,8 @@ public class PolygonModel extends GeometryModel {
         return tooltips;
     }
 
-    private void strokeCoordinateSequence(final CoordinateSequence cs, final GraphicsContext graphicsContext) {
+    private void strokeCoordinateSequence(final CoordinateSequence cs,
+                                          final GraphicsContext graphicsContext) {
         for (int i = 1; i < cs.size(); i++) {
                 graphicsContext.strokeLine(cs.getCoordinate(i - 1).x, cs.getCoordinate(i - 1).y,
                         cs.getCoordinate(i).x, cs.getCoordinate(i).y);
