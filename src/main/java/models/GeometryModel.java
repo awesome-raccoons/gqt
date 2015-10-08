@@ -153,6 +153,9 @@ public abstract class GeometryModel {
 
     public static final GeometryModel getModel(final Geometry geometry, final AnchorPane group) {
         if (geometry instanceof Polygon) {
+            if (((Polygon) geometry).getNumInteriorRing() > 0) {
+                return new PolygonModel(holeFunction(geometry), group);
+            }
             return new PolygonModel(geometry, group);
         } else if (geometry instanceof Point) {
             return new PointModel(geometry, group);
