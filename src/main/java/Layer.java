@@ -1,11 +1,12 @@
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Background;
@@ -17,6 +18,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
+import javax.tools.Tool;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -34,6 +36,11 @@ public class Layer extends HBox {
     private LayerSelectedProperty isSelected;
     private CheckBox showOrHideCheckbox;
     private TextField layerName;
+    private Image validWkt;
+    private Image invalidWkt;
+    private Tooltip validTooltip;
+    private Tooltip invalidTooltip;
+    private ImageView validityView;
     private static ArrayList<Layer> layers = new ArrayList<>();
 
     public Layer(final GisVisualization gisVis, final VBox parentContainer, final String name,
@@ -43,6 +50,10 @@ public class Layer extends HBox {
         this.name = name;
         this.wktString = wktString;
         this.textArea = textArea;
+        this.validWkt = new Image(Main.class.getResourceAsStream("valid.png"));
+        this.invalidWkt = new Image(Main.class.getResourceAsStream("invalid.png"));
+        this.validTooltip = new Tooltip("All geometries in layer are valid");
+        this.invalidTooltip = new Tooltip("Layer contains invalid geometries");
         this.isSelected = new LayerSelectedProperty();
         EventHandler<MouseEvent> mouseClickedHandler = event -> handleLayerMousePress();
         this.setOnMouseClicked(mouseClickedHandler);
@@ -57,6 +68,7 @@ public class Layer extends HBox {
      * Creates a layer for this Layer object.
      */
     public final void createLayer() {
+        //Create show/hide checkbox
         showOrHideCheckbox = new CheckBox();
         showOrHideCheckbox.setDisable(gisVis == null);
         showOrHideCheckbox.setOnAction(event -> {
@@ -64,12 +76,29 @@ public class Layer extends HBox {
             redrawAll();
         });
         showOrHideCheckbox.setSelected(true);
+
+        //Create and update layer name field
         layerName = new TextField();
         updateLayerName();
-        VBox vb = new VBox();
+
+        //Create delete button
+        Button deleteButton = new Button("Delete");
+        deleteButton.setOnAction(event -> {
+            if (isSelected.get()) {
+                getAllSelectedLayers(false).forEach(Layer::deleteLayer);
+            } else {
+                deleteLayer();
+            }
+        });
+
+        validityView = new ImageView();
+        validityView.setImage(validWkt);
+        Tooltip.install(validityView, validTooltip);
+
         this.getChildren().add(showOrHideCheckbox);
         this.getChildren().add(layerName);
-        this.getChildren().add(vb);
+        this.getChildren().add(validityView);
+        this.getChildren().add(deleteButton);
     }
 
     private void updateLayerName() {
@@ -161,6 +190,11 @@ public class Layer extends HBox {
         }
     }
 
+    private void deleteLayer() {
+        layers.remove(this);
+        reorderLayers();
+    }
+
     /**
      * Clears the WKT input text area and displays the WKT string used to draw this layer.
      */
@@ -233,10 +267,23 @@ public class Layer extends HBox {
     public final void reorderLayers() {
 
         redrawAll();
+        updateValidity();
 
         this.parentContainer.getChildren().remove(0, this.parentContainer.getChildren().size());
 
         layers.forEach(Layer::addLayerToView);
+    }
+
+    private void updateValidity() {
+        Tooltip.uninstall(validityView, validTooltip);
+        Tooltip.uninstall(validityView, invalidTooltip);
+        if (gisVis.containsInvalidGeometries()) {
+            validityView.setImage(invalidWkt);
+            Tooltip.install(validityView, invalidTooltip);
+        } else {
+            validityView.setImage(validWkt);
+            Tooltip.install(validityView, validTooltip);
+        }
     }
 
     public final void addLayerToView() {

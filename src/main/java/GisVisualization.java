@@ -213,4 +213,14 @@ public class GisVisualization {
     public final void addGeometry(final Geometry geometry) {
         geometryModelList.add(GeometryModel.getModel(geometry, group));
     }
+
+    public final boolean containsInvalidGeometries() {
+        for (GeometryModel gm : geometryModelList) {
+            if (!gm.getGeometry().isValid()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
