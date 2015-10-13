@@ -6,9 +6,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.stage.Stage;
 
-import java.beans.EventHandler;
-
-
 public class Main extends Application {
 
     @Override
