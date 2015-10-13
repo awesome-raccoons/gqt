@@ -4,8 +4,13 @@ import javafx.beans.property.BooleanProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Control;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -115,13 +120,13 @@ public class Layer extends HBox {
         this.getChildren().add(deleteButton);
     }
 
-    private void addLayerStyle(Control node, String style) {
+    private void addLayerStyle(final Control node, final String style) {
         node.getStylesheets().add(this.getClass().getResource(
                 style
         ).toExternalForm());
     }
 
-    private void changeColor(Color value) {
+    private void changeColor(final Color value) {
         gisVis.setColor(value);
         reorderLayers();
     }
@@ -302,7 +307,7 @@ public class Layer extends HBox {
         layers.forEach(Layer::addLayerToView);
     }
 
-    public final void setColorPickerValue(Color color) {
+    public final void setColorPickerValue(final Color color) {
         colorPicker.setValue(color);
     }
 

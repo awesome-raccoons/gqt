@@ -172,7 +172,7 @@ public class GisVisualization {
         return Color.web(colorString, OPACITY_PARAM);
 }
 
-    public final void setColor(Color color) {
+    public final void setColor(final Color color) {
         this.color = color;
     }
 
