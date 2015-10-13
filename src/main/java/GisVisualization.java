@@ -167,10 +167,14 @@ public class GisVisualization {
      *
      * @return the color.
      */
-    private static Color getColor(final int id) {
+    public static Color getColor(final int id) {
         String colorString = colors.get(id % colors.size()).toString();
         return Color.web(colorString, OPACITY_PARAM);
 }
+
+    public final void setColor(Color color) {
+        this.color = color;
+    }
 
     /**
      * Get the ID for this GisVisualization object.
