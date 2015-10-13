@@ -1,3 +1,4 @@
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -118,6 +119,7 @@ public class WktParser {
                 layer.getGisVis().clearGeometryModelList();
             }
             for (Geometry geometry : geometries) {
+                invertYcoordinates(geometry);
                 layer.getGisVis().addGeometry(geometry);
             }
             layer.setWKTString(inputString);
@@ -128,6 +130,12 @@ public class WktParser {
         }
     }
 
+    private final void invertYcoordinates(final Geometry geometry) {
+        Coordinate[] coord = geometry.getCoordinates();
+        for (int i = 0; i < coord.length; i++) {
+            coord[i].y *= -1;
+        }
+    }
 
     /**
      * Displays an alert dialog when trying to draw an invalid WKT string.

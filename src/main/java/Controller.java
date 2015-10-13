@@ -20,6 +20,7 @@ public class Controller {
      * Identifies value of zooming (e.g 140% -> 1.4).
      */
     private static final double ZOOM_FACTOR = 1.4;
+    private static final int DRAG_SENSITIVITY = 3;
     /**
      * Current level of zooming (0 -> default).
      */
@@ -27,6 +28,8 @@ public class Controller {
 
     private double currentOffsetX = 0;
     private double currentOffsetY = 0;
+    private double mouseMoveOffsetX = 0;
+    private double mouseMoveOffsetY = 0;
 
     @FXML
     private TextArea queryInput;
@@ -265,11 +268,16 @@ public class Controller {
      */
     public final void upperPaneMouseDragged(final MouseEvent event) {
         this.stage.getScene().setCursor(Cursor.MOVE);
-        double offsetX = (event.getSceneX() - dragBase2X);
+        mouseMoveOffsetX += (event.getSceneX() - dragBase2X);
         dragBase2X = event.getSceneX();
-        double offsetY = (event.getSceneY() - dragBase2Y);
+        mouseMoveOffsetY += (event.getSceneY() - dragBase2Y);
         dragBase2Y = event.getSceneY();
-        moveAllGeometries(offsetX, offsetY);
+        // performance improvement
+        if ((Math.abs(mouseMoveOffsetX) > DRAG_SENSITIVITY) || (Math.abs(mouseMoveOffsetY) > DRAG_SENSITIVITY)) {
+            moveAllGeometries(mouseMoveOffsetX, mouseMoveOffsetY);
+            mouseMoveOffsetX = 0;
+            mouseMoveOffsetY = 0;
+        }
     }
 
     /**
@@ -293,6 +301,20 @@ public class Controller {
             heldDownKeys.add(event.getCode());
         }
     }
+
+
+    public final void handleSceneScrollEvent(ScrollEvent event) {
+        if (event.isControlDown()) {
+            mouseScrollEvent(event);
+        }
+    }
+
+    public final void handleSceneKeyEvent(KeyEvent event) {
+        if (event.isControlDown()) {
+            handleUpperPaneKeyPresses(event);
+        }
+    }
+
 
     public final void onAnyKeyReleased(final KeyEvent event) {
         heldDownKeys.remove(event.getCode());
