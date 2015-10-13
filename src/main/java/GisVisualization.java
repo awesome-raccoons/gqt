@@ -167,10 +167,14 @@ public class GisVisualization {
      *
      * @return the color.
      */
-    private static Color getColor(final int id) {
+    public static Color getColor(final int id) {
         String colorString = colors.get(id % colors.size()).toString();
         return Color.web(colorString, OPACITY_PARAM);
 }
+
+    public final void setColor(final Color color) {
+        this.color = color;
+    }
 
     /**
      * Get the ID for this GisVisualization object.
@@ -212,5 +216,15 @@ public class GisVisualization {
 
     public final void addGeometry(final Geometry geometry) {
         geometryModelList.add(GeometryModel.getModel(geometry, group));
+    }
+
+    public final boolean containsInvalidGeometries() {
+        for (GeometryModel gm : geometryModelList) {
+            if (!gm.getGeometry().isValid()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

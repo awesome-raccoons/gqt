@@ -3,9 +3,16 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Control;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Background;
@@ -34,6 +41,12 @@ public class Layer extends HBox {
     private LayerSelectedProperty isSelected;
     private CheckBox showOrHideCheckbox;
     private TextField layerName;
+    private Image validWkt;
+    private Image invalidWkt;
+    private Tooltip validTooltip;
+    private Tooltip invalidTooltip;
+    private ImageView validityView;
+    private ColorPicker colorPicker;
     private static ArrayList<Layer> layers = new ArrayList<>();
 
     public Layer(final GisVisualization gisVis, final VBox parentContainer, final String name,
@@ -43,6 +56,10 @@ public class Layer extends HBox {
         this.name = name;
         this.wktString = wktString;
         this.textArea = textArea;
+        this.validWkt = new Image(Main.class.getResourceAsStream("valid.png"));
+        this.invalidWkt = new Image(Main.class.getResourceAsStream("invalid.png"));
+        this.validTooltip = new Tooltip("All geometries in layer are valid");
+        this.invalidTooltip = new Tooltip("Layer contains invalid geometries");
         this.isSelected = new LayerSelectedProperty();
         EventHandler<MouseEvent> mouseClickedHandler = event -> handleLayerMousePress();
         this.setOnMouseClicked(mouseClickedHandler);
@@ -57,6 +74,7 @@ public class Layer extends HBox {
      * Creates a layer for this Layer object.
      */
     public final void createLayer() {
+        //Create show/hide checkbox
         showOrHideCheckbox = new CheckBox();
         showOrHideCheckbox.setDisable(gisVis == null);
         showOrHideCheckbox.setOnAction(event -> {
@@ -64,12 +82,53 @@ public class Layer extends HBox {
             redrawAll();
         });
         showOrHideCheckbox.setSelected(true);
+
+        //Create and update layer name field
         layerName = new TextField();
         updateLayerName();
-        VBox vb = new VBox();
+
+        //Create delete button
+        Button deleteButton = new Button();
+        Tooltip.install(deleteButton, new Tooltip("Delete layer"));
+        deleteButton.setOnAction(event -> {
+            if (isSelected.get()) {
+                getAllSelectedLayers(false).forEach(Layer::deleteLayer);
+            } else {
+                deleteLayer();
+            }
+        });
+
+        //Create imageView for displaying the validity of layers geometries
+        validityView = new ImageView();
+        validityView.setImage(validWkt);
+        Tooltip.install(validityView, validTooltip);
+
+        //Create a color picker to selected this layers color
+        colorPicker = new ColorPicker();
+        colorPicker.setDisable(gisVis == null);
+        colorPicker.setOnAction(event -> changeColor(colorPicker.getValue()));
+
+        addLayerStyle(showOrHideCheckbox, "layerStyles.css");
+        addLayerStyle(layerName, "layerStyles.css");
+        addLayerStyle(deleteButton, "layerStyles.css");
+
+        this.setAlignment(Pos.CENTER_LEFT);
         this.getChildren().add(showOrHideCheckbox);
         this.getChildren().add(layerName);
-        this.getChildren().add(vb);
+        this.getChildren().add(colorPicker);
+        this.getChildren().add(validityView);
+        this.getChildren().add(deleteButton);
+    }
+
+    private void addLayerStyle(final Control node, final String style) {
+        node.getStylesheets().add(this.getClass().getResource(
+                style
+        ).toExternalForm());
+    }
+
+    private void changeColor(final Color value) {
+        gisVis.setColor(value);
+        reorderLayers();
     }
 
     private void updateLayerName() {
@@ -161,6 +220,13 @@ public class Layer extends HBox {
         }
     }
 
+    private void deleteLayer() {
+        layers.remove(this);
+        reorderLayers();
+        textArea.setText("");
+            textArea.setDisable(getNumberOfSelectedLayers() == 0);
+    }
+
     /**
      * Clears the WKT input text area and displays the WKT string used to draw this layer.
      */
@@ -234,9 +300,28 @@ public class Layer extends HBox {
 
         redrawAll();
 
+        updateValidity();
+
         this.parentContainer.getChildren().remove(0, this.parentContainer.getChildren().size());
 
         layers.forEach(Layer::addLayerToView);
+    }
+
+    public final void setColorPickerValue(final Color color) {
+        colorPicker.setValue(color);
+    }
+
+    private void updateValidity() {
+        Tooltip.uninstall(validityView, validTooltip);
+        Tooltip.uninstall(validityView, invalidTooltip);
+
+        if (gisVis != null && gisVis.containsInvalidGeometries()) {
+            validityView.setImage(invalidWkt);
+            Tooltip.install(validityView, invalidTooltip);
+        } else {
+            validityView.setImage(validWkt);
+            Tooltip.install(validityView, validTooltip);
+        }
     }
 
     public final void addLayerToView() {
@@ -326,6 +411,7 @@ public class Layer extends HBox {
         if (newGisVis != null) {
             this.gisVis = newGisVis;
             showOrHideCheckbox.setDisable(false);
+            colorPicker.setDisable(false);
         }
     }
 

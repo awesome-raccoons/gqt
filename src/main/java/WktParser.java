@@ -113,6 +113,7 @@ public class WktParser {
         if (layer != null) {
             if (layer.getGisVis() == null) {
                 layer.setGisVis(new GisVisualization(group));
+                layer.setColorPickerValue(GisVisualization.getColor(layer.getGisVis().getID()));
             } else {
                 layer.getGisVis().clearGeometryModelList();
             }
