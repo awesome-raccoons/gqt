@@ -273,7 +273,8 @@ public class Controller {
         mouseMoveOffsetY += (event.getSceneY() - dragBase2Y);
         dragBase2Y = event.getSceneY();
         // performance improvement
-        if ((Math.abs(mouseMoveOffsetX) > DRAG_SENSITIVITY) || (Math.abs(mouseMoveOffsetY) > DRAG_SENSITIVITY)) {
+        if ((Math.abs(mouseMoveOffsetX) > DRAG_SENSITIVITY) ||
+                (Math.abs(mouseMoveOffsetY) > DRAG_SENSITIVITY)) {
             moveAllGeometries(mouseMoveOffsetX, mouseMoveOffsetY);
             mouseMoveOffsetX = 0;
             mouseMoveOffsetY = 0;
@@ -303,13 +304,13 @@ public class Controller {
     }
 
 
-    public final void handleSceneScrollEvent(ScrollEvent event) {
+    public final void handleSceneScrollEvent(final ScrollEvent event) {
         if (event.isControlDown()) {
             mouseScrollEvent(event);
         }
     }
 
-    public final void handleSceneKeyEvent(KeyEvent event) {
+    public final void handleSceneKeyEvent(final KeyEvent event) {
         if (event.isControlDown()) {
             handleUpperPaneKeyPresses(event);
         }
