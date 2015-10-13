@@ -171,7 +171,7 @@ public abstract class GeometryModel {
     public final Circle createToolTip(final double x, final double y,
                                       final double origX, final double origY, final Paint color) {
         Circle circle = new Circle(x, y, TOOLTIP_SIZE, color);
-        Tooltip tooltip = new Tooltip(origX + ", " + origY);
+        Tooltip tooltip = new Tooltip(origX + ", " + -origY);
         Tooltip.install(circle, tooltip);
         //this.group.getChildren().add(circle);
         return circle;
