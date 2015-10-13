@@ -273,8 +273,8 @@ public class Controller {
         mouseMoveOffsetY += (event.getSceneY() - dragBase2Y);
         dragBase2Y = event.getSceneY();
         // performance improvement
-        if ((Math.abs(mouseMoveOffsetX) > DRAG_SENSITIVITY) ||
-                (Math.abs(mouseMoveOffsetY) > DRAG_SENSITIVITY)) {
+        if ((Math.abs(mouseMoveOffsetX) > DRAG_SENSITIVITY)
+                || (Math.abs(mouseMoveOffsetY) > DRAG_SENSITIVITY)) {
             moveAllGeometries(mouseMoveOffsetX, mouseMoveOffsetY);
             mouseMoveOffsetX = 0;
             mouseMoveOffsetY = 0;
