@@ -114,9 +114,9 @@ public class Layer extends HBox {
 
         this.setAlignment(Pos.CENTER_LEFT);
         this.getChildren().add(showOrHideCheckbox);
+        this.getChildren().add(validityView);
         this.getChildren().add(layerName);
         this.getChildren().add(colorPicker);
-        this.getChildren().add(validityView);
         this.getChildren().add(deleteButton);
     }
 
