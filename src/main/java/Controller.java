@@ -1,12 +1,14 @@
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import models.GeometryModel;
 import models.ModelBoundaries;
@@ -21,10 +23,13 @@ public class Controller {
      */
     private static final double ZOOM_FACTOR = 1.4;
     private static final int DRAG_SENSITIVITY = 3;
+    private static final int PERCENT = 100;
     /**
      * Current level of zooming (0 -> default).
      */
     private int currentZoomLevel = 0;
+
+    private double currentZoom = 1;
 
     private double currentOffsetX = 0;
     private double currentOffsetY = 0;
@@ -37,6 +42,14 @@ public class Controller {
     private AnchorPane upperPane;
     @FXML
     private VBox vboxLayers;
+    @FXML
+    private TextField zoomText;
+    @FXML
+    private Text zoomTextError;
+    @FXML
+    private Text positionX;
+    @FXML
+    private Text positionY;
 
     private double dragBase2X, dragBase2Y;
     private double dragBeginX, dragBeginY;
@@ -78,19 +91,23 @@ public class Controller {
         return Math.pow(zoomFactor, zoomLevel);
     }
 
+
     /**
      * Change coordinates of all geometries by scale of current zoom and move center of view from
      * top-left corner to the middle. (0, 0) coordinate is in the middle
      */
     public final void rescaleAllGeometries() {
-        // ZOOM_FACTOR ^ ZOOM_LEVEL;
-        double currentZoom = getZoomScale(ZOOM_FACTOR, currentZoomLevel);
+        /*if (currentZoom == 0) {
+            currentZoom = getZoomScale(ZOOM_FACTOR, currentZoomLevel);
+        }*/
         double centerX = upperPane.getWidth() / 2;
         double centerY = upperPane.getHeight() / 2;
         ArrayList<GeometryModel> geometryModelList;
         AnchorPane plotViewGroup = GisVisualization.getGroup();
         //Make sure to reset the GisVisualization, this empties the canvas and tooltips
         GisVisualization.reset();
+
+        zoomText.setText("" + String.format("%.2f", currentZoom * PERCENT));
 
         // resize and redraw all geometries
         for (int i = Layer.getLayers(true).size() - 1; i >= 0; i--) {
@@ -176,6 +193,22 @@ public class Controller {
                 fillBoundariesWithLayers(Layer.getAllVisibleLayers(true));
         zoomToFit(modelBoundaries);
     }
+
+    private int getBestZoomLevel(final ModelBoundaries modelBoundaries) {
+        double scaleX = upperPane.getWidth() / modelBoundaries.getWidth();
+        double scaleY = upperPane.getHeight() / modelBoundaries.getHeight();
+        double scaleMin = Math.min(scaleX, scaleY);
+        double zoomLevel;
+        int bestZoomLevel;
+
+        zoomLevel = logZoomFactor(scaleMin);
+        // correction because of truncating negative numbers in a way that doesn't fit this purpose
+        if (zoomLevel < 0) {
+            zoomLevel--;
+        }
+        bestZoomLevel = (int) zoomLevel;
+        return bestZoomLevel;
+    }
     /**
      * Scales geometries to fit to current view.
      */
@@ -183,39 +216,36 @@ public class Controller {
         if (modelBoundaries.isNull()) {
             return;
         }
-        double scaleX = upperPane.getWidth() / modelBoundaries.getWidth();
-        double scaleY = upperPane.getHeight() / modelBoundaries.getHeight();
-        double scaleMin = Math.min(scaleX, scaleY);
-        double zoomLevel;
-
-        zoomLevel = logZoomFactor(scaleMin);
-        // correction because of truncating negative numbers in a way that doesn't fit this purpose
-        if (zoomLevel < 0) {
-            zoomLevel--;
-        }
-        currentZoomLevel = (int) zoomLevel;
+        currentZoomLevel = getBestZoomLevel(modelBoundaries);
 
         double zoomScale = getZoomScale(ZOOM_FACTOR, currentZoomLevel);
         this.currentOffsetX = -(modelBoundaries.getMiddleX() * zoomScale);
         this.currentOffsetY = -(modelBoundaries.getMiddleY() * zoomScale);
 
+        setZoomLevel();
         rescaleAllGeometries();
     }
 
+    private void setZoomLevel() {
+        currentZoom = getZoomScale(ZOOM_FACTOR, currentZoomLevel);
+    }
     public final void resetView() {
         currentZoomLevel = 0;
         this.currentOffsetX = 0;
         this.currentOffsetY = 0;
 
+        setZoomLevel();
         rescaleAllGeometries();
     }
     public final void zoomIn() {
         currentZoomLevel++;
+        setZoomLevel();
         rescaleAllGeometries();
     }
 
     public final void zoomOut() {
         currentZoomLevel--;
+        setZoomLevel();
         rescaleAllGeometries();
     }
 
@@ -288,6 +318,9 @@ public class Controller {
         this.stage.getScene().setCursor(Cursor.DEFAULT);
         this.currentOffsetX += event.getSceneX() - dragBeginX;
         this.currentOffsetY += event.getSceneY() - dragBeginY;
+        moveAllGeometries(mouseMoveOffsetX, mouseMoveOffsetY);
+        mouseMoveOffsetX = 0;
+        mouseMoveOffsetY = 0;
         //calculateBoundaries();
     }
 
@@ -313,6 +346,33 @@ public class Controller {
     public final void handleSceneKeyEvent(final KeyEvent event) {
         if (event.isControlDown()) {
             handleUpperPaneKeyPresses(event);
+        }
+    }
+
+    public final void upperPaneMouseMoved(final MouseEvent event) {
+        double centerX = upperPane.getWidth() / 2;
+        double centerY = upperPane.getHeight() / 2;
+        double sceneX = event.getSceneX();
+        double sceneY = event.getSceneY();
+        double positionX = (sceneX - currentOffsetX - centerX) / currentZoom;
+        double positionY = -(sceneY - currentOffsetY - centerY) / currentZoom;
+        this.positionX.setText("X: " + (int) positionX);
+        this.positionY.setText("Y: " + (int) positionY);
+    }
+
+    public final void zoomTextKeyPressed(final KeyEvent event) {
+        if (event.getCode() == KeyCode.ENTER) {
+            try {
+                double zoomFactor = Double.parseDouble(zoomText.getText());
+                zoomTextError.setVisible(false);
+                zoomFactor /= PERCENT;
+                currentZoom = zoomFactor;
+                rescaleAllGeometries();
+                currentZoomLevel = (int) logZoomFactor(zoomFactor);
+            } catch (NumberFormatException e) {
+                zoomTextError.setVisible(true);
+            }
+
         }
     }
 
