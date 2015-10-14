@@ -30,6 +30,9 @@ public class Main extends Application {
 
         primaryStage.setScene(scene);
         primaryStage.show();
+        DatabaseConnector dbConnector = new DatabaseConnector();
+        String query = "SELECT AsText(Envelope(GeomFromText('POLYGON((5 0,7 10,0 15,10 15,15 25,20 15,30 15,22 10,25 0,15 5,5 0))')));;";
+        dbConnector.executeQuery(query);
 
     }
 
