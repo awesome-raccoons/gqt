@@ -23,6 +23,7 @@ public class Controller {
      */
     private static final double ZOOM_FACTOR = 1.4;
     private static final int DRAG_SENSITIVITY = 3;
+    private static final int PERCENT = 100;
     /**
      * Current level of zooming (0 -> default).
      */
@@ -106,7 +107,7 @@ public class Controller {
         //Make sure to reset the GisVisualization, this empties the canvas and tooltips
         GisVisualization.reset();
 
-        zoomText.setText("" + String.format("%.2f", currentZoom * 100));
+        zoomText.setText("" + String.format("%.2f", currentZoom * PERCENT));
 
         // resize and redraw all geometries
         for (int i = Layer.getLayers(true).size() - 1; i >= 0; i--) {
@@ -364,10 +365,10 @@ public class Controller {
             try {
                 double zoomFactor = Double.parseDouble(zoomText.getText());
                 zoomTextError.setVisible(false);
-                zoomFactor /= 100;
+                zoomFactor /= PERCENT;
                 currentZoom = zoomFactor;
                 rescaleAllGeometries();
-                currentZoomLevel = (int)logZoomFactor(zoomFactor);
+                currentZoomLevel = (int) logZoomFactor(zoomFactor);
             } catch (NumberFormatException e) {
                 zoomTextError.setVisible(true);
             }
