@@ -2,6 +2,8 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.stage.Stage;
 
 
@@ -16,10 +18,21 @@ public class Main extends Application {
         controller.setStage(primaryStage);
         primaryStage.setTitle("Gis Query Tool");
         primaryStage.setMaximized(true);
-        primaryStage.setScene(new Scene(root));
+        Scene scene = new Scene(root);
+        // set zooming by Control+scroll to work from everywhere
+        javafx.event.EventHandler<ScrollEvent> mouseScrollHandler =
+                event -> controller.handleSceneScrollEvent(event);
+        scene.setOnScroll(mouseScrollHandler);
+        // set key combinations with Control to work from everywhere
+        javafx.event.EventHandler<KeyEvent> keyHandler =
+                event -> controller.handleSceneKeyEvent(event);
+        scene.setOnKeyPressed(keyHandler);
+
+        primaryStage.setScene(scene);
         primaryStage.show();
 
     }
+
 
     public static void main(final String[] args) {
         launch(args);
