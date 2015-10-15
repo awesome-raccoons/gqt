@@ -113,7 +113,7 @@ public class GisVisualization {
      */
     public static void reset() {
         if (group != null) {
-            group.getChildren().clear();
+            group.getChildren().remove(1, group.getChildren().size());
             group.getChildren().add(GisVisualization.getCanvas());
             graphicsContext.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         }

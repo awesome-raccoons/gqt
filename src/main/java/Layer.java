@@ -33,6 +33,8 @@ import java.util.Collections;
 
 public class Layer extends HBox {
 
+    private static final Insets DEFAULT_INSETS = new Insets(10, 10, 10, 10);
+
     private final VBox parentContainer;        //Container where layers are put
     private GisVisualization gisVis;            //The drawing model
     private String name;                       //Name of the layers
@@ -74,6 +76,9 @@ public class Layer extends HBox {
      * Creates a layer for this Layer object.
      */
     public final void createLayer() {
+        //Add padding to the hbox
+        this.setPadding(DEFAULT_INSETS);
+
         //Create show/hide checkbox
         showOrHideCheckbox = new CheckBox();
         showOrHideCheckbox.setDisable(gisVis == null);
@@ -85,6 +90,7 @@ public class Layer extends HBox {
 
         //Create and update layer name field
         layerName = new TextField();
+        layerName.setOnMouseClicked(event1 -> handleLayerMousePress());
         updateLayerName();
 
         //Create delete button
@@ -163,7 +169,7 @@ public class Layer extends HBox {
         }
         if (isSelected.get()) {
             showWKTString();
-            requestFocus();
+            //requestFocus();
         }
 
         int numberOfSelectedLayers = getNumberOfSelectedLayers();
