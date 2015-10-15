@@ -76,7 +76,7 @@ public class ModelBoundaries {
     }
 
     public final void include(final double x, final double y) {
-        if (this.isNull()) {
+        if (!this.defined) {    //(this.isNull()) {
             this.maxX = x;
             this.minX = x;
             this.maxY = y;
@@ -121,7 +121,7 @@ public class ModelBoundaries {
     }
 
     public final boolean isNull() {
-        return minX == 0.0D && minY == 0.0D && this.getWidth() <= 0.0D
-                && this.getHeight() <= 0.0D && !defined;
+        return minX == 0.0D && minY == 0.0D && this.getWidth() == 1.0D
+                && this.getHeight() == 1.0D && !defined;
     }
 }

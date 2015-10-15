@@ -24,6 +24,8 @@ public class Controller {
     private static final double ZOOM_FACTOR = 1.4;
     private static final int DRAG_SENSITIVITY = 3;
     private static final int PERCENT = 100;
+    private static final int MAX_ZOOM_LEVEL = 25;
+    private static final int MIN_ZOOM_LEVEL = -25;
     /**
      * Current level of zooming (0 -> default).
      */
@@ -61,7 +63,6 @@ public class Controller {
     private static List<KeyCode> heldDownKeys = new ArrayList<>();
 
     public Controller() {
-
     }
 
 
@@ -197,6 +198,12 @@ public class Controller {
     private int getBestZoomLevel(final ModelBoundaries modelBoundaries) {
         double scaleX = upperPane.getWidth() / modelBoundaries.getWidth();
         double scaleY = upperPane.getHeight() / modelBoundaries.getHeight();
+        if (modelBoundaries.getWidth() == 0) {
+            scaleX = 1;
+        }
+        if (modelBoundaries.getHeight() == 0) {
+            scaleY = 1;
+        }
         double scaleMin = Math.min(scaleX, scaleY);
         double zoomLevel;
         int bestZoomLevel;
@@ -207,6 +214,7 @@ public class Controller {
             zoomLevel--;
         }
         bestZoomLevel = (int) zoomLevel;
+        bestZoomLevel = applyLimits(this.MIN_ZOOM_LEVEL, this.MAX_ZOOM_LEVEL, bestZoomLevel);
         return bestZoomLevel;
     }
     /**
@@ -227,7 +235,10 @@ public class Controller {
     }
 
     private void setZoomLevel() {
-        currentZoom = getZoomScale(ZOOM_FACTOR, currentZoomLevel);
+        this.currentZoomLevel = applyLimits(this.MIN_ZOOM_LEVEL,
+                this.MAX_ZOOM_LEVEL,
+                this.currentZoomLevel);
+        currentZoom = getZoomScale(ZOOM_FACTOR, this.currentZoomLevel);
     }
     public final void resetView() {
         currentZoomLevel = 0;
@@ -276,6 +287,7 @@ public class Controller {
         } else { // scroll up
             zoomIn();
         }
+        updateCoordinatesText(event.getSceneX(), event.getSceneY());
     }
 
     /**
@@ -349,15 +361,17 @@ public class Controller {
         }
     }
 
-    public final void upperPaneMouseMoved(final MouseEvent event) {
+    private void updateCoordinatesText(final double sceneX, final double sceneY) {
         double centerX = upperPane.getWidth() / 2;
         double centerY = upperPane.getHeight() / 2;
-        double sceneX = event.getSceneX();
-        double sceneY = event.getSceneY();
         double positionX = (sceneX - currentOffsetX - centerX) / currentZoom;
         double positionY = -(sceneY - currentOffsetY - centerY) / currentZoom;
         this.positionX.setText("X: " + (int) positionX);
         this.positionY.setText("Y: " + (int) positionY);
+    }
+
+    public final void upperPaneMouseMoved(final MouseEvent event) {
+        updateCoordinatesText(event.getSceneX(), event.getSceneY());
     }
 
     public final void zoomTextKeyPressed(final KeyEvent event) {
@@ -366,9 +380,13 @@ public class Controller {
                 double zoomFactor = Double.parseDouble(zoomText.getText());
                 zoomTextError.setVisible(false);
                 zoomFactor /= PERCENT;
-                currentZoom = zoomFactor;
-                rescaleAllGeometries();
-                currentZoomLevel = (int) logZoomFactor(zoomFactor);
+                if (isInLimits(this.MIN_ZOOM_LEVEL,
+                        this.MAX_ZOOM_LEVEL,
+                        (int) logZoomFactor(zoomFactor))) {
+                    currentZoom = zoomFactor;
+                    rescaleAllGeometries();
+                    currentZoomLevel = (int) logZoomFactor(zoomFactor);
+                }
             } catch (NumberFormatException e) {
                 zoomTextError.setVisible(true);
             }
@@ -376,6 +394,24 @@ public class Controller {
         }
     }
 
+    private boolean isInLimits(final int min, final int max, final int value) {
+        if (value > max) {
+            return false;
+        } else if (value < min) {
+            return false;
+        }
+        return true;
+    }
+
+    private int applyLimits(final int min, final int max, final int value) {
+        int correctValue = value;
+        if (value > max) {
+            correctValue = max;
+        } else if (value < min) {
+            correctValue = min;
+        }
+        return correctValue;
+    }
 
     public final void onAnyKeyReleased(final KeyEvent event) {
         heldDownKeys.remove(event.getCode());
