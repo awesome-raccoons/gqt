@@ -75,20 +75,19 @@ public abstract class GeometryModel {
      */
     public final void moveGeometry(final double offsetX, final double offsetY) {
         Coordinate[] coord = this.geometry.getCoordinates();
-        for (int j = 0; j < coord.length; j++) {
-            coord[j].x += offsetX;
-            coord[j].y += offsetY;
+        for (Coordinate aCoord : coord) {
+            aCoord.x += offsetX;
+            aCoord.y += offsetY;
         }
-        //this.modelBoundaries.update(this.geometry);
     }
 
 
     /**
      * Reverses hole orientation if needed. All geometries with holes go through here.
-     * @param geometry
+     * @param geometry geotools geometry to inspect
      * @return
      */
-    public static final Geometry holeFunction(final Geometry geometry) {
+    public static Geometry holeFunction(final Geometry geometry) {
 
         //Number of interior rings
         int interiorRings = ((Polygon) geometry).getNumInteriorRing();
@@ -120,7 +119,7 @@ public abstract class GeometryModel {
                     CoordinateSequences.reverse(holeSeqs[x]);
                 }
             } else {
-                if (!clock.isCCW(holeSeqs[x].toCoordinateArray())) {
+                if (!CGAlgorithms.isCCW(holeSeqs[x].toCoordinateArray())) {
                     continue;
                 } else {
                     CoordinateSequences.reverse(holeSeqs[x]);
@@ -151,7 +150,7 @@ public abstract class GeometryModel {
     }
 
 
-    public static final GeometryModel getModel(final Geometry geometry, final AnchorPane group) {
+    public static GeometryModel getModel(final Geometry geometry, final AnchorPane group) {
         if (geometry instanceof Polygon) {
             if (((Polygon) geometry).getNumInteriorRing() > 0) {
                 return new PolygonModel(holeFunction(geometry), group);

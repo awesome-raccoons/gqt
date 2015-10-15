@@ -27,13 +27,22 @@ public class ModelBoundaries {
      */
     private double maxY;
 
+    /**
+     * indicates if values of object are defined.
+     */
     private boolean defined = false;
 
+    /**
+     * Initialize with zeroes and undefined state.
+     */
     public ModelBoundaries() {
         clear();
         defined = false;
     }
 
+    /**
+     * Sets all values to 0.
+     */
     public final void clear() {
         minX = 0;
         minY = 0;
@@ -75,6 +84,11 @@ public class ModelBoundaries {
         return maxY - minY;
     }
 
+    /**
+     * Includes values to boundaries if they are out of current boundaries.
+     * @param x x coordinate to include
+     * @param y y coordinate to include
+     */
     public final void include(final double x, final double y) {
         if (!this.defined) {    //(this.isNull()) {
             this.maxX = x;
@@ -106,8 +120,8 @@ public class ModelBoundaries {
     }
 
     public final void include(final Coordinate[] coordinates) {
-        for (int i = 0; i < coordinates.length; i++) {
-            include(coordinates[i]);
+        for (Coordinate coordinate : coordinates) {
+            include(coordinate);
         }
     }
 

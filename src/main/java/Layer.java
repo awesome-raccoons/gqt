@@ -235,7 +235,7 @@ public class Layer extends HBox {
         }
     }
 
-    private void deleteLayer() {
+    public final void deleteLayer() {
         layers.remove(this);
         reorderLayers();
         textArea.setText("");
