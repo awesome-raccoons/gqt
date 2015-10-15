@@ -296,8 +296,8 @@ public class Controller {
     }
 
     private void setZoomLevel() {
-        this.currentZoomLevel = applyLimits(this.MIN_ZOOM_LEVEL,
-                this.MAX_ZOOM_LEVEL,
+        this.currentZoomLevel = applyLimits(MIN_ZOOM_LEVEL,
+                MAX_ZOOM_LEVEL,
                 this.currentZoomLevel);
         currentZoom = getZoomScale(ZOOM_FACTOR, this.currentZoomLevel);
         //The zoomed changed, resize the grid
