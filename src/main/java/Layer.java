@@ -39,7 +39,9 @@ public class Layer extends HBox {
     private GisVisualization gisVis;            //The drawing model
     private String name;                       //Name of the layers
     private String wktString;                  //Original WKT string entered for this layer
+    private String queryString;                //Original SQL Query
     private TextArea textArea;
+    private TextArea queryArea;
     private LayerSelectedProperty isSelected;
     private CheckBox showOrHideCheckbox;
     private TextField layerName;
@@ -52,12 +54,14 @@ public class Layer extends HBox {
     private static ArrayList<Layer> layers = new ArrayList<>();
 
     public Layer(final GisVisualization gisVis, final VBox parentContainer, final String name,
-                 final String wktString, final TextArea textArea) {
+                 final String wktString, final String queryString, final TextArea textArea, final TextArea queryArea) {
         this.gisVis = gisVis;
         this.parentContainer = parentContainer;
         this.name = name;
         this.wktString = wktString;
+        this.queryString = queryString;
         this.textArea = textArea;
+        this.queryArea = queryArea;
         this.validWkt = new Image(Main.class.getResourceAsStream("valid.png"));
         this.invalidWkt = new Image(Main.class.getResourceAsStream("invalid.png"));
         this.validTooltip = new Tooltip("All geometries in layer are valid");
@@ -156,6 +160,7 @@ public class Layer extends HBox {
 
     public final void handleLayerMousePress() {
         textArea.setDisable(false);
+        queryArea.setDisable(false);
         //CTRL is pressed select additional, otherwise unselected previously selected
         boolean oldValue = isSelected.get();
         if (!Controller.isKeyHeldDown(KeyCode.CONTROL)) {
@@ -170,13 +175,17 @@ public class Layer extends HBox {
         if (isSelected.get()) {
             showWKTString();
             //requestFocus();
+            showSQLQuery();
+            requestFocus();
         }
 
         int numberOfSelectedLayers = getNumberOfSelectedLayers();
 
         if (numberOfSelectedLayers == 0) {
             textArea.clear();
+            queryArea.clear();
             textArea.setDisable(true);
+            queryArea.setDisable(true);
         } else if (numberOfSelectedLayers == 1) {
             getAllSelectedLayers(false).get(0).showWKTString();
         } else if (numberOfSelectedLayers > 1) {
@@ -239,6 +248,10 @@ public class Layer extends HBox {
     private void showWKTString() {
         textArea.clear();
         textArea.setText(wktString);
+    }
+    private void showSQLQuery() {
+        queryArea.clear();
+        queryArea.setText(queryString);
     }
 
     /**
@@ -435,6 +448,7 @@ public class Layer extends HBox {
     public final void setWKTString(final String wktString) {
         this.wktString = wktString;
     }
+    public final void setSQLQuery(final String queryString) { this.queryString = queryString;}
 
     public static Layer getSelectedLayer() {
         if (getNumberOfSelectedLayers() == 1) {
