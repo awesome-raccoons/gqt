@@ -1,9 +1,12 @@
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
@@ -63,6 +66,8 @@ public class Controller {
      */
     private double mouseMoveOffsetY = 0;
 
+    private BackgroundGrid backgroundGrid;
+
     @FXML
     private TextArea queryInput;
     @FXML
@@ -94,6 +99,10 @@ public class Controller {
     private static List<KeyCode> heldDownKeys = new ArrayList<>();
 
     public Controller() {
+    }
+
+    public AnchorPane getUpperPane() {
+        return upperPane;
     }
 
 
@@ -291,6 +300,10 @@ public class Controller {
                 this.MAX_ZOOM_LEVEL,
                 this.currentZoomLevel);
         currentZoom = getZoomScale(ZOOM_FACTOR, this.currentZoomLevel);
+        //The zoomed changed, resize the grid
+        //System.out.println("zoom changed");
+        //System.out.println((int)currentZoom);
+        backgroundGrid.scaleGrid((int)(currentZoom * 10), (int)(currentZoom * 10));
     }
     public final void resetView() {
         currentZoomLevel = 0;
@@ -379,6 +392,10 @@ public class Controller {
      * Called when mouse releases on upperPane. Makes sure cursor goes back to normal.
      */
     public final void upperPaneMouseReleased(final MouseEvent event) {
+        if (event.getButton() == MouseButton.SECONDARY) {
+            backgroundGrid.showContextMenu(event.getScreenX(), event.getScreenY());
+        }
+
         this.stage.getScene().setCursor(Cursor.DEFAULT);
         this.currentOffsetX += event.getSceneX() - dragBeginX;
         this.currentOffsetY += event.getSceneY() - dragBeginY;
@@ -472,4 +489,9 @@ public class Controller {
     public static boolean isKeyHeldDown(final KeyCode code) {
         return heldDownKeys.contains(code);
     }
+
+    public final void setBackgroundGrid(BackgroundGrid bg) {
+        this.backgroundGrid = bg;
+    }
+
 }
