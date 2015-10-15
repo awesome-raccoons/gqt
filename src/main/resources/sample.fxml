@@ -21,9 +21,9 @@
           <AnchorPane fx:id="upperPane" focusTraversable="true" minHeight="0.0" minWidth="0.0" onKeyPressed="#handleUpperPaneKeyPresses" onMouseDragged="#upperPaneMouseDragged" onMouseMoved="#upperPaneMouseMoved" onMousePressed="#upperPaneMousePressed" onMouseReleased="#upperPaneMouseReleased" onScroll="#mouseScrollEvent" prefHeight="100.0" prefWidth="160.0" />
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="205.0" prefWidth="798.0">
                <children>
-                  <TabPane layoutX="63.0" layoutY="33.0" prefHeight="266.0" prefWidth="798.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <TabPane fx:id="tabPane" layoutX="63.0" layoutY="33.0" prefHeight="266.0" prefWidth="798.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <tabs>
-                      <Tab text="Query">
+                      <Tab fx:id="queryTab" text="Query">
                         <content>
                           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="110.0" prefWidth="798.0">
                                  <children>
@@ -64,7 +64,7 @@
                               </AnchorPane>
                         </content>
                       </Tab>
-                      <Tab text="Databases">
+                      <Tab fx:id="databasesTab" text="Databases">
                         <content>
                           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                         </content>
