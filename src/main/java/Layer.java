@@ -11,6 +11,7 @@ import javafx.scene.control.Control;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -74,6 +75,9 @@ public class Layer extends HBox {
      * Creates a layer for this Layer object.
      */
     public final void createLayer() {
+        //Add padding to the hbox
+        this.setPadding(new Insets(10, 10, 10, 10));
+
         //Create show/hide checkbox
         showOrHideCheckbox = new CheckBox();
         showOrHideCheckbox.setDisable(gisVis == null);
@@ -85,6 +89,7 @@ public class Layer extends HBox {
 
         //Create and update layer name field
         layerName = new TextField();
+        layerName.setOnMouseClicked(event1 -> handleLayerMousePress());
         updateLayerName();
 
         //Create delete button
@@ -163,7 +168,7 @@ public class Layer extends HBox {
         }
         if (isSelected.get()) {
             showWKTString();
-            requestFocus();
+            //requestFocus();
         }
 
         int numberOfSelectedLayers = getNumberOfSelectedLayers();
