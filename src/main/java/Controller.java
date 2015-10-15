@@ -109,7 +109,6 @@ public class Controller {
     public final AnchorPane getUpperPane() {
         return upperPane;
     }
-    
     @FXML
     public final void updateLayer() {
         WktParser wktParser = new WktParser(Layer.getSelectedLayer(), upperPane);
