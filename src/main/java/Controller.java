@@ -307,6 +307,8 @@ public class Controller {
      * @param event MouseEvent to react to.
      */
     public final void upperPaneMousePressed(final MouseEvent event) {
+        backgroundGrid.hideContextMenu();
+
         upperPane.requestFocus();
         dragBase2X = event.getSceneX();
         dragBase2Y = event.getSceneY();

@@ -73,6 +73,10 @@ public class BackgroundGrid extends Canvas{
         cm.show(parent, x, y);
     }
 
+    public final void hideContextMenu() {
+        cm.hide();
+    }
+
     /**
      * Draws the scaled grid.
      * Will immediately return without doing anything if either argument is 0.
