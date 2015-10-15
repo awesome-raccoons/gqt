@@ -72,7 +72,7 @@ public class BackgroundGrid extends Canvas{
     public final void showContextMenu(double x, double y) {
         cm.show(parent, x, y);
     }
-
+    
     public final void hideContextMenu() {
         cm.hide();
     }

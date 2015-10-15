@@ -223,7 +223,7 @@ public class Controller {
             zoomLevel--;
         }
         bestZoomLevel = (int) zoomLevel;
-        bestZoomLevel = applyLimits(this.MIN_ZOOM_LEVEL, this.MAX_ZOOM_LEVEL, bestZoomLevel);
+        bestZoomLevel = applyLimits(MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL, bestZoomLevel);
         return bestZoomLevel;
     }
     /**
@@ -248,6 +248,7 @@ public class Controller {
                 MAX_ZOOM_LEVEL,
                 this.currentZoomLevel);
         currentZoom = getZoomScale(ZOOM_FACTOR, this.currentZoomLevel);
+
         //The zoomed changed, resize the grid
         backgroundGrid.scaleGrid((int)(currentZoom * 10), (int)(currentZoom * 10));
     }
