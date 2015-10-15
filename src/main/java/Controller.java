@@ -6,6 +6,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
@@ -37,6 +38,8 @@ public class Controller {
      * Sets minimum level of zooming (ZOOM_FACTOR ^ currentZoomLevel).
      */
     private static final int MIN_ZOOM_LEVEL = -25;
+
+    private static final int ZOOM_TO_SCALE_MULTIPLIER = 10;
     /**
      * Current level of zooming (0 -> default).
      */
@@ -64,6 +67,8 @@ public class Controller {
      * used to calculate how many pixels were dragged before redrawing objects.
      */
     private double mouseMoveOffsetY = 0;
+
+    private BackgroundGrid backgroundGrid;
 
     @FXML
     private TextArea queryInput;
@@ -101,6 +106,10 @@ public class Controller {
      */
     private static List<KeyCode> heldDownKeys = new ArrayList<>();
 
+    public final AnchorPane getUpperPane() {
+        return upperPane;
+    }
+    
     @FXML
     public final void updateLayer() {
         WktParser wktParser = new WktParser(Layer.getSelectedLayer(), upperPane);
@@ -139,7 +148,6 @@ public class Controller {
     private void updateZoomText() {
         zoomText.setText("" + String.format("%.2f", currentZoom * PERCENT));
     }
-
 
     /**
      * Change coordinates of all geometries by scale of current zoom and move center of view from
@@ -313,6 +321,10 @@ public class Controller {
                 MAX_ZOOM_LEVEL,
                 this.currentZoomLevel);
         currentZoom = getZoomScale(ZOOM_FACTOR, this.currentZoomLevel);
+
+        //The zoomed changed, resize the grid
+        backgroundGrid.scaleGrid((int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER),
+                (int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER));
     }
 
     /**
@@ -390,6 +402,8 @@ public class Controller {
      * @param event MouseEvent to react to.
      */
     public final void upperPaneMousePressed(final MouseEvent event) {
+        backgroundGrid.hideContextMenu();
+
         upperPane.requestFocus();
         dragBaseX = event.getSceneX();
         dragBaseY = event.getSceneY();
@@ -421,6 +435,10 @@ public class Controller {
      * Called when mouse releases on upperPane. Makes sure cursor goes back to normal.
      */
     public final void upperPaneMouseReleased(final MouseEvent event) {
+        if (event.getButton() == MouseButton.SECONDARY) {
+            backgroundGrid.showContextMenu(event.getScreenX(), event.getScreenY());
+        }
+
         this.stage.getScene().setCursor(Cursor.DEFAULT);
         this.currentOffsetX += event.getSceneX() - dragBeginX;
         this.currentOffsetY += event.getSceneY() - dragBeginY;
@@ -590,4 +608,9 @@ public class Controller {
     public static boolean isKeyHeldDown(final KeyCode code) {
         return heldDownKeys.contains(code);
     }
+
+    public final void setBackgroundGrid(final BackgroundGrid bg) {
+        this.backgroundGrid = bg;
+    }
+
 }

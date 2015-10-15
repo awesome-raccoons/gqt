@@ -31,9 +31,16 @@ public class Main extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
+        //Draw grid
+        BackgroundGrid bg = new BackgroundGrid(primaryStage.getWidth(),
+                primaryStage.getHeight(), controller.getUpperPane());
+        bg.createGrid(BackgroundGrid.DEFAULT_SPACING_X,
+                BackgroundGrid.DEFAULT_SPACING_Y);
+        controller.getUpperPane().getChildren().add(0, bg);
+        controller.setBackgroundGrid(bg);
+        
         //Create an initial empty layer
         controller.createEmptyLayer();
-
     }
 
 

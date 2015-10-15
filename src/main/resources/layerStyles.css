@@ -7,10 +7,6 @@
     -fx-background-color: lightgray;
 }
 
-.check-box {
-    -fx-padding: 10;
-}
-
 .text-field {
     -fx-background-color: transparent;
 }
@@ -18,5 +14,6 @@
 .text-field:focused {
     -fx-background-color: white;
 }
+
 
 
