@@ -3,39 +3,34 @@ import javafx.scene.control.TextField;
 /**
  * Created by Johannes on 15.10.2015.
  */
-public class NumberTextField extends TextField
-{
+public class NumberTextField extends TextField {
 
-    public NumberTextField(int defaultValue) {
+    public NumberTextField(final int defaultValue) {
         this.setText(Integer.toString(defaultValue));
     }
 
     @Override
-    public void replaceText(int start, int end, String text)
-    {
-        if (validate(text))
-        {
+    public final void replaceText(final int start,
+                                  final int end,
+                                  final String text) {
+        if (validate(text))  {
             super.replaceText(start, end, text);
         }
 
     }
 
     @Override
-    public void replaceSelection(String text)
-    {
-        System.out.println("b");
-        if (validate(text))
-        {
+    public final void replaceSelection(final String text) {
+        if (validate(text)) {
             super.replaceSelection(text);
         }
     }
 
-    private boolean validate(String text)
-    {
+    private boolean validate(final String text) {
         return ("".equals(text) || text.matches("[0-9]"));
     }
 
-    public int getValue() {
+    public final int getValue() {
         String val = this.getText();
         try {
             return Integer.parseInt(val);

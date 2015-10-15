@@ -1,7 +1,5 @@
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
@@ -29,6 +27,8 @@ public class Controller {
     private static final int PERCENT = 100;
     private static final int MAX_ZOOM_LEVEL = 25;
     private static final int MIN_ZOOM_LEVEL = -25;
+
+    private static final int ZOOM_TO_SCALE_MULTIPLIER = 10;
     /**
      * Current level of zooming (0 -> default).
      */
@@ -70,7 +70,7 @@ public class Controller {
     public Controller() {
     }
 
-    public AnchorPane getUpperPane() {
+    public final AnchorPane getUpperPane() {
         return upperPane;
     }
 
@@ -250,7 +250,7 @@ public class Controller {
         currentZoom = getZoomScale(ZOOM_FACTOR, this.currentZoomLevel);
 
         //The zoomed changed, resize the grid
-        backgroundGrid.scaleGrid((int)(currentZoom * 10), (int)(currentZoom * 10));
+        backgroundGrid.scaleGrid((int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER), (int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER));
     }
     public final void resetView() {
         currentZoomLevel = 0;
@@ -439,7 +439,7 @@ public class Controller {
         return heldDownKeys.contains(code);
     }
 
-    public final void setBackgroundGrid(BackgroundGrid bg) {
+    public final void setBackgroundGrid(final BackgroundGrid bg) {
         this.backgroundGrid = bg;
     }
 

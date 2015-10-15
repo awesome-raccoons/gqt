@@ -11,7 +11,6 @@ import javafx.scene.control.Control;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -33,6 +32,8 @@ import java.util.Collections;
  */
 
 public class Layer extends HBox {
+
+    private static final Insets DEFAULT_INSETS = new Insets(10, 10, 10, 10);
 
     private final VBox parentContainer;        //Container where layers are put
     private GisVisualization gisVis;            //The drawing model
@@ -76,7 +77,7 @@ public class Layer extends HBox {
      */
     public final void createLayer() {
         //Add padding to the hbox
-        this.setPadding(new Insets(10, 10, 10, 10));
+        this.setPadding(DEFAULT_INSETS);
 
         //Create show/hide checkbox
         showOrHideCheckbox = new CheckBox();

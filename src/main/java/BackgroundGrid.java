@@ -20,23 +20,30 @@ import java.util.Optional;
 /**
  * Created by Johannes on 15.10.2015.
  */
-public class BackgroundGrid extends Canvas{
+public class BackgroundGrid extends Canvas {
+
+    private static final float LINE_WIDTH = 0.1f;
+    private static final int DIALOG_PADDING = 10;
+    private static final Insets DIALOG_INSETS = new Insets(20, 150, 10, 10);
+
+    public static final int DEFAULT_SPACING_X = 10;
+    public static final int DEFAULT_SPACING_Y = 10;
 
     private double width;
     private double height;
 
     /**
-     * How many pixels between each vertical line
+     * How many pixels between each vertical line.
      */
     private int xScale;
     /**
-     * How many pixels between each horizontal line
+     * How many pixels between each horizontal line-
      */
     private int yScale;
     /**
      * Allow zooming to override our x and y scale value.
      * If true, whenever the user zooms the scale will zoom with it,
-     * and disregard the users preferred settings
+     * and disregard the users preferred settings.
      */
     private boolean allowOverriding;
 
@@ -47,7 +54,9 @@ public class BackgroundGrid extends Canvas{
      */
     private AnchorPane parent;
 
-    public BackgroundGrid(double width, double height, AnchorPane parent) {
+    public BackgroundGrid(final double width,
+                          final double height,
+                          final AnchorPane parent) {
         super(width, height);
         this.width = width;
         this.height = height;
@@ -57,6 +66,7 @@ public class BackgroundGrid extends Canvas{
         createContextMenu();
     }
 
+
     private void createContextMenu() {
         cm = new ContextMenu();
         MenuItem cmItem1 = new MenuItem("Configure scale");
@@ -65,14 +75,14 @@ public class BackgroundGrid extends Canvas{
     }
 
     /**
-     * Displays the context many at the given point
-     * @param x x position of popup
-     * @param y y position of popup
+     * Displays the context many at the given point.
+     * @param x x position of popup.
+     * @param y y position of popup.
      */
-    public final void showContextMenu(double x, double y) {
+    public final void showContextMenu(final double x, final double y) {
         cm.show(parent, x, y);
     }
-    
+
     public final void hideContextMenu() {
         cm.hide();
     }
@@ -85,12 +95,13 @@ public class BackgroundGrid extends Canvas{
      * @param ySpacing  Amount of pixels between each vertical line.
      */
     public final void createGrid(final int xSpacing, final int ySpacing) {
-        if (xSpacing == 0 || ySpacing == 0)
+        if (xSpacing == 0 || ySpacing == 0) {
             return;
+        }
 
         GraphicsContext gc = this.getGraphicsContext2D();
         gc.setStroke(Color.BLACK);
-        gc.setLineWidth(0.1);
+        gc.setLineWidth(LINE_WIDTH);
 
         //Draws horizontal lines
         for (int i = 0; i < height; i += ySpacing) {
@@ -99,7 +110,7 @@ public class BackgroundGrid extends Canvas{
 
         //Draws vertical lines
         for (int i = 0; i < width; i += xSpacing) {
-            gc.strokeLine(i,0,i, height);
+            gc.strokeLine(i, 0, i, height);
         }
     }
 
@@ -122,7 +133,7 @@ public class BackgroundGrid extends Canvas{
      * Also given the option whether to let user zooming override chosen values
      * @param error Displays an error label if true. If the user entered any zero values.
      */
-    public final void scaleInputDialog (final boolean error) {
+    public final void scaleInputDialog(final boolean error) {
         Dialog<Pair<Integer, Integer>> dialog = new Dialog<>();
         dialog.setTitle("Adjust grid scaling");
 
@@ -141,9 +152,9 @@ public class BackgroundGrid extends Canvas{
         //          Label (optional)
         GridPane pane = new GridPane();
         GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(20, 150, 10, 10));
+        grid.setHgap(DIALOG_PADDING);
+        grid.setVgap(DIALOG_PADDING);
+        grid.setPadding(DIALOG_INSETS);
 
         NumberTextField xScalingTextField = new NumberTextField(xScale);
         xScalingTextField.setPromptText("Pixels between each vertical line");
@@ -162,12 +173,12 @@ public class BackgroundGrid extends Canvas{
         hb.getChildren().add(overrideCheckBox);
 
         pane.add(grid, 0, 0);
-        pane.add(hb,0,1);
+        pane.add(hb, 0, 1);
 
         if (error) {
             Label errorMessage = new Label("* Values must be greater than zero!");
             errorMessage.setTextFill(Color.RED);
-            pane.add(errorMessage, 0,2);
+            pane.add(errorMessage, 0, 2);
         }
 
         dialog.getDialogPane().setContent(pane);
