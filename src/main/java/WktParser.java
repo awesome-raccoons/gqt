@@ -132,8 +132,8 @@ public class WktParser {
 
     private void invertYcoordinates(final Geometry geometry) {
         Coordinate[] coord = geometry.getCoordinates();
-        for (int i = 0; i < coord.length; i++) {
-            coord[i].y *= -1;
+        for (Coordinate aCoord : coord) {
+            aCoord.y *= -1;
         }
     }
 

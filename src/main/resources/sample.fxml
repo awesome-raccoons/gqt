@@ -14,16 +14,16 @@
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#onAnyKeyPressed" onKeyReleased="#onAnyKeyReleased" prefHeight="600.0" prefWidth="1057.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="Controller">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#onAnyKeyPressed" onKeyReleased="#onAnyKeyReleased" prefHeight="600.0" prefWidth="1057.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
   <children>
     <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="600.0" prefWidth="969.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="-107.0" AnchorPane.topAnchor="0.0">
       <items>
         <AnchorPane fx:id="upperPane" focusTraversable="true" minHeight="0.0" minWidth="0.0" onKeyPressed="#handleUpperPaneKeyPresses" onMouseDragged="#upperPaneMouseDragged" onMouseMoved="#upperPaneMouseMoved" onMousePressed="#upperPaneMousePressed" onMouseReleased="#upperPaneMouseReleased" onScroll="#mouseScrollEvent" prefHeight="100.0" prefWidth="160.0" />
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="205.0" prefWidth="798.0">
           <children>
-            <TabPane prefHeight="266.0" prefWidth="798.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <TabPane fx:id="tabPane" prefHeight="266.0" prefWidth="798.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
               <tabs>
-                <Tab text="Query">
+                <Tab fx:id="queryTab" text="Query">
                   <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="110.0" prefWidth="798.0">
                       <children>
@@ -64,12 +64,12 @@
                     </AnchorPane>
                   </content>
                 </Tab>
-                <Tab text="Databases">
+                <Tab fx:id="databasesTab" text="Databases">
                   <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                   </content>
                 </Tab>
-                <Tab text="Layers">
+                <Tab fx:id="layersTab" text="Layers">
                   <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                   </content>
