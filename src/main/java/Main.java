@@ -23,7 +23,7 @@ public class Main extends Application {
         javafx.event.EventHandler<ScrollEvent> mouseScrollHandler =
                 event -> controller.handleSceneScrollEvent(event);
         scene.setOnScroll(mouseScrollHandler);
-        // set key combinations with Control to work from everywhere
+        // enable keyboard shortcuts to work regardless of current focus
         javafx.event.EventHandler<KeyEvent> keyHandler =
                 event -> controller.handleSceneKeyEvent(event);
         scene.setOnKeyPressed(keyHandler);

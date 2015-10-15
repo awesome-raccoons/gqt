@@ -531,7 +531,7 @@ public class Controller {
     }
 
     /**
-     * Handler to allow shortcuts by Control+Key regardless of current focus.
+     * Handler to allow keyboard shortcuts regardless of current focus.
      * @param event
      */
     public final void handleSceneKeyEvent(final KeyEvent event) {
