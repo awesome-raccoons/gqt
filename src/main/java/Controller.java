@@ -22,20 +22,45 @@ public class Controller {
      * Identifies value of zooming (e.g 140% -> 1.4).
      */
     private static final double ZOOM_FACTOR = 1.4;
+    /**
+     * Sets minimum number of pixels moves needed to drag objects.
+     */
     private static final int DRAG_SENSITIVITY = 3;
     private static final int PERCENT = 100;
+    /**
+     * Sets maximum level of zooming (ZOOM_FACTOR ^ currentZoomLevel).
+     */
     private static final int MAX_ZOOM_LEVEL = 25;
+    /**
+     * Sets minimum level of zooming (ZOOM_FACTOR ^ currentZoomLevel).
+     */
     private static final int MIN_ZOOM_LEVEL = -25;
     /**
      * Current level of zooming (0 -> default).
      */
     private int currentZoomLevel = 0;
 
+    /**
+     * current exact value of zooming used to save calculations in
+     * repeating actions and for exact zoom from input field.
+     */
     private double currentZoom = 1;
 
+    /**
+     * offset of X axis based on dragging.
+     */
     private double currentOffsetX = 0;
+    /**
+     * offset of Y axis based on dragging.
+     */
     private double currentOffsetY = 0;
+    /**
+     * used to calculate how many pixels were dragged before redrawing objects.
+     */
     private double mouseMoveOffsetX = 0;
+    /**
+     * used to calculate how many pixels were dragged before redrawing objects.
+     */
     private double mouseMoveOffsetY = 0;
 
     @FXML
@@ -53,7 +78,13 @@ public class Controller {
     @FXML
     private Text positionY;
 
-    private double dragBase2X, dragBase2Y;
+    /**
+     * saves position of mouse coordinates from last handler.
+     */
+    private double dragBaseX, dragBaseY;
+    /**
+     * saves position of mouse coordinates from beginning of dragging.
+     */
     private double dragBeginX, dragBeginY;
     private Stage stage;
 
@@ -88,8 +119,18 @@ public class Controller {
         this.stage = stage;
     }
 
+    /**
+     * Calculates double value which is used for multiplying with coordinates.
+     * @param zoomFactor base
+     * @param zoomLevel exponent
+     * @return zoomFactor^zoomLevel
+     */
     public final double getZoomScale(final double zoomFactor, final int zoomLevel) {
         return Math.pow(zoomFactor, zoomLevel);
+    }
+
+    private void updateZoomText() {
+        zoomText.setText("" + String.format("%.2f", currentZoom * PERCENT));
     }
 
 
@@ -98,17 +139,13 @@ public class Controller {
      * top-left corner to the middle. (0, 0) coordinate is in the middle
      */
     public final void rescaleAllGeometries() {
-        /*if (currentZoom == 0) {
-            currentZoom = getZoomScale(ZOOM_FACTOR, currentZoomLevel);
-        }*/
         double centerX = upperPane.getWidth() / 2;
         double centerY = upperPane.getHeight() / 2;
         ArrayList<GeometryModel> geometryModelList;
         AnchorPane plotViewGroup = GisVisualization.getGroup();
         //Make sure to reset the GisVisualization, this empties the canvas and tooltips
         GisVisualization.reset();
-
-        zoomText.setText("" + String.format("%.2f", currentZoom * PERCENT));
+        updateZoomText();
 
         // resize and redraw all geometries
         for (int i = Layer.getLayers(true).size() - 1; i >= 0; i--) {
@@ -132,7 +169,8 @@ public class Controller {
     }
 
     /**
-     * Changes coordinates of all geometries.
+     * Changes X coordinates of all geometries by offsetX.
+     * Changes Y coordinates of all geometries by offsetY.
      * @param offsetX change of X coordinates
      * @param offsetY change of Y coordinates
      */
@@ -161,10 +199,21 @@ public class Controller {
         }
     }
 
+    /**
+     * Gets value of zoom.
+     * ZOOM_FACTOR ^ result = x
+     * @param x
+     * @return log_zoomfactor(x) which is equal to log(x)/log(ZOOM_FACTOR)
+     */
     private double logZoomFactor(final double x) {
         return Math.log(x) / Math.log(ZOOM_FACTOR);
     }
 
+    /**
+     * Creates new ModelBoundaries object which includes geometries from list of layers
+     * @param layers list of layers that have to be included in ModelBoundaries
+     * @return ModelBoundaries class updated to reflect all geometries boundaries
+     */
     private ModelBoundaries fillBoundariesWithLayers(final ArrayList<Layer> layers) {
         ModelBoundaries boundaries = new ModelBoundaries();
         for (int i = layers.size() - 1; i >= 0; i--) {
@@ -178,6 +227,9 @@ public class Controller {
         return boundaries;
     }
 
+    /**
+     * Gets boundaries for all layers and find best zoom and position for it.
+     */
     public final void zoomToFitAll() {
         ModelBoundaries modelBoundaries = fillBoundariesWithLayers(Layer.getLayers(true));
         zoomToFit(modelBoundaries);
@@ -297,10 +349,10 @@ public class Controller {
      */
     public final void upperPaneMousePressed(final MouseEvent event) {
         upperPane.requestFocus();
-        dragBase2X = event.getSceneX();
-        dragBase2Y = event.getSceneY();
-        dragBeginX = dragBase2X;
-        dragBeginY = dragBase2Y;
+        dragBaseX = event.getSceneX();
+        dragBaseY = event.getSceneY();
+        dragBeginX = dragBaseX;
+        dragBeginY = dragBaseY;
     }
 
     /**
@@ -310,10 +362,10 @@ public class Controller {
      */
     public final void upperPaneMouseDragged(final MouseEvent event) {
         this.stage.getScene().setCursor(Cursor.MOVE);
-        mouseMoveOffsetX += (event.getSceneX() - dragBase2X);
-        dragBase2X = event.getSceneX();
-        mouseMoveOffsetY += (event.getSceneY() - dragBase2Y);
-        dragBase2Y = event.getSceneY();
+        mouseMoveOffsetX += (event.getSceneX() - dragBaseX);
+        dragBaseX = event.getSceneX();
+        mouseMoveOffsetY += (event.getSceneY() - dragBaseY);
+        dragBaseY = event.getSceneY();
         // performance improvement
         if (Math.abs(mouseMoveOffsetX) > DRAG_SENSITIVITY
                 || Math.abs(mouseMoveOffsetY) > DRAG_SENSITIVITY) {
