@@ -37,7 +37,7 @@ public class BackgroundGrid extends Canvas {
      */
     private int xScale;
     /**
-     * How many pixels between each horizontal line-
+     * How many pixels between each horizontal line.
      */
     private int yScale;
     /**

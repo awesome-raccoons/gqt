@@ -250,7 +250,8 @@ public class Controller {
         currentZoom = getZoomScale(ZOOM_FACTOR, this.currentZoomLevel);
 
         //The zoomed changed, resize the grid
-        backgroundGrid.scaleGrid((int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER), (int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER));
+        backgroundGrid.scaleGrid((int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER),
+                (int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER));
     }
     public final void resetView() {
         currentZoomLevel = 0;
