@@ -235,7 +235,9 @@ public class Controller {
     }
 
     private void setZoomLevel() {
-        this.currentZoomLevel = applyLimits(this.MIN_ZOOM_LEVEL, this.MAX_ZOOM_LEVEL, this.currentZoomLevel);
+        this.currentZoomLevel = applyLimits(this.MIN_ZOOM_LEVEL,
+                this.MAX_ZOOM_LEVEL,
+                this.currentZoomLevel);
         currentZoom = getZoomScale(ZOOM_FACTOR, this.currentZoomLevel);
     }
     public final void resetView() {
@@ -359,7 +361,7 @@ public class Controller {
         }
     }
 
-    private void updateCoordinatesText(double sceneX, double sceneY) {
+    private void updateCoordinatesText(final double sceneX, final double sceneY) {
         double centerX = upperPane.getWidth() / 2;
         double centerY = upperPane.getHeight() / 2;
         double positionX = (sceneX - currentOffsetX - centerX) / currentZoom;
