@@ -78,6 +78,12 @@ public class Controller {
     @FXML
     private ComboBox dbChoice;
     @FXML
+    private TextField dbUrl;
+    @FXML
+    private TextField dbUser;
+    @FXML
+    private TextField dbPass;
+    @FXML
     private AnchorPane upperPane;
     @FXML
     private VBox vboxLayers;
@@ -120,6 +126,13 @@ public class Controller {
 
     public final void changeDatabase(){
         System.out.println("change db here");
+        String choice = dbChoice.getItems().toString();
+        System.out.println(choice);
+    }
+    public final void addDatabase(){
+        //
+        //dbChoice.getItems().add
+
     }
     @FXML
     public final void updateLayer() {
