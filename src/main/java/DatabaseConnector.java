@@ -19,16 +19,9 @@ import java.sql.SQLOutput;
  */
 public class DatabaseConnector {
 
-
-        private String password;
-        private String user;
-        private String url;
-
-
-
         public DatabaseConnector(){}
 
-        public static String executeQuery(String query, String password, String user, String url){
+        public static String executeQuery(String query, Database db){
             String results = null;
             Connection pCon = null;
             int count = 0;
@@ -37,6 +30,9 @@ public class DatabaseConnector {
             Statement pSt = null;
             ResultSet rs = null;
             ResultSet pRs = null;
+            String user = db.getUser();
+            String url = db.getUrl();
+            String password = db.getPassword();
         try {
 
             Class.forName("com.mysql.jdbc.Driver");
@@ -44,9 +40,10 @@ public class DatabaseConnector {
 
 
             //String query = "SELECT ST_AsText(ST_Envelope(ST_GeomFromText('POLYGON((5 0,7 10,0 15,10 15,15 25,20 15,30 15,22 10,25 0,15 5,5 0))')));;";
-            url = "jdbc:mysql://127.0.0.1:3306/sakila";
-            user = "root";
-            password = "dbpass";
+            //url = "jdbc:mysql://127.0.0.1:3306/sakila";
+            //user = "root";
+            //password = "dbpass";
+
             //String url = "jdbc:mysql://mysql.stud.ntnu.no/perchrib_raccoons";
             //String user = "perchrib";
             //String password = "123";
@@ -65,7 +62,8 @@ public class DatabaseConnector {
             }
             if(url.contains("postgresql"))
             {
-                pCon = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5450/postgres", "postgres", "dbpass");
+                //pCon = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5450/postgres", "postgres", "dbpass");
+                pCon = DriverManager.getConnection(url, user, password);
                 pSt = pCon.createStatement();
                 pRs = pSt.executeQuery(query);
                 while(pRs.next())

@@ -76,13 +76,15 @@ public class Controller {
     @FXML
     private TextArea query;
     @FXML
-    private ComboBox dbChoice;
+    private ComboBox dbList;
+    @FXML
+    private TextField dbName;
     @FXML
     private TextField dbUrl;
     @FXML
     private TextField dbUser;
     @FXML
-    private TextField dbPass;
+    private TextField dbPassword;
     @FXML
     private AnchorPane upperPane;
     @FXML
@@ -126,10 +128,19 @@ public class Controller {
 
     public final void changeDatabase(){
         System.out.println("change db here");
-        String choice = dbChoice.getItems().toString();
+        String choice = dbList.getItems().toString();
         System.out.println(choice);
     }
     public final void addDatabase(){
+        System.out.println("Button Pressed!");
+        System.out.println(dbName.getText());
+        System.out.println(dbUrl.getText());
+        System.out.println(dbUser.getText());
+        System.out.println(dbPassword.getText());
+        Database db = new Database(dbName.getText(),dbUrl.getText(),dbUser.getText(),dbPassword.getText());
+
+
+        dbList.getItems().add(db);
         //
         //dbChoice.getItems().add
 

@@ -11,6 +11,27 @@ public class Database {
         this.url = url;
         this.user = user;
         this.password = password;
+        this.name = name;
 
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String toString(){
+        return this.name;
     }
 }
