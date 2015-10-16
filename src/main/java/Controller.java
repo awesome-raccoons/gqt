@@ -11,6 +11,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import models.GeometryModel;
@@ -75,6 +76,8 @@ public class Controller {
     @FXML
     private TextArea query;
     @FXML
+    private ComboBox dbChoice;
+    @FXML
     private AnchorPane upperPane;
     @FXML
     private VBox vboxLayers;
@@ -115,10 +118,13 @@ public class Controller {
         return upperPane;
     }
 
-
+    public final void changeDatabase(){
+        System.out.println("change db here");
+    }
     @FXML
     public final void updateLayer() {
         WktParser wktParser = new WktParser(Layer.getSelectedLayer(), upperPane);
+        Layer.getSelectedLayer().setSQLQuery(query.getText());
         boolean result = wktParser.parseWktString(queryInput.getText());
         if (result) {
             wktParser.updateLayerGeometries();
@@ -133,13 +139,6 @@ public class Controller {
         //To ensure the latest new layer will be selected.
         l.handleLayerMousePress();
 }
-    public final void createEmptyLayer(String queryString){
-        Layer l = new Layer(null, vboxLayers, "Empty", "", queryString, queryInput,query);
-        Layer.getLayers(false).add(l);
-        l.addLayerToView();
-        //To ensure the latest new layer will be selected.
-        l.handleLayerMousePress();
-    }
 
     public final void setStage(final Stage stage) {
         this.stage = stage;
@@ -477,34 +476,34 @@ public class Controller {
     public final void submitQuery(){
         String qText = query.getText();
         DatabaseConnector dbconn = new DatabaseConnector();
-        String[] result = dbconn.executeQuery(qText);
-        for (String r : result) {
-            if(r.contains("POSTGIS Error") )
-            {
-                String title = "SQL Error";
-                String header = "POSTGIS Error";
-                //Specify different errors later
-                String alertMsg = "Invalid geometry or wrong syntax";
-                Alerts alert = new Alerts(alertMsg,title,header);
-                alert.show();
-            }
-            else if(r.contains("MYSQL error"))
-            {
-                String title = "SQL Error";
-                String header = "MYSQL Error";
-                //Specify different errors later
-                String alertMsg = "Invalid geometry or wrong syntax";
-                Alerts alert = new Alerts(alertMsg,title,header);
-                alert.show();
-            }
-            else {
-                createEmptyLayer(qText);
+        String result = dbconn.executeQuery(qText,"","","");
 
-                queryInput.setText(r);
-                updateLayer();
-            }
+        if(result.contains("POSTGIS Error") )
+        {
+            String title = "SQL Error";
+            String header = "POSTGIS Error";
+            //Specify different errors later
+            String alertMsg = "Invalid geometry,wrong syntax or empty query";
+            Alerts alert = new Alerts(alertMsg,title,header);
+            alert.show();
         }
-    }
+        else if(result.contains("MYSQL error"))
+        {
+            String title = "SQL Error";
+            String header = "MYSQL Error";
+            //Specify different errors later
+            String alertMsg = "Invalid geometry, wrong syntax or empty query";
+            Alerts alert = new Alerts(alertMsg,title,header);
+            alert.show();
+        }
+        else {
+            //createEmptyLayer(qText);
+
+            queryInput.setText(result);
+            updateLayer();
+        }
+        }
+
 
     public final void queryAreaKeyPressed(final KeyEvent event) {
         if( event.isAltDown() && event.getCode() == KeyCode.ENTER) {

@@ -28,8 +28,8 @@ public class DatabaseConnector {
 
         public DatabaseConnector(){}
 
-        public static String[] executeQuery(String query){
-            String[] results = new String[]{null,null};
+        public static String executeQuery(String query, String password, String user, String url){
+            String results = null;
             Connection pCon = null;
             int count = 0;
             Connection con = null;
@@ -44,33 +44,43 @@ public class DatabaseConnector {
 
 
             //String query = "SELECT ST_AsText(ST_Envelope(ST_GeomFromText('POLYGON((5 0,7 10,0 15,10 15,15 25,20 15,30 15,22 10,25 0,15 5,5 0))')));;";
-            String url = "jdbc:mysql://127.0.0.1:3306/sakila";
-            String user = "root";
-            String password = "dbpass";
+            url = "jdbc:mysql://127.0.0.1:3306/sakila";
+            user = "root";
+            password = "dbpass";
             //String url = "jdbc:mysql://mysql.stud.ntnu.no/perchrib_raccoons";
             //String user = "perchrib";
             //String password = "123";
-            con = DriverManager.getConnection(url, user, password);
-            st = con.createStatement();
-            rs = st.executeQuery(query);
-            pCon = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5450/postgres", "postgres", "dbpass");
-            pSt = pCon.createStatement();
-            pRs = pSt.executeQuery(query);
-
-
-
-            while (rs.next()) {
-                System.out.print(rs.getString(1));
-                results[count] = rs.getString(1);
-                //System.out.print(": ");
-                //System.out.println(rs.getString(2));
-                count++;
-            }
-            while(pRs.next())
+            if(url.contains("mysql"))
             {
-                System.out.println(pRs.getString(1));
-                results[count] = pRs.getString(1);
+                con = DriverManager.getConnection(url, user, password);
+                st = con.createStatement();
+                rs = st.executeQuery(query);
+                while (rs.next()) {
+                    System.out.print(rs.getString(1));
+                    results = rs.getString(1);
+                    //System.out.print(": ");
+                    //System.out.println(rs.getString(2));
+                    count++;
+                }
             }
+            if(url.contains("postgresql"))
+            {
+                pCon = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5450/postgres", "postgres", "dbpass");
+                pSt = pCon.createStatement();
+                pRs = pSt.executeQuery(query);
+                while(pRs.next())
+                {
+                    System.out.println(pRs.getString(1));
+                    results = pRs.getString(1);
+                }
+            }
+
+
+
+
+
+
+
 
 
         } catch (SQLException | ClassNotFoundException ex) {
@@ -80,12 +90,12 @@ public class DatabaseConnector {
 
             if(ex.toString().contains("PSQL")){
                 String exception = "POSTGIS Error";
-                results[count] = exception;
+                results = exception;
                 return results;
             }
             else if(ex.toString().contains("MySQL")){
                 String exception = "MYSQL error";
-                results[count] = exception;
+                results = exception;
                 return results;
             }
             else {
@@ -119,12 +129,12 @@ public class DatabaseConnector {
 
                 if(SQLOutput.class.getName().contains("PSQL")){
                     String exception = "Postgis error";
-                    results[count] = exception;
+                    results = exception;
                     return results;
                 }
                 else if(ex.getMessage().contains("MYSQL")){
                     String exception = "MYSQL error";
-                    results[count] = exception;
+                    results = exception;
                     return results;
                 }
                 else {

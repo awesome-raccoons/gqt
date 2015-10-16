@@ -239,6 +239,7 @@ public class Layer extends HBox {
         layers.remove(this);
         reorderLayers();
         textArea.setText("");
+        queryArea.setText("");
             textArea.setDisable(getNumberOfSelectedLayers() == 0);
     }
 
