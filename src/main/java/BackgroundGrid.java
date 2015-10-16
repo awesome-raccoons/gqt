@@ -29,6 +29,11 @@ public class BackgroundGrid extends Canvas {
     public static final int DEFAULT_SPACING_X = 10;
     public static final int DEFAULT_SPACING_Y = 10;
 
+    private double xCenter;
+    private double yCenter;
+    private double previousX;
+    private double previousY;
+
     private double width;
     private double height;
 
@@ -62,6 +67,10 @@ public class BackgroundGrid extends Canvas {
         this.height = height;
         this.parent = parent;
         this.allowOverriding = true;
+        this.xCenter = parent.getWidth() / 2;
+        this.yCenter = parent.getHeight() / 2;
+        this.previousX = xCenter;
+        this.previousY = yCenter;
 
         createContextMenu();
     }
@@ -94,7 +103,8 @@ public class BackgroundGrid extends Canvas {
      * @param xSpacing  Amount of pixels between each horizontal line.
      * @param ySpacing  Amount of pixels between each vertical line.
      */
-    public final void createGrid(final int xSpacing, final int ySpacing) {
+    public final void createGrid(final int xSpacing, final int ySpacing,
+                                 final double xOffset, final double yOffset) {
         if (xSpacing == 0 || ySpacing == 0) {
             return;
         }
@@ -103,7 +113,36 @@ public class BackgroundGrid extends Canvas {
         gc.setStroke(Color.BLACK);
         gc.setLineWidth(LINE_WIDTH);
 
-        //Draws horizontal lines
+        System.out.println("original " + xCenter);
+        System.out.println("original: " + yCenter);
+        System.out.println("x off: " + xOffset);
+        System.out.println("y Off: " + yOffset);
+
+        previousX += xOffset;
+        previousY += yOffset;
+
+        //Draw horizontal lines for lower half
+        for (int i = (int)previousY; i < height; i += ySpacing) {
+            gc.strokeLine(0,i,width,i);
+        }
+
+        //Draw horizontal lines for upper half
+        for (int i = (int) previousY; i >= 0; i -= ySpacing) {
+            gc.strokeLine(0,i,width,i);
+        }
+
+        //Draw vertical lines for right side
+        for (int i = (int)previousX; i < width; i += xSpacing) {
+            gc.strokeLine(i, 0, i, height);
+        }
+
+        //Draw vertical lines for left side
+        for (int i = (int)previousX; i >= 0; i -= xSpacing) {
+            gc.strokeLine(i, 0, i, height);
+        }
+
+
+       /* //Draws horizontal lines
         for (int i = 0; i < height; i += ySpacing) {
             gc.strokeLine(0, i, width, i);
         }
@@ -111,13 +150,14 @@ public class BackgroundGrid extends Canvas {
         //Draws vertical lines
         for (int i = 0; i < width; i += xSpacing) {
             gc.strokeLine(i, 0, i, height);
-        }
+        }*/
     }
 
-    public final void scaleGrid(final int xSpacing, final int ySpacing) {
+    public final void scaleGrid(final int xSpacing, final int ySpacing,
+                                final double xOffset, final double yOffset) {
         if (allowOverriding) {
             clearGrid();
-            createGrid(xSpacing, ySpacing);
+            createGrid(xSpacing, ySpacing, xOffset, yOffset);
         }
     }
 
@@ -202,7 +242,7 @@ public class BackgroundGrid extends Canvas {
             } else {
                 xScale = XYPair.getKey();
                 yScale = XYPair.getValue();
-                scaleGrid(xScale, yScale);
+                //scaleGrid(xScale, yScale);
                 allowOverriding = overrideCheckBox.isSelected();
             }
         });

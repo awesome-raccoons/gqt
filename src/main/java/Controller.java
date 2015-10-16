@@ -212,6 +212,10 @@ public class Controller {
                 plotViewGroup.getChildren().addAll(gisVisualization.getTooltips());
             }
         }
+
+        //Redraw the grid...
+        backgroundGrid.scaleGrid((int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER),
+                (int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER), 0, 0);
     }
 
     /**
@@ -243,6 +247,12 @@ public class Controller {
                 plotViewGroup.getChildren().addAll(gisVisualization.getTooltips());
             }
         }
+
+        //Redraw grid
+        System.out.println(offsetX);
+        System.out.println(offsetY);
+        backgroundGrid.scaleGrid((int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER),
+                (int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER), offsetX, offsetY);
     }
 
     /**
@@ -354,8 +364,8 @@ public class Controller {
         currentZoom = getZoomScale(ZOOM_FACTOR, this.currentZoomLevel);
 
         //The zoomed changed, resize the grid
-        backgroundGrid.scaleGrid((int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER),
-                (int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER));
+//        backgroundGrid.scaleGrid((int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER),
+//                (int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER));
     }
 
     /**
