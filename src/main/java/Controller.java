@@ -350,6 +350,16 @@ public class Controller {
         this.currentOffsetX = -(modelBoundaries.getMiddleX() * zoomScale);
         this.currentOffsetY = -(modelBoundaries.getMiddleY() * zoomScale);
 
+
+        //Set values in backgroundgrid
+        System.out.println("---------");
+        System.out.println(currentOffsetX);
+        System.out.println(currentOffsetY);
+        System.out.println("-----------");
+        backgroundGrid.resetOffsets();
+        backgroundGrid.addXOffset(currentOffsetX);
+        backgroundGrid.addYOffst(currentOffsetY);
+
         setZoomLevel();
         rescaleAllGeometries();
     }
@@ -376,6 +386,7 @@ public class Controller {
         this.currentOffsetX = 0;
         this.currentOffsetY = 0;
 
+        backgroundGrid.resetOffsets();
         setZoomLevel();
         rescaleAllGeometries();
     }

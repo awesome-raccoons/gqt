@@ -96,6 +96,19 @@ public class BackgroundGrid extends Canvas {
         cm.hide();
     }
 
+    public final void resetOffsets() {
+        this.previousY = yCenter;
+        this.previousX = xCenter;
+    }
+
+    public final void addXOffset(final double offset) {
+        this.previousX += offset;
+    }
+
+    public final void addYOffst(final double offset) {
+        this.previousY += offset;
+    }
+
     /**
      * Draws the scaled grid.
      * Will immediately return without doing anything if either argument is 0.
