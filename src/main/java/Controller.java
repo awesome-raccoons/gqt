@@ -1,3 +1,4 @@
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.control.Tab;
@@ -19,6 +20,7 @@ import models.ModelBoundaries;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
 
 
 public class Controller {
@@ -70,6 +72,7 @@ public class Controller {
     private double mouseMoveOffsetY = 0;
 
     private BackgroundGrid backgroundGrid;
+    private Database currentDatabase = null;
 
     @FXML
     private TextArea queryInput;
@@ -130,6 +133,11 @@ public class Controller {
         System.out.println("change db here");
         String choice = dbList.getItems().toString();
         System.out.println(choice);
+        Database db = (Database)dbList.getSelectionModel().getSelectedItem();
+        setDatabase(db);
+    }
+    public final void setDatabase(Database db){
+        this.currentDatabase = db;
     }
     public final void addDatabase(){
         System.out.println("Button Pressed!");
@@ -138,6 +146,7 @@ public class Controller {
         System.out.println(dbUser.getText());
         System.out.println(dbPassword.getText());
         Database db = new Database(dbName.getText(),dbUrl.getText(),dbUser.getText(),dbPassword.getText());
+        setDatabase(db);
 
 
         dbList.getItems().add(db);
@@ -488,6 +497,10 @@ public class Controller {
         //calculateBoundaries();
     }
 
+
+    public final Database getCurrentDB(){
+        return this.currentDatabase;
+    }
     /**
      * Handler for shortcuts used when focus is on text area.
      * @param event key event
@@ -497,36 +510,39 @@ public class Controller {
             updateLayer();
         }
     }
-    public final void submitQuery(){
+    public final void submitQuery() {
         String qText = query.getText();
         DatabaseConnector dbconn = new DatabaseConnector();
-        String result = dbconn.executeQuery(qText,"","","");
+        Database database = getCurrentDB();
+        if (database != null) {
+            String result = dbconn.executeQuery(qText, database);
 
-        if(result.contains("POSTGIS Error") )
-        {
-            String title = "SQL Error";
-            String header = "POSTGIS Error";
-            //Specify different errors later
-            String alertMsg = "Invalid geometry,wrong syntax or empty query";
-            Alerts alert = new Alerts(alertMsg,title,header);
+            if (result.contains("POSTGIS Error")) {
+                String title = "SQL Error";
+                String header = "POSTGIS Error";
+                //Specify different errors later
+                String alertMsg = "Invalid geometry,wrong syntax or empty query";
+                Alerts alert = new Alerts(alertMsg, title, header);
+                alert.show();
+            } else if (result.contains("MYSQL error")) {
+                String title = "SQL Error";
+                String header = "MYSQL Error";
+                //Specify different errors later
+                String alertMsg = "Invalid geometry, wrong syntax or empty query";
+                Alerts alert = new Alerts(alertMsg, title, header);
+                alert.show();
+            } else {
+                //createEmptyLayer(qText);
+
+                queryInput.setText(result);
+                updateLayer();
+            }
+        }
+        else{
+            Alerts alert = new Alerts("No database selected","DB Error", "");
             alert.show();
         }
-        else if(result.contains("MYSQL error"))
-        {
-            String title = "SQL Error";
-            String header = "MYSQL Error";
-            //Specify different errors later
-            String alertMsg = "Invalid geometry, wrong syntax or empty query";
-            Alerts alert = new Alerts(alertMsg,title,header);
-            alert.show();
-        }
-        else {
-            //createEmptyLayer(qText);
-
-            queryInput.setText(result);
-            updateLayer();
-        }
-        }
+    }
 
 
     public final void queryAreaKeyPressed(final KeyEvent event) {
