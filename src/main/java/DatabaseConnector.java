@@ -60,7 +60,7 @@ public class DatabaseConnector {
                     count++;
                 }
             }
-            if(url.contains("postgresql"))
+            else if(url.contains("postgresql"))
             {
                 //pCon = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5450/postgres", "postgres", "dbpass");
                 pCon = DriverManager.getConnection(url, user, password);
@@ -71,6 +71,10 @@ public class DatabaseConnector {
                     System.out.println(pRs.getString(1));
                     results = pRs.getString(1);
                 }
+            }
+            else{
+                String exception = "Server URL not valid";
+                results = exception;
             }
 
 

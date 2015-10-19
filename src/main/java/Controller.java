@@ -130,28 +130,31 @@ public class Controller {
     }
 
     public final void changeDatabase(){
-        System.out.println("change db here");
-        String choice = dbList.getItems().toString();
-        System.out.println(choice);
+
         Database db = (Database)dbList.getSelectionModel().getSelectedItem();
         setDatabase(db);
+        this.dbName.setText(getCurrentDB().getName());
+        this.dbUrl.setText(getCurrentDB().getUrl());
+        this.dbUser.setText(getCurrentDB().getUser());
+        this.dbPassword.setText(getCurrentDB().getPassword());
+
+
     }
     public final void setDatabase(Database db){
         this.currentDatabase = db;
     }
     public final void addDatabase(){
-        System.out.println("Button Pressed!");
-        System.out.println(dbName.getText());
-        System.out.println(dbUrl.getText());
-        System.out.println(dbUser.getText());
-        System.out.println(dbPassword.getText());
         Database db = new Database(dbName.getText(),dbUrl.getText(),dbUser.getText(),dbPassword.getText());
         setDatabase(db);
 
 
         dbList.getItems().add(db);
-        //
-        //dbChoice.getItems().add
+        dbName.clear();
+        dbUrl.clear();
+        dbUser.clear();
+        dbPassword.clear();
+
+
 
     }
     @FXML
@@ -531,9 +534,13 @@ public class Controller {
                 String alertMsg = "Invalid geometry, wrong syntax or empty query";
                 Alerts alert = new Alerts(alertMsg, title, header);
                 alert.show();
+            } else if (result.contains("URL not valid")) {
+                String title = "Server Error";
+                String header = " ";
+                String alertMsg = "Server URL not valid";
+                Alerts alert = new Alerts(alertMsg, title, header);
+                alert.show();
             } else {
-                //createEmptyLayer(qText);
-
                 queryInput.setText(result);
                 updateLayer();
             }
