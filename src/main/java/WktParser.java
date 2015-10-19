@@ -141,12 +141,20 @@ public class WktParser {
      * Displays an alert dialog when trying to draw an invalid WKT string.
      */
     public final void showWKTParseErrorMessage() {
+        String alertMsg ="The WKT string entered is of unknown geometry type ";
+        String header = "Invalid WKT";
+        String title = "Error parsing WKT";
+
+        Alerts alert = new Alerts(alertMsg,header,title);
+        alert.show();
+        /*
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error parsing WKT");
         alert.setHeaderText("Invalid WKT");
         String s = "The WKT string entered is of unknown geometry type ";
         alert.setContentText(s);
         alert.show();
+        */
     }
 
 

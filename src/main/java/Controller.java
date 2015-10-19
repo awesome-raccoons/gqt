@@ -1,3 +1,4 @@
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.control.Tab;
@@ -11,6 +12,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import models.GeometryModel;
@@ -18,6 +20,7 @@ import models.ModelBoundaries;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
 
 
 public class Controller {
@@ -69,9 +72,22 @@ public class Controller {
     private double mouseMoveOffsetY = 0;
 
     private BackgroundGrid backgroundGrid;
+    private Database currentDatabase = null;
 
     @FXML
     private TextArea queryInput;
+    @FXML
+    private TextArea query;
+    @FXML
+    private ComboBox dbList;
+    @FXML
+    private TextField dbName;
+    @FXML
+    private TextField dbUrl;
+    @FXML
+    private TextField dbUser;
+    @FXML
+    private TextField dbPassword;
     @FXML
     private AnchorPane upperPane;
     @FXML
@@ -106,12 +122,48 @@ public class Controller {
      */
     private static List<KeyCode> heldDownKeys = new ArrayList<>();
 
+    public Controller() {
+    }
+
     public final AnchorPane getUpperPane() {
         return upperPane;
+    }
+
+    /**
+     * Called when selecting a database in the dbList dropdownlist.
+     */
+    public final void changeDatabase(){
+
+        Database db = (Database)dbList.getSelectionModel().getSelectedItem();
+        setDatabase(db);
+        this.dbName.setText(getCurrentDB().getName());
+        this.dbUrl.setText(getCurrentDB().getUrl());
+        this.dbUser.setText(getCurrentDB().getUser());
+        this.dbPassword.setText(getCurrentDB().getPassword());
+
+
+    }
+    public final void setDatabase(Database db){
+        this.currentDatabase = db;
+    }
+    public final void addDatabase(){
+        Database db = new Database(dbName.getText(),dbUrl.getText(),dbUser.getText(),dbPassword.getText());
+        setDatabase(db);
+
+
+        dbList.getItems().add(db);
+        dbName.clear();
+        dbUrl.clear();
+        dbUser.clear();
+        dbPassword.clear();
+
+
+
     }
     @FXML
     public final void updateLayer() {
         WktParser wktParser = new WktParser(Layer.getSelectedLayer(), upperPane);
+        Layer.getSelectedLayer().setSQLQuery(query.getText());
         boolean result = wktParser.parseWktString(queryInput.getText());
         if (result) {
             wktParser.updateLayerGeometries();
@@ -120,12 +172,12 @@ public class Controller {
     }
 
     public final void createEmptyLayer() {
-        Layer l = new Layer(null, vboxLayers, "Empty", "", queryInput);
+        Layer l = new Layer(null, vboxLayers, "Empty", "","", queryInput,query);
         Layer.getLayers(false).add(l);
         l.addLayerToView();
         //To ensure the latest new layer will be selected.
         l.handleLayerMousePress();
-    }
+}
 
     public final void setStage(final Stage stage) {
         this.stage = stage;
@@ -147,6 +199,7 @@ public class Controller {
     private void updateZoomText() {
         zoomText.setText("" + String.format("%.2f", currentZoom * PERCENT));
     }
+
 
     /**
      * Change coordinates of all geometries by scale of current zoom and move center of view from
@@ -320,8 +373,11 @@ public class Controller {
                 MAX_ZOOM_LEVEL,
                 this.currentZoomLevel);
         currentZoom = getZoomScale(ZOOM_FACTOR, this.currentZoomLevel);
-
         //The zoomed changed, resize the grid
+        //System.out.println("zoom changed");
+        //System.out.println((int)currentZoom);
+        backgroundGrid.scaleGrid((int)(currentZoom * 10), (int)(currentZoom * 10));
+
         backgroundGrid.scaleGrid((int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER),
                 (int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER));
     }
@@ -447,6 +503,10 @@ public class Controller {
         //calculateBoundaries();
     }
 
+
+    public final Database getCurrentDB(){
+        return this.currentDatabase;
+    }
     /**
      * Handler for shortcuts used when focus is on text area.
      * @param event key event
@@ -455,6 +515,62 @@ public class Controller {
         if (event.isAltDown() && event.getCode() == KeyCode.ENTER) {
             updateLayer();
         }
+    }
+
+    /**
+     * Called when clicking the submit query button.
+     */
+    public final void submitQuery() {
+        String qText = query.getText();
+        DatabaseConnector dbconn = new DatabaseConnector();
+        Database database = getCurrentDB();
+        if (database != null) {
+            String result = dbconn.executeQuery(qText, database);
+
+            if (result.contains("POSTGIS Error")) {
+                String title = "SQL Error";
+                String header = "POSTGIS Error";
+                //Specify different errors later
+                String alertMsg = "Invalid geometry,wrong syntax or empty query";
+                Alerts alert = new Alerts(alertMsg, title, header);
+                alert.show();
+            } else if (result.contains("MYSQL error")) {
+                String title = "SQL Error";
+                String header = "MYSQL Error";
+                //Specify different errors later
+                String alertMsg = "Invalid geometry, wrong syntax or empty query";
+                Alerts alert = new Alerts(alertMsg, title, header);
+                alert.show();
+            } else if (result.contains("URL not valid")) {
+                String title = "Server Error";
+                String header = " ";
+                String alertMsg = "Server URL not valid";
+                Alerts alert = new Alerts(alertMsg, title, header);
+                alert.show();
+            } else if (result.contains("wrong username")) {
+                String title = "Credential error";
+                String header = " ";
+                String alertMsg = "Wrong username or password";
+                Alerts alert = new Alerts(alertMsg, title, header);
+                alert.show();
+            } else {
+                queryInput.setText(result);
+                updateLayer();
+            }
+        }
+        else{
+            Alerts alert = new Alerts("No database selected","DB Error", "");
+            alert.show();
+        }
+    }
+
+
+    public final void queryAreaKeyPressed(final KeyEvent event) {
+        if( event.isAltDown() && event.getCode() == KeyCode.ENTER) {
+
+            submitQuery();
+        }
+
     }
 
     public final void onAnyKeyPressed(final KeyEvent event) {
