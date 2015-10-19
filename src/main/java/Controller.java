@@ -143,7 +143,11 @@ public class Controller {
         this.currentDatabase = db;
     }
     public final void addDatabase() {
-        Database db = new Database(dbName.getText(), dbUrl.getText(), dbUser.getText(), dbPassword.getText());
+        String name = dbName.getText();
+        String url = dbUrl.getText();
+        String user = dbUser.getText();
+        String password = dbPassword.getText();
+        Database db = new Database(name, url, user, password);
         setDatabase(db);
         dbList.getItems().add(db);
         dbName.clear();
@@ -364,7 +368,7 @@ public class Controller {
         //The zoomed changed, resize the grid
         //System.out.println("zoom changed");
         //System.out.println((int)currentZoom);
-        backgroundGrid.scaleGrid((int) (currentZoom * 10), (int) (currentZoom * 10));
+        //backgroundGrid.scaleGrid((int) (currentZoom * 10), (int) (currentZoom * 10));
 
         backgroundGrid.scaleGrid((int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER),
                 (int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER));

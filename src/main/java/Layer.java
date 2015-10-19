@@ -54,7 +54,8 @@ public class Layer extends HBox {
     private static ArrayList<Layer> layers = new ArrayList<>();
 
     public Layer(final GisVisualization gisVis, final VBox parentContainer, final String name,
-                 final String wktString, final String queryString, final TextArea textArea, final TextArea queryArea) {
+                 final String wktString, final String queryString,
+                 final TextArea textArea, final TextArea queryArea) {
         this.gisVis = gisVis;
         this.parentContainer = parentContainer;
         this.name = name;

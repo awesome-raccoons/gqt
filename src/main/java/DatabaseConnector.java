@@ -42,7 +42,8 @@ public final class DatabaseConnector {
             Class.forName("org.postgresql.Driver");
 
 
-            //String query = "SELECT ST_AsText(ST_Envelope(ST_GeomFromText('POLYGON((5 0,7 10,0 15,10 15,15 25,20 15,30 15,22 10,25 0,15 5,5 0))')));;";
+            //String query = "SELECT ST_AsText(ST_Envelope(ST_GeomFromText(
+            // 'POLYGON((5 0,7 10,0 15,10 15,15 25,20 15,30 15,22 10,25 0,15 5,5 0))')));;";
             //url = "jdbc:mysql://127.0.0.1:3306/sakila";
             //user = "root";
             //password = "dbpass";
@@ -74,24 +75,7 @@ public final class DatabaseConnector {
                 String exception = "Server URL not valid";
                 results = exception;
             }
-            if (rs != null) {
-                rs.close();
-            }
-            if (st != null) {
-                st.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-            if (pRs != null) {
-                pRs.close();
-            }
-            if (pSt != null) {
-                pSt.close();
-            }
-            if (pCon != null) {
-                pCon.close();
-            }
+
 
         } catch (SQLException | ClassNotFoundException ex) {
             Logger lgr = Logger.getLogger(SQLOutput.class.getName());
