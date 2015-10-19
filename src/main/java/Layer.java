@@ -358,7 +358,7 @@ public class Layer extends HBox {
                 visibleLayers++;
             }
         }
-        if(visibleLayers > 0) {
+        if (visibleLayers > 0) {
             controller.getZoomToFitVisibleButton().setDisable(false);
             controller.getZoomToFitButton().setDisable(false);
         }
