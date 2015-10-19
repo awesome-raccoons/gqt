@@ -129,6 +129,9 @@ public class Controller {
         return upperPane;
     }
 
+    /**
+     * Called when selecting a database in the dbList dropdownlist.
+     */
     public final void changeDatabase(){
 
         Database db = (Database)dbList.getSelectionModel().getSelectedItem();
@@ -513,6 +516,10 @@ public class Controller {
             updateLayer();
         }
     }
+
+    /**
+     * Called when clicking the submit query button.
+     */
     public final void submitQuery() {
         String qText = query.getText();
         DatabaseConnector dbconn = new DatabaseConnector();
@@ -538,6 +545,12 @@ public class Controller {
                 String title = "Server Error";
                 String header = " ";
                 String alertMsg = "Server URL not valid";
+                Alerts alert = new Alerts(alertMsg, title, header);
+                alert.show();
+            } else if (result.contains("wrong username")) {
+                String title = "Credential error";
+                String header = " ";
+                String alertMsg = "Wrong username or password";
                 Alerts alert = new Alerts(alertMsg, title, header);
                 alert.show();
             } else {

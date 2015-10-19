@@ -12,6 +12,9 @@ public class Alerts {
         this.title = title;
     }
 
+    /**
+     * Displays the error message.
+     */
     public final void show() {
         Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
         alert.setTitle(title);

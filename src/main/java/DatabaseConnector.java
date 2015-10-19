@@ -21,10 +21,15 @@ public class DatabaseConnector {
 
         public DatabaseConnector(){}
 
+    /**
+     * Makes a connection and sends a query to the currently selected database.
+     * @param query Query to be sent to the SQL server
+     * @param db The current selected db, contains name, url, username, password.
+     * @return Returns either a WKT string or an error message.
+     */
         public static String executeQuery(String query, Database db){
             String results = null;
             Connection pCon = null;
-            int count = 0;
             Connection con = null;
             Statement st = null;
             Statement pSt = null;
@@ -44,6 +49,8 @@ public class DatabaseConnector {
             //user = "root";
             //password = "dbpass";
 
+
+
             //String url = "jdbc:mysql://mysql.stud.ntnu.no/perchrib_raccoons";
             //String user = "perchrib";
             //String password = "123";
@@ -57,7 +64,6 @@ public class DatabaseConnector {
                     results = rs.getString(1);
                     //System.out.print(": ");
                     //System.out.println(rs.getString(2));
-                    count++;
                 }
             }
             else if(url.contains("postgresql"))
@@ -77,14 +83,6 @@ public class DatabaseConnector {
                 results = exception;
             }
 
-
-
-
-
-
-
-
-
         } catch (SQLException | ClassNotFoundException ex) {
             Logger lgr = Logger.getLogger(SQLOutput.class.getName());
             //lgr.log(Level.SEVERE, ex.getMessage(), ex);
@@ -100,7 +98,12 @@ public class DatabaseConnector {
                 results = exception;
                 return results;
             }
-            else {
+            else if (ex.toString().contains("Access denied")) {
+                String exception = "Wrong username or password";
+                results = exception;
+                return results;
+
+            } else{
                 lgr.log(Level.WARNING, ex.getMessage(), ex);
                 System.out.println("test");
             }
