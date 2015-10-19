@@ -6,8 +6,7 @@ public class Database {
     private String user;
     private String password;
     private String name;
-    public Database(final String name, final String url, final String user, final String password)
-    {
+    public Database(final String name, final String url, final String user, final String password) {
         this.url = url;
         this.user = user;
         this.password = password;
@@ -34,4 +33,4 @@ public class Database {
     public final String toString(){
         return this.name;
     }
-}
+ }

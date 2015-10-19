@@ -16,7 +16,7 @@ import java.sql.SQLOutput;
 /**
  * Created by Eirik on 10/6/2015.
  */
-public class DatabaseConnector {
+public final class DatabaseConnector {
 
         private DatabaseConnector() { }
     /**
@@ -25,7 +25,7 @@ public class DatabaseConnector {
      * @param db The current selected db, contains name, url, username, password.
      * @return Returns either a WKT string or an error message.
      */
-        public static String executeQuery( final String query, final Database db) {
+        public static String executeQuery(final String query, final Database db) {
             String results = null;
             Connection pCon = null;
             Connection con = null;
@@ -62,8 +62,7 @@ public class DatabaseConnector {
                     //System.out.print(": ");
                     //System.out.println(rs.getString(2));
                 }
-            } else if(url.contains("postgresql")) {
-                //pCon = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5450/postgres", "postgres", "dbpass");
+            } else if (url.contains("postgresql")) {
                 pCon = DriverManager.getConnection(url, user, password);
                 pSt = pCon.createStatement();
                 pRs = pSt.executeQuery(query);
@@ -85,13 +84,11 @@ public class DatabaseConnector {
                 String exception = "POSTGIS Error";
                 results = exception;
                 return results;
-            }
-            else if(ex.toString().contains("MySQL")) {
+            } else if(ex.toString().contains("MySQL")) {
                 String exception = "MYSQL error";
                 results = exception;
                 return results;
-            }
-            else if (ex.toString().contains("Access denied")) {
+            } else if (ex.toString().contains("Access denied")) {
                 String exception = "Wrong username or password";
                 results = exception;
                 return results;
@@ -123,7 +120,7 @@ public class DatabaseConnector {
             } catch (SQLException ex) {
                 System.out.println("The error:");
                 System.out.println(ex.getMessage());
-                //Logger lgr = Logger.getLogger(SQLOutput.class.getName());
+                Logger lgr = Logger.getLogger(SQLOutput.class.getName());
 
                 if (SQLOutput.class.getName().contains("PSQL")) {
                     String exception = "Postgis error";
@@ -134,7 +131,7 @@ public class DatabaseConnector {
                     results = exception;
                     return results;
                 } else {
-                    //lgr.log(Level.WARNING, ex.getMessage(), ex);
+                    lgr.log(Level.WARNING, ex.getMessage(), ex);
                     System.out.println("test");
                 }
 

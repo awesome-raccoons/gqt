@@ -449,7 +449,8 @@ public class Layer extends HBox {
     public final void setWKTString(final String wktString) {
         this.wktString = wktString;
     }
-    public final void setSQLQuery(final String queryString) { this.queryString = queryString;
+    public final void setSQLQuery(final String queryString) {
+        this.queryString = queryString;
     }
 
     public static Layer getSelectedLayer() {

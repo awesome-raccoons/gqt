@@ -132,18 +132,18 @@ public class Controller {
      * Called when selecting a database in the dbList dropdownlist.
      */
     public final void changeDatabase() {
-        Database db = (Database)dbList.getSelectionModel().getSelectedItem();
+        Database db = (Database) dbList.getSelectionModel().getSelectedItem();
         setDatabase(db);
         this.dbName.setText(getCurrentDB().getName());
         this.dbUrl.setText(getCurrentDB().getUrl());
         this.dbUser.setText(getCurrentDB().getUser());
         this.dbPassword.setText(getCurrentDB().getPassword());
     }
-    public final void setDatabase(Database db) {
+    public final void setDatabase(final Database db) {
         this.currentDatabase = db;
     }
     public final void addDatabase() {
-        Database db = new Database(dbName.getText(),dbUrl.getText(),dbUser.getText(),dbPassword.getText());
+        Database db = new Database(dbName.getText(), dbUrl.getText(), dbUser.getText(), dbPassword.getText());
         setDatabase(db);
         dbList.getItems().add(db);
         dbName.clear();
@@ -163,7 +163,7 @@ public class Controller {
     }
 
     public final void createEmptyLayer() {
-        Layer l = new Layer(null, vboxLayers, "Empty", "","", queryInput,query);
+        Layer l = new Layer(null, vboxLayers, "Empty", "", "", queryInput, query);
         Layer.getLayers(false).add(l);
         l.addLayerToView();
         //To ensure the latest new layer will be selected.
@@ -364,7 +364,7 @@ public class Controller {
         //The zoomed changed, resize the grid
         //System.out.println("zoom changed");
         //System.out.println((int)currentZoom);
-        backgroundGrid.scaleGrid((int)(currentZoom * 10), (int)(currentZoom * 10));
+        backgroundGrid.scaleGrid((int) (currentZoom * 10), (int) (currentZoom * 10));
 
         backgroundGrid.scaleGrid((int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER),
                 (int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER));
@@ -509,10 +509,9 @@ public class Controller {
      */
     public final void submitQuery() {
         String qText = query.getText();
-        DatabaseConnector dbconn = new DatabaseConnector();
         Database database = getCurrentDB();
         if (database != null) {
-            String result = dbconn.executeQuery(qText, database);
+            String result = DatabaseConnector.executeQuery(qText, database);
 
             if (result.contains("POSTGIS Error")) {
                 String title = "SQL Error";
