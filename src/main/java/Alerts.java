@@ -6,7 +6,7 @@ public class Alerts {
     private String alertMsg;
     private String header;
     private String title;
-    public Alerts(String msg, String header, String title){
+    public Alerts(final String msg, final String header, final String title) {
         this.alertMsg = msg;
         this.header = header;
         this.title = title;
@@ -16,7 +16,7 @@ public class Alerts {
      * Displays the error message.
      */
     public final void show() {
-        Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+        Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
         alert.setHeaderText(header);
         String s = alertMsg;

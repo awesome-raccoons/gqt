@@ -491,7 +491,7 @@ public class Controller {
     }
 
 
-    public final Database getCurrentDB(){
+    public final Database getCurrentDB() {
         return this.currentDatabase;
     }
     /**
@@ -544,14 +544,14 @@ public class Controller {
                 updateLayer();
             }
         } else {
-            Alerts alert = new Alerts("No database selected","DB Error", "");
+            Alerts alert = new Alerts("No database selected", "DB Error", "");
             alert.show();
         }
     }
 
 
     public final void queryAreaKeyPressed(final KeyEvent event) {
-        if( event.isAltDown() && event.getCode() == KeyCode.ENTER) {
+        if (event.isAltDown() && event.getCode() == KeyCode.ENTER) {
 
             submitQuery();
         }

@@ -30,7 +30,7 @@ public class Database {
         return name;
     }
 
-    public final String toString(){
+    public final String toString() {
         return this.name;
     }
  }

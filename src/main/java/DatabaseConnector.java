@@ -66,13 +66,31 @@ public final class DatabaseConnector {
                 pCon = DriverManager.getConnection(url, user, password);
                 pSt = pCon.createStatement();
                 pRs = pSt.executeQuery(query);
-                while(pRs.next()) {
+                while (pRs.next()) {
                     System.out.println(pRs.getString(1));
                     results = pRs.getString(1);
                 }
             } else {
                 String exception = "Server URL not valid";
                 results = exception;
+            }
+            if (rs != null) {
+                rs.close();
+            }
+            if (st != null) {
+                st.close();
+            }
+            if (con != null) {
+                con.close();
+            }
+            if (pRs != null) {
+                pRs.close();
+            }
+            if (pSt != null) {
+                pSt.close();
+            }
+            if (pCon != null) {
+                pCon.close();
             }
 
         } catch (SQLException | ClassNotFoundException ex) {
@@ -84,7 +102,7 @@ public final class DatabaseConnector {
                 String exception = "POSTGIS Error";
                 results = exception;
                 return results;
-            } else if(ex.toString().contains("MySQL")) {
+            } else if (ex.toString().contains("MySQL")) {
                 String exception = "MYSQL error";
                 results = exception;
                 return results;
@@ -108,13 +126,13 @@ public final class DatabaseConnector {
                 if (con != null) {
                     con.close();
                 }
-                if(pRs != null) {
+                if (pRs != null) {
                     pRs.close();
                 }
-                if(pSt != null) {
+                if (pSt != null) {
                     pSt.close();
                 }
-                if(pCon != null) {
+                if (pCon != null) {
                     pCon.close();
                 }
             } catch (SQLException ex) {
@@ -126,7 +144,7 @@ public final class DatabaseConnector {
                     String exception = "Postgis error";
                     results = exception;
                     return results;
-                } else if(ex.getMessage().contains("MYSQL")) {
+                } else if (ex.getMessage().contains("MYSQL")) {
                     String exception = "MYSQL error";
                     results = exception;
                     return results;
