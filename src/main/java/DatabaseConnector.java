@@ -75,6 +75,24 @@ public final class DatabaseConnector {
                 String exception = "Server URL not valid";
                 results = exception;
             }
+            if (rs != null) {
+                rs.close();
+            }
+            if (st != null) {
+                st.close();
+            }
+            if (con != null) {
+                con.close();
+            }
+            if (pRs != null) {
+                pRs.close();
+            }
+            if (pSt != null) {
+                pSt.close();
+            }
+            if (pCon != null) {
+                pCon.close();
+            }
 
 
         } catch (SQLException | ClassNotFoundException ex) {
