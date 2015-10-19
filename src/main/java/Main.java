@@ -15,7 +15,6 @@ public class Main extends Application {
 
         Parent root = loader.load();
         Controller controller = loader.<Controller>getController();
-        controller.setStage(primaryStage);
         controller.init();
         primaryStage.setTitle("Gis Query Tool");
         primaryStage.setMaximized(true);
@@ -32,15 +31,18 @@ public class Main extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        //Draw grid
+        //Create and draw background grid
         BackgroundGrid bg = new BackgroundGrid(primaryStage.getWidth(),
                 primaryStage.getHeight(), controller.getUpperPane());
-        bg.moveGrid(bg.DEFAULT_SPACING_X, bg.DEFAULT_SPACING_Y,0,0);
+        bg.createGrid(BackgroundGrid.DEFAULT_SPACING_X, BackgroundGrid.DEFAULT_SPACING_Y,
+                controller.getUpperPane().getWidth() / 2,
+                controller.getUpperPane().getHeight() / 2);
         controller.getUpperPane().getChildren().add(0, bg);
-        controller.setBackgroundGrid(bg);
 
-        primaryStage.widthProperty().addListener(bg);
-        primaryStage.heightProperty().addListener(bg);
+        DisplayController dc = controller.createDisplayController(bg, primaryStage);
+
+        primaryStage.widthProperty().addListener(dc);
+        primaryStage.heightProperty().addListener(dc);
 
         //Create an initial empty layer
         controller.createEmptyLayer();

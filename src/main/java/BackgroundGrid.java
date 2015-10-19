@@ -1,6 +1,4 @@
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -22,7 +20,7 @@ import java.util.Optional;
 /**
  * Created by Johannes on 15.10.2015.
  */
-public class BackgroundGrid extends Canvas implements ChangeListener {
+public class BackgroundGrid extends Canvas {
 
     private static final float LINE_WIDTH = 0.1f;
     private static final int DIALOG_PADDING = 10;
@@ -31,13 +29,15 @@ public class BackgroundGrid extends Canvas implements ChangeListener {
     public static final int DEFAULT_SPACING_X = 10;
     public static final int DEFAULT_SPACING_Y = 10;
 
-    private double xCenter;
-    private double yCenter;
+    private int currentXSpacing;
+    private int currentYSpacing;
     private double previousX;
     private double previousY;
 
-    private double width;
-    private double height;
+    private double maxWidth;
+    private double maxHeight;
+    private double currentWidth;
+    private double currentHeight;
 
     /**
      * How many pixels between each vertical line.
@@ -61,16 +61,16 @@ public class BackgroundGrid extends Canvas implements ChangeListener {
      */
     private AnchorPane parent;
 
-    public BackgroundGrid(final double width,
-                          final double height,
+    public BackgroundGrid(final double maxWidth,
+                          final double maxHeight,
                           final AnchorPane parent) {
-        super(width, height);
-        this.width = width;
-        this.height = height;
+        super(maxWidth, maxHeight);
+        this.maxWidth = maxWidth;
+        this.maxHeight = maxHeight;
+        this.currentWidth = maxWidth / 2;
+        this.currentHeight = maxHeight / 2;
         this.parent = parent;
         this.allowOverriding = true;
-        this.xCenter = parent.getWidth() / 2;
-        this.yCenter = parent.getHeight() / 2;
 
         createContextMenu();
     }
@@ -128,31 +128,34 @@ public class BackgroundGrid extends Canvas implements ChangeListener {
         gc.setLineWidth(LINE_WIDTH);
 
         //Draw horizontal lines for lower half
-        for (int i = (int)yCenter; i < height; i += ySpacing) {
-            gc.strokeLine(0,i,width,i);
+        for (int i = (int)yCenter; i < maxHeight; i += ySpacing) {
+            gc.strokeLine(0,i, maxWidth,i);
         }
 
         //Draw horizontal lines for upper half
         for (int i = (int) yCenter; i >= 0; i -= ySpacing) {
-            gc.strokeLine(0,i,width,i);
+            gc.strokeLine(0,i, maxWidth,i);
         }
 
         //Draw vertical lines for right side
-        for (int i = (int)xCenter; i < width; i += xSpacing) {
-            gc.strokeLine(i, 0, i, height);
+        for (int i = (int)xCenter; i < maxWidth; i += xSpacing) {
+            gc.strokeLine(i, 0, i, maxHeight);
         }
 
         //Draw vertical lines for left side
         for (int i = (int)xCenter; i >= 0; i -= xSpacing) {
-            gc.strokeLine(i, 0, i, height);
+            gc.strokeLine(i, 0, i, maxHeight);
         }
+
+        currentXSpacing = xSpacing;
+        currentYSpacing = ySpacing;
     }
 
     public final void moveGrid(final int xSpacing, final int ySpacing,
                                final double xOffset, final double yOffset) {
         previousX += xOffset;
         previousY += yOffset;
-        scaleGrid(xSpacing, ySpacing, previousX + parent.getWidth() / 2, previousY + parent.getHeight() / 2);
+        scaleGrid(xSpacing, ySpacing, previousX + currentWidth, previousY + currentHeight);
 
     }
 
@@ -168,7 +171,7 @@ public class BackgroundGrid extends Canvas implements ChangeListener {
      * Erases the previously drawn scaled grid.
      */
     public final void clearGrid() {
-        this.getGraphicsContext2D().clearRect(0, 0, width, height);
+        this.getGraphicsContext2D().clearRect(0, 0, maxWidth, maxHeight);
     }
 
     /**
@@ -251,8 +254,20 @@ public class BackgroundGrid extends Canvas implements ChangeListener {
         });
     }
 
-    @Override
-    public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-        moveGrid(DEFAULT_SPACING_X, DEFAULT_SPACING_Y, 0,0);
+
+    public int getCurrentXSpacing() {
+        return currentXSpacing;
+    }
+
+    public int getCurrentYSpacing() {
+        return currentYSpacing;
+    }
+
+    public void setCurrentWidth(double currentWidth) {
+        this.currentWidth = currentWidth;
+    }
+
+    public void setCurrentHeight(double currentHeight) {
+        this.currentHeight = currentHeight;
     }
 }
