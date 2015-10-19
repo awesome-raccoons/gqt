@@ -92,9 +92,13 @@ public class Controller {
     @FXML
     private Tab databasesTab;
     @FXML
-    private Button zoomToFitSelectedButton;
+    private Button submit;
     @FXML
     private Button zoomToFitVisibleButton;
+    @FXML
+    private Button zoomToFitSelectedButton;
+    @FXML
+    private Button zoomToFitButton;
 
     /**
      * saves position of mouse coordinates from last handler.
@@ -111,6 +115,13 @@ public class Controller {
      */
     private static List<KeyCode> heldDownKeys = new ArrayList<>();
 
+
+    public final void init() {
+        zoomToFitVisibleButton.setDisable(true);
+        zoomToFitSelectedButton.setDisable(true);
+        zoomToFitButton.setDisable(true);
+    }
+
     public final AnchorPane getUpperPane() {
         return upperPane;
     }
@@ -126,6 +137,14 @@ public class Controller {
 
     public final Button getZoomToFitSelectedButton() {
         return zoomToFitSelectedButton;
+    }
+
+    public final Button getSubmit() {
+        return submit;
+    }
+
+    public final Button getZoomToFitButton() {
+        return zoomToFitButton;
     }
 
     public final Button getZoomToFitVisibleButton() {

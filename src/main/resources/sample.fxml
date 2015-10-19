@@ -27,14 +27,17 @@
                   <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="110.0" prefWidth="798.0">
                       <children>
-                        <GridPane hgap="20.0" prefHeight="212.0" prefWidth="751.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="6.0" AnchorPane.rightAnchor="41.0" AnchorPane.topAnchor="45.0">
+                        <GridPane hgap="20.0" prefHeight="212.0" prefWidth="1154.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="6.0" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="45.0">
                           <children>
-                            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="170.0" prefWidth="132.0" GridPane.columnIndex="1">
+                            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="212.0" prefWidth="348.0" GridPane.columnIndex="1">
                               <content>
                                 <VBox fx:id="vboxLayers" prefHeight="112.0" prefWidth="216.0" />
                               </content>
                             </ScrollPane>
-                            <TextArea fx:id="queryInput" disable="true" onKeyPressed="#wktAreaKeyPressed" pickOnBounds="false" prefHeight="127.0" prefWidth="602.0" />
+                            <TextArea fx:id="queryInput" disable="true" onKeyPressed="#wktAreaKeyPressed" pickOnBounds="false" prefHeight="127.0" prefWidth="602.0">
+                                             <font>
+                                                <Font name="Courier New" size="13.0" />
+                                             </font></TextArea>
                           </children>
                           <columnConstraints>
                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
@@ -44,32 +47,47 @@
                             <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
                           </rowConstraints>
                         </GridPane>
-                        <Button fx:id="submit" layoutX="23.0" layoutY="7.0" mnemonicParsing="false" onAction="#updateLayer" text="Update" />
-                        <Button fx:id="edit" layoutX="500.0" layoutY="7.0" mnemonicParsing="false" onAction="#createEmptyLayer" text="Create Layer" />
-                        <Button fx:id="zoomToFitButton" layoutX="679.0" layoutY="7.0" minWidth="77.0" mnemonicParsing="false" onAction="#zoomToFitAll" text="Fit All" />
-                        <Button fx:id="resetViewButton" layoutX="594.0" layoutY="7.0" mnemonicParsing="false" onAction="#resetView" text="Reset View" />
-                        <Button fx:id="zoomToFitSelectedButton" layoutX="769.0" layoutY="7.0" mnemonicParsing="false" onAction="#zoomToFitSelected" text="Fit Selected" />
-                        <Button fx:id="zoomToFitVisibleButton" layoutX="859.0" layoutY="7.0" mnemonicParsing="false" onAction="#zoomToFitVisible" text="Fit Visible" />
-                        <Text layoutX="942.0" layoutY="24.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Zoom:" />
-                        <TextField fx:id="zoomText" layoutX="976.0" layoutY="7.0" onKeyPressed="#zoomTextKeyPressed" prefHeight="25.0" prefWidth="58.0" text="100.00" />
-                        <Text layoutX="1034.0" layoutY="24.0" strokeType="OUTSIDE" strokeWidth="0.0" text="\%" />
+                        <GridPane layoutX="6.0" layoutY="10.0">
+                          <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="717.0" minWidth="10.0" prefWidth="708.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="572.0" minWidth="10.0" prefWidth="446.0" />
+                          </columnConstraints>
+                          <rowConstraints>
+                            <RowConstraints />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                           <children>
+                              <AnchorPane GridPane.rowIndex="1">
+                                 <children>
+                                  <Button fx:id="submit" mnemonicParsing="false" onAction="#updateLayer" text="Update" />
+                                  <Button fx:id="edit" layoutX="115.0" mnemonicParsing="false" onAction="#createEmptyLayer" text="Create Layer" />
+                                  <Button fx:id="resetViewButton" layoutX="246.0" layoutY="-1.0" mnemonicParsing="false" onAction="#resetView" text="Reset View" />
+                                  <Button fx:id="zoomToFitVisibleButton" layoutX="525.0" layoutY="-1.0" mnemonicParsing="false" onAction="#zoomToFitVisible" text="Fit Visible" />
+                                  <Button fx:id="zoomToFitSelectedButton" layoutX="434.0" layoutY="-1.0" mnemonicParsing="false" onAction="#zoomToFitSelected" text="Fit Selected" />
+                                  <Button fx:id="zoomToFitButton" layoutX="357.0" layoutY="-1.0" minWidth="77.0" mnemonicParsing="false" onAction="#zoomToFitAll" text="Fit All" />
+                                 </children>
+                              </AnchorPane>
+                              <AnchorPane GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                 <children>
+                                  <Text layoutX="8.0" layoutY="20.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Zoom:" />
+                                  <TextField fx:id="zoomText" layoutX="56.0" layoutY="3.0" onKeyPressed="#zoomTextKeyPressed" prefHeight="27.0" prefWidth="65.0" text="100,00" />
+                                  <Text layoutX="128.0" layoutY="20.0" strokeType="OUTSIDE" strokeWidth="0.0" text="\%" />
+                                  <Text fx:id="positionX" layoutX="170.0" layoutY="14.0" strokeType="OUTSIDE" strokeWidth="0.0" text="X: 0" />
+                                  <Text fx:id="positionY" layoutX="170.0" layoutY="29.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Y: 0" />
+                                 </children>
+                              </AnchorPane>
+                           </children>
+                        </GridPane>
                         <Text fx:id="zoomTextError" fill="RED" layoutX="1049.0" layoutY="23.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Error: enter valid number" visible="false">
                           <font>
                             <Font size="9.0" />
                           </font>
                         </Text>
-                        <Text fx:id="positionX" layoutX="1056.0" layoutY="24.0" strokeType="OUTSIDE" strokeWidth="0.0" text="X: 0" />
-                        <Text fx:id="positionY" layoutX="1098.0" layoutY="24.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Y: 0" />
                       </children>
                     </AnchorPane>
                   </content>
                 </Tab>
                 <Tab fx:id="databasesTab" text="Databases">
-                  <content>
-                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                  </content>
-                </Tab>
-                <Tab fx:id="layersTab" text="Layers">
                   <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                   </content>
