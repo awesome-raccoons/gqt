@@ -1,6 +1,7 @@
 
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
+import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
@@ -105,6 +106,10 @@ public class Controller {
     private Tab queryTab;
     @FXML
     private Tab databasesTab;
+    @FXML
+    private Button zoomToFitSelectedButton;
+    @FXML
+    private Button zoomToFitVisibleButton;
 
     /**
      * saves position of mouse coordinates from last handler.
@@ -166,8 +171,16 @@ public class Controller {
         }
     }
 
+    public final Button getZoomToFitSelectedButton() {
+        return zoomToFitSelectedButton;
+    }
+
+    public final Button getZoomToFitVisibleButton() {
+        return zoomToFitVisibleButton;
+    }
+
     public final void createEmptyLayer() {
-        Layer l = new Layer(null, vboxLayers, "Empty", "", "", queryInput, query);
+        Layer l = new Layer(null, vboxLayers, "Empty", "", "", queryInput, query, this);
         Layer.getLayers(false).add(l);
         l.addLayerToView();
         //To ensure the latest new layer will be selected.
