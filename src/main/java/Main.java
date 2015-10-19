@@ -16,6 +16,7 @@ public class Main extends Application {
         Parent root = loader.load();
         Controller controller = loader.<Controller>getController();
         controller.setStage(primaryStage);
+        controller.init();
         primaryStage.setTitle("Gis Query Tool");
         primaryStage.setMaximized(true);
         Scene scene = new Scene(root);
