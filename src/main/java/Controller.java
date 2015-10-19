@@ -121,7 +121,7 @@ public class Controller {
         zoomToFitSelectedButton.setDisable(true);
         zoomToFitButton.setDisable(true);
     }
-
+    
     public final AnchorPane getUpperPane() {
         return upperPane;
     }
@@ -215,7 +215,7 @@ public class Controller {
 
         //Redraw the grid...
         backgroundGrid.scaleGrid((int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER),
-                (int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER), 0, 0);
+                (int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER), currentOffsetX + centerX, currentOffsetY + centerY);
     }
 
     /**
@@ -251,7 +251,7 @@ public class Controller {
         //Redraw grid
         System.out.println(offsetX);
         System.out.println(offsetY);
-        backgroundGrid.scaleGrid((int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER),
+        backgroundGrid.moveGrid((int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER),
                 (int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER), offsetX, offsetY);
     }
 
@@ -352,13 +352,9 @@ public class Controller {
 
 
         //Set values in backgroundgrid
-        System.out.println("---------");
-        System.out.println(currentOffsetX);
-        System.out.println(currentOffsetY);
-        System.out.println("-----------");
         backgroundGrid.resetOffsets();
         backgroundGrid.addXOffset(currentOffsetX);
-        backgroundGrid.addYOffst(currentOffsetY);
+        backgroundGrid.addYOffset(currentOffsetY);
 
         setZoomLevel();
         rescaleAllGeometries();

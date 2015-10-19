@@ -35,10 +35,13 @@ public class Main extends Application {
         //Draw grid
         BackgroundGrid bg = new BackgroundGrid(primaryStage.getWidth(),
                 primaryStage.getHeight(), controller.getUpperPane());
-        bg.createGrid(BackgroundGrid.DEFAULT_SPACING_X,
-                BackgroundGrid.DEFAULT_SPACING_Y, 0 ,0);
+        bg.moveGrid(bg.DEFAULT_SPACING_X, bg.DEFAULT_SPACING_Y,0,0);
         controller.getUpperPane().getChildren().add(0, bg);
         controller.setBackgroundGrid(bg);
+
+        primaryStage.widthProperty().addListener(bg);
+        primaryStage.heightProperty().addListener(bg);
+
         //Create an initial empty layer
         controller.createEmptyLayer();
     }

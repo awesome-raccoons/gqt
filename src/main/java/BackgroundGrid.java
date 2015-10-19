@@ -1,4 +1,6 @@
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -20,7 +22,7 @@ import java.util.Optional;
 /**
  * Created by Johannes on 15.10.2015.
  */
-public class BackgroundGrid extends Canvas {
+public class BackgroundGrid extends Canvas implements ChangeListener {
 
     private static final float LINE_WIDTH = 0.1f;
     private static final int DIALOG_PADDING = 10;
@@ -69,8 +71,6 @@ public class BackgroundGrid extends Canvas {
         this.allowOverriding = true;
         this.xCenter = parent.getWidth() / 2;
         this.yCenter = parent.getHeight() / 2;
-        this.previousX = xCenter;
-        this.previousY = yCenter;
 
         createContextMenu();
     }
@@ -97,15 +97,16 @@ public class BackgroundGrid extends Canvas {
     }
 
     public final void resetOffsets() {
-        this.previousY = yCenter;
-        this.previousX = xCenter;
+        //Recalculate center in case window changes
+        this.previousX = 0;
+        this.previousY = 0;
     }
 
     public final void addXOffset(final double offset) {
         this.previousX += offset;
     }
 
-    public final void addYOffst(final double offset) {
+    public final void addYOffset(final double offset) {
         this.previousY += offset;
     }
 
@@ -117,7 +118,7 @@ public class BackgroundGrid extends Canvas {
      * @param ySpacing  Amount of pixels between each vertical line.
      */
     public final void createGrid(final int xSpacing, final int ySpacing,
-                                 final double xOffset, final double yOffset) {
+                                 final double xCenter, final double yCenter) {
         if (xSpacing == 0 || ySpacing == 0) {
             return;
         }
@@ -126,51 +127,40 @@ public class BackgroundGrid extends Canvas {
         gc.setStroke(Color.BLACK);
         gc.setLineWidth(LINE_WIDTH);
 
-        System.out.println("original " + xCenter);
-        System.out.println("original: " + yCenter);
-        System.out.println("x off: " + xOffset);
-        System.out.println("y Off: " + yOffset);
-
-        previousX += xOffset;
-        previousY += yOffset;
-
         //Draw horizontal lines for lower half
-        for (int i = (int)previousY; i < height; i += ySpacing) {
+        for (int i = (int)yCenter; i < height; i += ySpacing) {
             gc.strokeLine(0,i,width,i);
         }
 
         //Draw horizontal lines for upper half
-        for (int i = (int) previousY; i >= 0; i -= ySpacing) {
+        for (int i = (int) yCenter; i >= 0; i -= ySpacing) {
             gc.strokeLine(0,i,width,i);
         }
 
         //Draw vertical lines for right side
-        for (int i = (int)previousX; i < width; i += xSpacing) {
+        for (int i = (int)xCenter; i < width; i += xSpacing) {
             gc.strokeLine(i, 0, i, height);
         }
 
         //Draw vertical lines for left side
-        for (int i = (int)previousX; i >= 0; i -= xSpacing) {
+        for (int i = (int)xCenter; i >= 0; i -= xSpacing) {
             gc.strokeLine(i, 0, i, height);
         }
+    }
 
+    public final void moveGrid(final int xSpacing, final int ySpacing,
+                               final double xOffset, final double yOffset) {
+        previousX += xOffset;
+        previousY += yOffset;
+        scaleGrid(xSpacing, ySpacing, previousX + parent.getWidth() / 2, previousY + parent.getHeight() / 2);
 
-       /* //Draws horizontal lines
-        for (int i = 0; i < height; i += ySpacing) {
-            gc.strokeLine(0, i, width, i);
-        }
-
-        //Draws vertical lines
-        for (int i = 0; i < width; i += xSpacing) {
-            gc.strokeLine(i, 0, i, height);
-        }*/
     }
 
     public final void scaleGrid(final int xSpacing, final int ySpacing,
-                                final double xOffset, final double yOffset) {
+                                final double xCenter, final double yCenter) {
         if (allowOverriding) {
             clearGrid();
-            createGrid(xSpacing, ySpacing, xOffset, yOffset);
+            createGrid(xSpacing, ySpacing, xCenter, yCenter);
         }
     }
 
@@ -261,4 +251,8 @@ public class BackgroundGrid extends Canvas {
         });
     }
 
+    @Override
+    public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+        moveGrid(DEFAULT_SPACING_X, DEFAULT_SPACING_Y, 0,0);
+    }
 }

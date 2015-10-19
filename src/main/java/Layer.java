@@ -92,7 +92,11 @@ public class Layer extends HBox {
 
         //Create and update layer name field
         layerName = new TextField();
-        layerName.setOnMouseClicked(event1 -> handleLayerMousePress());
+        layerName.setOnMouseClicked(event1 -> {
+            if (!isSelected.get()) {
+                handleLayerMousePress();
+            }
+        });
         updateLayerName();
 
         //Create delete button
