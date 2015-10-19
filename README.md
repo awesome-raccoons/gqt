@@ -1,6 +1,6 @@
 # gqt
 
-This project uses Maven.
+This project uses Maven, and requires at least Java version 1.8.0_60.
 
 ## Usage
 ### Input

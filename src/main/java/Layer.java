@@ -49,10 +49,11 @@ public class Layer extends HBox {
     private Tooltip invalidTooltip;
     private ImageView validityView;
     private ColorPicker colorPicker;
+    private Controller controller;
     private static ArrayList<Layer> layers = new ArrayList<>();
 
     public Layer(final GisVisualization gisVis, final VBox parentContainer, final String name,
-                 final String wktString, final TextArea textArea) {
+                 final String wktString, final TextArea textArea, final Controller controller) {
         this.gisVis = gisVis;
         this.parentContainer = parentContainer;
         this.name = name;
@@ -67,6 +68,7 @@ public class Layer extends HBox {
         this.setOnMouseClicked(mouseClickedHandler);
         EventHandler<KeyEvent> keyReleasedHandler = this::handleLayerKeyPresses;
         this.setOnKeyReleased(keyReleasedHandler);
+        this.controller = controller;
 
         createLayer();
     }
@@ -156,6 +158,7 @@ public class Layer extends HBox {
 
     public final void handleLayerMousePress() {
         textArea.setDisable(false);
+        controller.getZoomToFitSelectedButton().setDisable(false);
         //CTRL is pressed select additional, otherwise unselected previously selected
         boolean oldValue = isSelected.get();
         if (!Controller.isKeyHeldDown(KeyCode.CONTROL)) {
@@ -177,8 +180,11 @@ public class Layer extends HBox {
         if (numberOfSelectedLayers == 0) {
             textArea.clear();
             textArea.setDisable(true);
+            controller.getZoomToFitSelectedButton().setDisable(true);
+
         } else if (numberOfSelectedLayers == 1) {
             getAllSelectedLayers(false).get(0).showWKTString();
+
         } else if (numberOfSelectedLayers > 1) {
             textArea.setDisable(true);
         }
@@ -338,14 +344,20 @@ public class Layer extends HBox {
      * Redraws all geometries to the canvas, in the same order as they appear in the layer view.
      * The bottom layer is drawn at the bottom of the drawing stack.
      */
-    public static void redrawAll() {
+    public final void redrawAll() {
+        controller.getZoomToFitVisibleButton().setDisable(true);
         GisVisualization.reset();
+        int counter = 0;
         for (int i = getLayers(false).size() - 1; i >= 0; i--) {
             Layer layer = layers.get(i);
             if (layer.showOrHideCheckbox.isSelected() && layer.gisVis != null) {
                 layer.gisVis.create2DShapeAndTooltips();
                 layer.gisVis.setDisplayTooltips(layer.isSelected.get());
+                counter++;
             }
+        }
+        if (counter > 0) {
+            controller.getZoomToFitVisibleButton().setDisable(false);
         }
     }
 
