@@ -2,7 +2,6 @@
 
 
 //import java.sql.*;
-import org.postgresql.util.PSQLException;
 
 import java.sql.Connection;
 import java.sql.Statement;
@@ -11,7 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.sql.DriverManager;
 
-import java.lang.Class;
+
 import java.sql.SQLException;
 import java.sql.SQLOutput;
 /**
@@ -19,15 +18,14 @@ import java.sql.SQLOutput;
  */
 public class DatabaseConnector {
 
-        public DatabaseConnector(){}
-
+        private DatabaseConnector() { }
     /**
      * Makes a connection and sends a query to the currently selected database.
      * @param query Query to be sent to the SQL server
      * @param db The current selected db, contains name, url, username, password.
      * @return Returns either a WKT string or an error message.
      */
-        public static String executeQuery(String query, Database db){
+        public static String executeQuery( final String query, final Database db) {
             String results = null;
             Connection pCon = null;
             Connection con = null;
@@ -54,8 +52,7 @@ public class DatabaseConnector {
             //String url = "jdbc:mysql://mysql.stud.ntnu.no/perchrib_raccoons";
             //String user = "perchrib";
             //String password = "123";
-            if(url.contains("mysql"))
-            {
+            if (url.contains("mysql")) {
                 con = DriverManager.getConnection(url, user, password);
                 st = con.createStatement();
                 rs = st.executeQuery(query);
@@ -65,20 +62,16 @@ public class DatabaseConnector {
                     //System.out.print(": ");
                     //System.out.println(rs.getString(2));
                 }
-            }
-            else if(url.contains("postgresql"))
-            {
+            } else if(url.contains("postgresql")) {
                 //pCon = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5450/postgres", "postgres", "dbpass");
                 pCon = DriverManager.getConnection(url, user, password);
                 pSt = pCon.createStatement();
                 pRs = pSt.executeQuery(query);
-                while(pRs.next())
-                {
+                while(pRs.next()) {
                     System.out.println(pRs.getString(1));
                     results = pRs.getString(1);
                 }
-            }
-            else{
+            } else {
                 String exception = "Server URL not valid";
                 results = exception;
             }
@@ -88,12 +81,12 @@ public class DatabaseConnector {
             //lgr.log(Level.SEVERE, ex.getMessage(), ex);
 
 
-            if(ex.toString().contains("PSQL")){
+            if (ex.toString().contains("PSQL")) {
                 String exception = "POSTGIS Error";
                 results = exception;
                 return results;
             }
-            else if(ex.toString().contains("MySQL")){
+            else if(ex.toString().contains("MySQL")) {
                 String exception = "MYSQL error";
                 results = exception;
                 return results;
@@ -103,7 +96,7 @@ public class DatabaseConnector {
                 results = exception;
                 return results;
 
-            } else{
+            } else {
                 lgr.log(Level.WARNING, ex.getMessage(), ex);
                 System.out.println("test");
             }
@@ -132,17 +125,15 @@ public class DatabaseConnector {
                 System.out.println(ex.getMessage());
                 //Logger lgr = Logger.getLogger(SQLOutput.class.getName());
 
-                if(SQLOutput.class.getName().contains("PSQL")){
+                if (SQLOutput.class.getName().contains("PSQL")) {
                     String exception = "Postgis error";
                     results = exception;
                     return results;
-                }
-                else if(ex.getMessage().contains("MYSQL")){
+                } else if(ex.getMessage().contains("MYSQL")) {
                     String exception = "MYSQL error";
                     results = exception;
                     return results;
-                }
-                else {
+                } else {
                     //lgr.log(Level.WARNING, ex.getMessage(), ex);
                     System.out.println("test");
                 }

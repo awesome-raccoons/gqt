@@ -6,7 +6,7 @@ public class Database {
     private String user;
     private String password;
     private String name;
-    public Database(String name, String url,String user,String password)
+    public Database(final String name, final String url, final String user, final String password)
     {
         this.url = url;
         this.user = user;
@@ -15,23 +15,23 @@ public class Database {
 
     }
 
-    public String getUrl() {
+    public final String getUrl() {
         return url;
     }
 
-    public String getUser() {
+    public final String getUser() {
         return user;
     }
 
-    public String getPassword() {
+    public final String getPassword() {
         return password;
     }
 
-    public String getName() {
+    public final String getName() {
         return name;
     }
 
-    public String toString(){
+    public final String toString(){
         return this.name;
     }
 }

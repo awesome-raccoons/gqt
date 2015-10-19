@@ -1,4 +1,4 @@
-import javafx.collections.ObservableList;
+
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.control.Tab;
@@ -20,7 +20,6 @@ import models.ModelBoundaries;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
 
 
 public class Controller {
@@ -132,33 +131,25 @@ public class Controller {
     /**
      * Called when selecting a database in the dbList dropdownlist.
      */
-    public final void changeDatabase(){
-
+    public final void changeDatabase() {
         Database db = (Database)dbList.getSelectionModel().getSelectedItem();
         setDatabase(db);
         this.dbName.setText(getCurrentDB().getName());
         this.dbUrl.setText(getCurrentDB().getUrl());
         this.dbUser.setText(getCurrentDB().getUser());
         this.dbPassword.setText(getCurrentDB().getPassword());
-
-
     }
-    public final void setDatabase(Database db){
+    public final void setDatabase(Database db) {
         this.currentDatabase = db;
     }
-    public final void addDatabase(){
+    public final void addDatabase() {
         Database db = new Database(dbName.getText(),dbUrl.getText(),dbUser.getText(),dbPassword.getText());
         setDatabase(db);
-
-
         dbList.getItems().add(db);
         dbName.clear();
         dbUrl.clear();
         dbUser.clear();
         dbPassword.clear();
-
-
-
     }
     @FXML
     public final void updateLayer() {
@@ -243,14 +234,12 @@ public class Controller {
      */
     private void moveAllGeometries(final double offsetX, final double offsetY) {
         AnchorPane plotViewGroup = GisVisualization.getGroup();
-
         //Make sure to reset the GisVisualization, this empties the canvas and tooltips
         GisVisualization.reset();
         // resize and redraw all geometries
         for (int i = Layer.getLayers(true).size() - 1; i >= 0; i--) {
             Layer layer = Layer.getLayers(true).get(i);
             GisVisualization gisVisualization = layer.getGisVis();
-
             // moving geometries to a List decreased dragging performance
             for (GeometryModel gm : gisVisualization.getGeometryModelList()) {
                 gm.moveGeometry(offsetX, offsetY);
@@ -286,7 +275,6 @@ public class Controller {
         for (int i = layers.size() - 1; i >= 0; i--) {
             Layer layer = layers.get(i);
             GisVisualization gisVisualization = layer.getGisVis();
-
             for (GeometryModel gm : gisVisualization.getGeometryModelList()) {
                 boundaries.includeGeometry(gm.getOriginalGeometry());
             }
@@ -389,7 +377,6 @@ public class Controller {
         currentZoomLevel = 0;
         this.currentOffsetX = 0;
         this.currentOffsetY = 0;
-
         setZoomLevel();
         rescaleAllGeometries();
     }
@@ -557,8 +544,7 @@ public class Controller {
                 queryInput.setText(result);
                 updateLayer();
             }
-        }
-        else{
+        } else {
             Alerts alert = new Alerts("No database selected","DB Error", "");
             alert.show();
         }
