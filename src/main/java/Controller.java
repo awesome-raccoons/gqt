@@ -377,7 +377,7 @@ public class Controller {
         //System.out.println("zoom changed");
         //System.out.println((int)currentZoom);
         backgroundGrid.scaleGrid((int)(currentZoom * 10), (int)(currentZoom * 10));
-        backgroundGrid.scaleGrid((int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER), (int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER));
+
         backgroundGrid.scaleGrid((int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER),
                 (int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER));
     }
