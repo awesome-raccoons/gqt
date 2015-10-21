@@ -29,8 +29,15 @@ public class BackgroundGrid extends Canvas {
     public static final int DEFAULT_SPACING_X = 10;
     public static final int DEFAULT_SPACING_Y = 10;
 
-    private double width;
-    private double height;
+    private int currentXSpacing;
+    private int currentYSpacing;
+    private double previousX;
+    private double previousY;
+
+    private double maxWidth;
+    private double maxHeight;
+    private double currentWidth;
+    private double currentHeight;
 
     /**
      * How many pixels between each vertical line.
@@ -54,12 +61,14 @@ public class BackgroundGrid extends Canvas {
      */
     private AnchorPane parent;
 
-    public BackgroundGrid(final double width,
-                          final double height,
+    public BackgroundGrid(final double maxWidth,
+                          final double maxHeight,
                           final AnchorPane parent) {
-        super(width, height);
-        this.width = width;
-        this.height = height;
+        super(maxWidth, maxHeight);
+        this.maxWidth = maxWidth;
+        this.maxHeight = maxHeight;
+        this.currentWidth = maxWidth / 2;
+        this.currentHeight = maxHeight / 2;
         this.parent = parent;
         this.allowOverriding = true;
 
@@ -87,6 +96,20 @@ public class BackgroundGrid extends Canvas {
         cm.hide();
     }
 
+    public final void resetOffsets() {
+        //Recalculate center in case window changes
+        this.previousX = 0;
+        this.previousY = 0;
+    }
+
+    public final void addXOffset(final double offset) {
+        this.previousX += offset;
+    }
+
+    public final void addYOffset(final double offset) {
+        this.previousY += offset;
+    }
+
     /**
      * Draws the scaled grid.
      * Will immediately return without doing anything if either argument is 0.
@@ -94,7 +117,8 @@ public class BackgroundGrid extends Canvas {
      * @param xSpacing  Amount of pixels between each horizontal line.
      * @param ySpacing  Amount of pixels between each vertical line.
      */
-    public final void createGrid(final int xSpacing, final int ySpacing) {
+    public final void createGrid(final int xSpacing, final int ySpacing,
+                                 final double xCenter, final double yCenter) {
         if (xSpacing == 0 || ySpacing == 0) {
             return;
         }
@@ -103,21 +127,43 @@ public class BackgroundGrid extends Canvas {
         gc.setStroke(Color.BLACK);
         gc.setLineWidth(LINE_WIDTH);
 
-        //Draws horizontal lines
-        for (int i = 0; i < height; i += ySpacing) {
-            gc.strokeLine(0, i, width, i);
+        //Draw horizontal lines for lower half
+        for (int i = (int) yCenter; i < maxHeight; i += ySpacing) {
+            gc.strokeLine(0, i, maxWidth, i);
         }
 
-        //Draws vertical lines
-        for (int i = 0; i < width; i += xSpacing) {
-            gc.strokeLine(i, 0, i, height);
+        //Draw horizontal lines for upper half
+        for (int i = (int) yCenter; i >= 0; i -= ySpacing) {
+            gc.strokeLine(0, i, maxWidth, i);
         }
+
+        //Draw vertical lines for right side
+        for (int i = (int) xCenter; i < maxWidth; i += xSpacing) {
+            gc.strokeLine(i, 0, i, maxHeight);
+        }
+
+        //Draw vertical lines for left side
+        for (int i = (int) xCenter; i >= 0; i -= xSpacing) {
+            gc.strokeLine(i, 0, i, maxHeight);
+        }
+
+        currentXSpacing = xSpacing;
+        currentYSpacing = ySpacing;
     }
 
-    public final void scaleGrid(final int xSpacing, final int ySpacing) {
+    public final void moveGrid(final int xSpacing, final int ySpacing,
+                               final double xOffset, final double yOffset) {
+        previousX += xOffset;
+        previousY += yOffset;
+        scaleGrid(xSpacing, ySpacing, previousX + currentWidth, previousY + currentHeight);
+
+    }
+
+    public final void scaleGrid(final int xSpacing, final int ySpacing,
+                                final double xCenter, final double yCenter) {
         if (allowOverriding) {
             clearGrid();
-            createGrid(xSpacing, ySpacing);
+            createGrid(xSpacing, ySpacing, xCenter, yCenter);
         }
     }
 
@@ -125,7 +171,7 @@ public class BackgroundGrid extends Canvas {
      * Erases the previously drawn scaled grid.
      */
     public final void clearGrid() {
-        this.getGraphicsContext2D().clearRect(0, 0, width, height);
+        this.getGraphicsContext2D().clearRect(0, 0, maxWidth, maxHeight);
     }
 
     /**
@@ -202,10 +248,26 @@ public class BackgroundGrid extends Canvas {
             } else {
                 xScale = XYPair.getKey();
                 yScale = XYPair.getValue();
-                scaleGrid(xScale, yScale);
+                //scaleGrid(xScale, yScale);
                 allowOverriding = overrideCheckBox.isSelected();
             }
         });
     }
 
+
+    public final int getCurrentXSpacing() {
+        return currentXSpacing;
+    }
+
+    public final int getCurrentYSpacing() {
+        return currentYSpacing;
+    }
+
+    public final void setCurrentWidth(final double currentWidth) {
+        this.currentWidth = currentWidth;
+    }
+
+    public final void setCurrentHeight(final double currentHeight) {
+        this.currentHeight = currentHeight;
+    }
 }
