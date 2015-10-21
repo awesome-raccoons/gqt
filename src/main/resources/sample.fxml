@@ -66,11 +66,11 @@
                            <children>
                               <AnchorPane GridPane.rowIndex="1">
                                  <children>
-                                     <ComboBox fx:id="dbList" onAction="#changeDatabase" />
-                                     <Button fx:id="querySubmitButton" mnemonicParsing="false" onAction="#submitQuery" text="Submit Query" />
+                                     <ComboBox fx:id="dbList" layoutX="600" layoutY="-1.0" onAction="#changeDatabase" />
+                                     <Button fx:id="querySubmitButton" layoutX="180" layoutY="-1.0" mnemonicParsing="false" onAction="#submitQuery" text="Submit Query" />
                                   <Button fx:id="submit" mnemonicParsing="false" onAction="#updateLayer" text="Update" />
-                                  <Button fx:id="edit" layoutX="115.0" mnemonicParsing="false" onAction="#createEmptyLayer" text="Create Layer" />
-                                  <Button fx:id="resetViewButton" layoutX="246.0" layoutY="-1.0" mnemonicParsing="false" onAction="#resetView" text="Reset View" />
+                                  <Button fx:id="edit" layoutX="95.0" mnemonicParsing="false" onAction="#createEmptyLayer" text="Create Layer" />
+                                  <Button fx:id="resetViewButton" layoutX="270.0" layoutY="-1.0" mnemonicParsing="false" onAction="#resetView" text="Reset View" />
                                   <Button fx:id="zoomToFitVisibleButton" layoutX="525.0" layoutY="-1.0" mnemonicParsing="false" onAction="#zoomToFitVisible" text="Fit Visible" />
                                   <Button fx:id="zoomToFitSelectedButton" layoutX="434.0" layoutY="-1.0" mnemonicParsing="false" onAction="#zoomToFitSelected" text="Fit Selected" />
                                   <Button fx:id="zoomToFitButton" layoutX="357.0" layoutY="-1.0" minWidth="77.0" mnemonicParsing="false" onAction="#zoomToFitAll" text="Fit All" />
