@@ -36,9 +36,11 @@
                             </ScrollPane>
                               <SplitPane dividerPositions="0.5" layoutX="320.0" layoutY="130.0" orientation="VERTICAL" prefHeight="600.0" prefWidth="969.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="-107.0" AnchorPane.topAnchor="0.0">
                                   <items>
-                                      <TextArea fx:id="query" disable="true" layoutX="0" layoutY="75" onKeyPressed="#queryAreaKeyPressed" pickOnBounds="false" prefHeight="30.0" prefWidth="150" />
-
-                                      <TextArea fx:id="queryInput" disable="true" onKeyPressed="#wktAreaKeyPressed" pickOnBounds="false" prefHeight="127.0" prefWidth="602.0">
+                                      <TextArea fx:id="query" promptText="Input database query" disable="true" layoutX="0" layoutY="75" onKeyPressed="#queryAreaKeyPressed" pickOnBounds="false" prefHeight="30.0" prefWidth="150">
+                                          <font>
+                                              <Font name="Courier New" size="13.0" />
+                                          </font></TextArea>
+                                      <TextArea fx:id="queryInput" promptText="Input WKT string" disable="true" pickOnBounds="false" prefHeight="127.0" prefWidth="602.0">
                                           <font>
                                               <Font name="Courier New" size="13.0" />
                                           </font></TextArea>

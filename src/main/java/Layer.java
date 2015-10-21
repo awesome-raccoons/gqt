@@ -14,7 +14,6 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -55,14 +54,11 @@ public class Layer extends HBox {
     private Controller controller;
 
     public Layer(final GisVisualization gisVis, final VBox parentContainer, final String name,
-                 final String wktString, final String queryString,
                  final TextArea textArea, final TextArea queryArea,
                  final Controller controller) {
         this.gisVis = gisVis;
         this.parentContainer = parentContainer;
         this.name = name;
-        this.wktString = wktString;
-        this.queryString = queryString;
         this.textArea = textArea;
         this.queryArea = queryArea;
         this.validWkt = new Image(Main.class.getResourceAsStream("valid.png"));
@@ -70,10 +66,8 @@ public class Layer extends HBox {
         this.validTooltip = new Tooltip("All geometries in layer are valid");
         this.invalidTooltip = new Tooltip("Layer contains invalid geometries");
         this.isSelected = new LayerSelectedProperty();
-        EventHandler<MouseEvent> mouseClickedHandler = event -> handleLayerMousePress();
+        EventHandler<MouseEvent> mouseClickedHandler = event -> handleLayerMousePress(false);
         this.setOnMouseClicked(mouseClickedHandler);
-        EventHandler<KeyEvent> keyReleasedHandler = this::handleLayerKeyPresses;
-        this.setOnKeyReleased(keyReleasedHandler);
         this.controller = controller;
 
         createLayer();
@@ -100,7 +94,7 @@ public class Layer extends HBox {
         layerName = new TextField();
         layerName.setOnMouseClicked(event1 -> {
             if (!isSelected.get()) {
-                handleLayerMousePress();
+                handleLayerMousePress(false);
             }
         });
         updateLayerName();
@@ -156,17 +150,7 @@ public class Layer extends HBox {
         layerName.setText(this.name);
     }
 
-    public final void handleLayerKeyPresses(final KeyEvent event) {
-        if (event.getCode() == KeyCode.DOWN) {
-            //Move selected layers down
-            moveSelectedLayers(1);
-        } else if (event.getCode() == KeyCode.UP) {
-            //Move selected layers up
-            moveSelectedLayers(-1);
-        }
-    }
-
-    public final void handleLayerMousePress() {
+    public final void handleLayerMousePress(boolean ignoreControl) {
         textArea.setDisable(false);
         queryArea.setDisable(false);
         controller.getZoomToFitSelectedButton().setDisable(false);
@@ -174,7 +158,7 @@ public class Layer extends HBox {
 
         //CTRL is pressed select additional, otherwise unselected previously selected
         boolean oldValue = isSelected.get();
-        if (!Controller.isKeyHeldDown(KeyCode.CONTROL)) {
+        if (!Controller.isKeyHeldDown(KeyCode.CONTROL) || ignoreControl) {
             deselectAllLayers();
         }
 
