@@ -128,22 +128,22 @@ public class BackgroundGrid extends Canvas {
         gc.setLineWidth(LINE_WIDTH);
 
         //Draw horizontal lines for lower half
-        for (int i = (int)yCenter; i < maxHeight; i += ySpacing) {
-            gc.strokeLine(0,i, maxWidth,i);
+        for (int i = (int) yCenter; i < maxHeight; i += ySpacing) {
+            gc.strokeLine(0, i, maxWidth, i);
         }
 
         //Draw horizontal lines for upper half
         for (int i = (int) yCenter; i >= 0; i -= ySpacing) {
-            gc.strokeLine(0,i, maxWidth,i);
+            gc.strokeLine(0, i, maxWidth, i);
         }
 
         //Draw vertical lines for right side
-        for (int i = (int)xCenter; i < maxWidth; i += xSpacing) {
+        for (int i = (int) xCenter; i < maxWidth; i += xSpacing) {
             gc.strokeLine(i, 0, i, maxHeight);
         }
 
         //Draw vertical lines for left side
-        for (int i = (int)xCenter; i >= 0; i -= xSpacing) {
+        for (int i = (int) xCenter; i >= 0; i -= xSpacing) {
             gc.strokeLine(i, 0, i, maxHeight);
         }
 
@@ -255,19 +255,19 @@ public class BackgroundGrid extends Canvas {
     }
 
 
-    public int getCurrentXSpacing() {
+    public final int getCurrentXSpacing() {
         return currentXSpacing;
     }
 
-    public int getCurrentYSpacing() {
+    public final int getCurrentYSpacing() {
         return currentYSpacing;
     }
 
-    public void setCurrentWidth(double currentWidth) {
+    public final void setCurrentWidth(final double currentWidth) {
         this.currentWidth = currentWidth;
     }
 
-    public void setCurrentHeight(double currentHeight) {
+    public final void setCurrentHeight(final double currentHeight) {
         this.currentHeight = currentHeight;
     }
 }

@@ -84,10 +84,11 @@ public class DisplayController implements ChangeListener {
     private Text zoomTextError;
     private Stage stage;
 
-    public DisplayController(AnchorPane parentPane, TextField zoomTextField,
-                             BackgroundGrid backgroundGrid,
-                             Text positionX, Text positionY, Text zoomTextError,
-                             Stage stage) {
+    public DisplayController(final AnchorPane parentPane,
+                             final TextField zoomTextField,
+                             final BackgroundGrid backgroundGrid,
+                             final Text positionX, final Text positionY,
+                             final Text zoomTextError, final Stage stage) {
         this.parentPane = parentPane;
         this.zoomTextField = zoomTextField;
         this.zoomTextError = zoomTextError;
@@ -151,8 +152,9 @@ public class DisplayController implements ChangeListener {
         backgroundGrid.setCurrentWidth(centerX);
         backgroundGrid.setCurrentHeight(centerY);
         //Redraw the grid...
-        backgroundGrid.scaleGrid((int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER),
-                (int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER), currentOffsetX + centerX, currentOffsetY + centerY);
+        int scaling = (int) (currentZoom * ZOOM_TO_SCALE_MULTIPLIER);
+        backgroundGrid.scaleGrid(scaling, scaling,
+                currentOffsetX + centerX, currentOffsetY + centerY);
     }
 
     /**
@@ -464,7 +466,9 @@ public class DisplayController implements ChangeListener {
 
 
     @Override
-    public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+    public final void changed(final ObservableValue observable,
+                              final Object oldValue,
+                              final Object newValue) {
         rescaleAllGeometries();
     }
 }

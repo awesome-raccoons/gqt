@@ -1,5 +1,4 @@
 import javafx.fxml.FXML;
-import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -7,7 +6,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
@@ -60,7 +58,8 @@ public class Controller {
 
     private DisplayController displayController;
 
-    public final DisplayController createDisplayController(BackgroundGrid backgroundGrid, Stage stage) {
+    public final DisplayController createDisplayController(
+            final BackgroundGrid backgroundGrid, final Stage stage) {
         this.displayController = new DisplayController(upperPane, zoomText,
                 backgroundGrid, positionX,  positionY, zoomTextError, stage);
         return this.displayController;
