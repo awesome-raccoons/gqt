@@ -304,7 +304,7 @@ public class Controller {
                     String alertMsg = "Server URL not valid";
                     new Alerts(alertMsg, title, header).show();
                 } else {
-                    queryInput.setText(result);
+                    wktTextArea.setText(result);
                     updateLayer();
                 }
             } catch(NullPointerException e) {
