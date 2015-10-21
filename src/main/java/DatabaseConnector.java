@@ -101,21 +101,17 @@ public final class DatabaseConnector {
 
 
             if (ex.toString().contains("PSQL")) {
-                String exception = "POSTGIS Error";
-                results = exception;
+                results = "POSTGIS Error";
                 return results;
             } else if (ex.toString().contains("MySQL")) {
-                String exception = "MYSQL error";
-                results = exception;
+                results = "MYSQL error";
                 return results;
             } else if (ex.toString().contains("Access denied")) {
-                String exception = "Wrong username or password";
-                results = exception;
+                results = "Wrong username or password";
                 return results;
 
-            } else if(ex.toString().contains("Communications")) {
-                String exception = "Wrong server address";
-                results = exception;
+            } else if (ex.toString().contains("Communications")) {
+                results = "Wrong server address";
                 return results;
             }
         }
@@ -157,8 +153,7 @@ public final class DatabaseConnector {
                 }
 
             }
-            if(results == null)
-            {
+            if (results == null) {
                 String exception = "Invalid Query";
                 results = exception;
             }

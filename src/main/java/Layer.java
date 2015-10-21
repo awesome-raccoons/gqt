@@ -152,7 +152,7 @@ public class Layer extends HBox {
         layerName.setText(this.name);
     }
 
-    public final void handleLayerMousePress(boolean ignoreControl) {
+    public final void handleLayerMousePress(final boolean ignoreControl) {
         wktTextArea.setDisable(false);
         databaseTextArea.setDisable(false);
         controller.getZoomToFitSelectedButton().setDisable(false);

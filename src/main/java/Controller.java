@@ -307,8 +307,8 @@ public class Controller {
                     wktTextArea.setText(result);
                     updateLayer();
                 }
-            } catch(NullPointerException e) {
-                Alerts alert = new Alerts("Query returned null","Null error", "");
+            } catch (NullPointerException e) {
+                Alerts alert = new Alerts("Query returned null", "Null error", "");
                 alert.show();
             }
         } else {
