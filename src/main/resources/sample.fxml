@@ -127,6 +127,7 @@
                                     </children>
                                 </GridPane>
                                 <Button id="addDatabaseButton" fx:id="dbDetailsSubmit" layoutX="240.0" layoutY="177.0" mnemonicParsing="false" onMouseClicked="#addDatabase" text="Add database" />
+
                             </children>
 
                         </AnchorPane>

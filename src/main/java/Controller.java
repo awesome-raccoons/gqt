@@ -258,37 +258,55 @@ public class Controller {
         String qText = query.getText();
         Database database = getCurrentDB();
         if (database != null) {
-            String result = DatabaseConnector.executeQuery(qText, database);
+            try {
+                String result = DatabaseConnector.executeQuery(qText, database);
 
-            if (result.contains("POSTGIS Error")) {
-                String title = "SQL Error";
-                String header = "POSTGIS Error";
-                //Specify different errors later
-                String alertMsg = "Invalid geometry,wrong syntax or empty query";
-                Alerts alert = new Alerts(alertMsg, title, header);
+                if (result.contains("POSTGIS Error")) {
+                    String title = "SQL Error";
+                    String header = "POSTGIS Error";
+                    //Specify different errors later
+                    String alertMsg = "Invalid geometry,wrong syntax or empty query";
+                    Alerts alert = new Alerts(alertMsg, title, header);
+                    alert.show();
+                } else if (result.contains("MYSQL error")) {
+                    String title = "SQL Error";
+                    String header = "MYSQL Error";
+                    //Specify different errors later
+                    String alertMsg = "Invalid geometry, wrong syntax or empty query";
+                    Alerts alert = new Alerts(alertMsg, title, header);
+                    alert.show();
+                } else if (result.contains("URL not valid")) {
+                    String title = "Server Error";
+                    String header = " ";
+                    String alertMsg = "Server URL not valid";
+                    Alerts alert = new Alerts(alertMsg, title, header);
+                    alert.show();
+                } else if (result.contains("Wrong username")) {
+                    String title = "Credential error";
+                    String header = " ";
+                    String alertMsg = "Wrong username or password";
+                    Alerts alert = new Alerts(alertMsg, title, header);
+                    alert.show();
+                } else if (result.contains("Invalid Query")) {
+                    String title = "Query Error";
+                    String header = "";
+                    String alertMsg = "Syntax error in query or invalid request";
+                    Alerts alert = new Alerts(alertMsg, title, header);
+                    alert.show();
+
+                } else if (result.contains("Wrong server")) {
+                    String title = "Server Error";
+                    String header = "";
+                    String alertMsg = "Server URL not valid";
+                    Alerts alert = new Alerts(alertMsg, title, header);
+                    alert.show();
+                } else {
+                    queryInput.setText(result);
+                    updateLayer();
+                }
+            } catch(NullPointerException e) {
+                Alerts alert = new Alerts("Query returned null","Null error", "");
                 alert.show();
-            } else if (result.contains("MYSQL error")) {
-                String title = "SQL Error";
-                String header = "MYSQL Error";
-                //Specify different errors later
-                String alertMsg = "Invalid geometry, wrong syntax or empty query";
-                Alerts alert = new Alerts(alertMsg, title, header);
-                alert.show();
-            } else if (result.contains("URL not valid")) {
-                String title = "Server Error";
-                String header = " ";
-                String alertMsg = "Server URL not valid";
-                Alerts alert = new Alerts(alertMsg, title, header);
-                alert.show();
-            } else if (result.contains("wrong username")) {
-                String title = "Credential error";
-                String header = " ";
-                String alertMsg = "Wrong username or password";
-                Alerts alert = new Alerts(alertMsg, title, header);
-                alert.show();
-            } else {
-                queryInput.setText(result);
-                updateLayer();
             }
         } else {
             Alerts alert = new Alerts("No database selected", "DB Error", "");
