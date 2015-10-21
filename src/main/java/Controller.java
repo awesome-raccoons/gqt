@@ -14,8 +14,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import models.GeometryModel;
-import models.ModelBoundaries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -331,7 +329,7 @@ public class Controller {
         if (event.isControlDown()) {
             if (event.getCode() == KeyCode.ENTER) {
                 // Ctrl + Enter -> update
-                updateLayer();//
+                updateLayer();
             } else if (event.getCode() == KeyCode.DOWN) {
                 // Ctrl + Down Arrow -> Move selected layers down
                 ArrayList<Layer> selectedLayers = Layer.getAllSelectedLayers(false);

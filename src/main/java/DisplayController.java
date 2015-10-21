@@ -386,8 +386,8 @@ public class DisplayController implements ChangeListener {
         double positionX = (sceneX - currentOffsetX - centerX) / currentZoom;
         double positionY = -(sceneY - currentOffsetY - centerY) / currentZoom;
         // update text
-        this.positionX.setText("X: " + String.format( "%.2f", positionX));
-        this.positionY.setText("Y: " + String.format( "%.2f", positionY));
+        this.positionX.setText("X: " + String.format("%.2f", positionX));
+        this.positionY.setText("Y: " + String.format("%.2f", positionY));
     }
 
     public final void upperPaneMousePressed(final MouseEvent event) {
