@@ -39,8 +39,8 @@ public class Layer extends HBox {
     private String name;                       //Name of the layers
     private String wktString;                  //Original WKT string entered for this layer
     private String queryString;                //Original SQL Query
-    private TextArea textArea;
-    private TextArea queryArea;
+    private TextArea wktTextArea;
+    private TextArea databaseTextArea;
     private LayerSelectedProperty isSelected;
     private CheckBox showOrHideCheckbox;
     private TextField layerName;
@@ -54,13 +54,15 @@ public class Layer extends HBox {
     private Controller controller;
 
     public Layer(final GisVisualization gisVis, final VBox parentContainer, final String name,
-                 final TextArea textArea, final TextArea queryArea,
+                 final TextArea wktTextArea, final TextArea databaseTextArea,
                  final Controller controller) {
         this.gisVis = gisVis;
         this.parentContainer = parentContainer;
         this.name = name;
-        this.textArea = textArea;
-        this.queryArea = queryArea;
+        this.wktTextArea = wktTextArea;
+        this.databaseTextArea = databaseTextArea;
+        this.wktString = "";
+        this.queryString = "";
         this.validWkt = new Image(Main.class.getResourceAsStream("valid.png"));
         this.invalidWkt = new Image(Main.class.getResourceAsStream("invalid.png"));
         this.validTooltip = new Tooltip("All geometries in layer are valid");
@@ -151,8 +153,8 @@ public class Layer extends HBox {
     }
 
     public final void handleLayerMousePress(boolean ignoreControl) {
-        textArea.setDisable(false);
-        queryArea.setDisable(false);
+        wktTextArea.setDisable(false);
+        databaseTextArea.setDisable(false);
         controller.getZoomToFitSelectedButton().setDisable(false);
         controller.getSubmit().setDisable(true);
 
@@ -177,16 +179,17 @@ public class Layer extends HBox {
         int numberOfSelectedLayers = getNumberOfSelectedLayers();
 
         if (numberOfSelectedLayers == 0) {
-            textArea.clear();
-            queryArea.clear();
-            textArea.setDisable(true);
-            queryArea.setDisable(true);
+            wktTextArea.clear();
+            databaseTextArea.clear();
+            wktTextArea.setDisable(true);
+            databaseTextArea.setDisable(true);
             controller.getZoomToFitSelectedButton().setDisable(true);
         } else if (numberOfSelectedLayers == 1) {
             getAllSelectedLayers(false).get(0).showWKTString();
             controller.getSubmit().setDisable(false);
         } else if (numberOfSelectedLayers > 1) {
-            textArea.setDisable(true);
+            wktTextArea.setDisable(true);
+            databaseTextArea.setDisable(true);
         }
 
 
@@ -235,21 +238,22 @@ public class Layer extends HBox {
     public final void deleteLayer() {
         layers.remove(this);
         reorderLayers();
-        textArea.setText("");
-        queryArea.setText("");
-            textArea.setDisable(getNumberOfSelectedLayers() == 0);
+        wktTextArea.setText("");
+        databaseTextArea.setText("");
+        wktTextArea.setDisable(getNumberOfSelectedLayers() == 0);
+        databaseTextArea.setDisable(getNumberOfSelectedLayers() == 0);
     }
 
     /**
      * Clears the WKT input text area and displays the WKT string used to draw this layer.
      */
     private void showWKTString() {
-        textArea.clear();
-        textArea.setText(wktString);
+        wktTextArea.clear();
+        wktTextArea.setText(wktString);
     }
     private void showSQLQuery() {
-        queryArea.clear();
-        queryArea.setText(queryString);
+        databaseTextArea.clear();
+        databaseTextArea.setText(queryString);
     }
 
     /**
