@@ -54,14 +54,13 @@ public class Layer extends HBox {
     private Controller controller;
 
     public Layer(final GisVisualization gisVis, final VBox parentContainer, final String name,
-                 final String wktString, final String queryString,
                  final TextArea textArea, final TextArea queryArea,
                  final Controller controller) {
         this.gisVis = gisVis;
         this.parentContainer = parentContainer;
         this.name = name;
-        this.wktString = wktString;
-        this.queryString = queryString;
+        this.wktString = "";
+        this.queryString = "";
         this.textArea = textArea;
         this.queryArea = queryArea;
         this.validWkt = new Image(Main.class.getResourceAsStream("valid.png"));
