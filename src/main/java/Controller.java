@@ -24,9 +24,9 @@ public class Controller {
     private Database currentDatabase = null;
 
     @FXML
-    private TextArea queryInput;
+    private TextArea wktTextArea;
     @FXML
-    private TextArea query;
+    private TextArea databaseTextArea;
     @FXML
     private ComboBox dbList;
     @FXML
@@ -119,9 +119,18 @@ public class Controller {
     }
     @FXML
     public final void updateLayer() {
+        //Check if there is no input from the beginning
+        //This way we avoid unnecessary delay by creating a WKT parser
+        if (wktTextArea.getText().equals("")) {
+            WktParser.showWKTParseErrorMessage();
+            return;
+        }
         WktParser wktParser = new WktParser(Layer.getSelectedLayer(), upperPane);
-        Layer.getSelectedLayer().setSQLQuery(query.getText());
-        boolean result = wktParser.parseWktString(queryInput.getText());
+        Layer selectedLayer = Layer.getSelectedLayer();
+        if (selectedLayer != null) {
+            selectedLayer.setSQLQuery(databaseTextArea.getText());
+        }
+        boolean result = wktParser.parseWktString(wktTextArea.getText());
         if (result) {
             wktParser.updateLayerGeometries();
             displayController.rescaleAllGeometries();
@@ -145,7 +154,7 @@ public class Controller {
     }
 
     public final void createEmptyLayer() {
-        Layer l = new Layer(null, vboxLayers, "Empty", queryInput, query, this);
+        Layer l = new Layer(null, vboxLayers, "Empty", wktTextArea, databaseTextArea, this);
         Layer.getLayers(false).add(l);
         l.addLayerToView();
         //To ensure the latest new layer will be selected.
@@ -252,10 +261,10 @@ public class Controller {
     }
 
     /**
-     * Called when clicking the submit query button.
+     * Called when clicking the submit databaseTextArea button.
      */
     public final void submitQuery() {
-        String qText = query.getText();
+        String qText = databaseTextArea.getText();
         Database database = getCurrentDB();
         if (database != null) {
             try {
@@ -266,46 +275,40 @@ public class Controller {
                     String header = "POSTGIS Error";
                     //Specify different errors later
                     String alertMsg = "Invalid geometry,wrong syntax or empty query";
-                    Alerts alert = new Alerts(alertMsg, title, header);
-                    alert.show();
+                    new Alerts(alertMsg, title, header).show();
                 } else if (result.contains("MYSQL error")) {
                     String title = "SQL Error";
                     String header = "MYSQL Error";
                     //Specify different errors later
                     String alertMsg = "Invalid geometry, wrong syntax or empty query";
-                    Alerts alert = new Alerts(alertMsg, title, header);
-                    alert.show();
+                    new Alerts(alertMsg, title, header).show();
                 } else if (result.contains("URL not valid")) {
                     String title = "Server Error";
                     String header = " ";
                     String alertMsg = "Server URL not valid";
-                    Alerts alert = new Alerts(alertMsg, title, header);
-                    alert.show();
+                    new Alerts(alertMsg, title, header).show();
                 } else if (result.contains("Wrong username")) {
                     String title = "Credential error";
                     String header = " ";
                     String alertMsg = "Wrong username or password";
-                    Alerts alert = new Alerts(alertMsg, title, header);
-                    alert.show();
+                    new Alerts(alertMsg, title, header).show();
                 } else if (result.contains("Invalid Query")) {
                     String title = "Query Error";
                     String header = "";
                     String alertMsg = "Syntax error in query or invalid request";
-                    Alerts alert = new Alerts(alertMsg, title, header);
-                    alert.show();
+                    new Alerts(alertMsg, title, header).show();
 
                 } else if (result.contains("Wrong server")) {
                     String title = "Server Error";
                     String header = "";
                     String alertMsg = "Server URL not valid";
-                    Alerts alert = new Alerts(alertMsg, title, header);
-                    alert.show();
+                    new Alerts(alertMsg, title, header).show();
                 } else {
-                    queryInput.setText(result);
+                    wktTextArea.setText(result);
                     updateLayer();
                 }
-            } catch(NullPointerException e) {
-                Alerts alert = new Alerts("Query returned null","Null error", "");
+            } catch (NullPointerException e) {
+                Alerts alert = new Alerts("Query returned null", "Null error", "");
                 alert.show();
             }
         } else {
