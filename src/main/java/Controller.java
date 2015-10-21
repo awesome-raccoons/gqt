@@ -252,15 +252,6 @@ public class Controller {
     public final Database getCurrentDB() {
         return this.currentDatabase;
     }
-    /**
-     * Handler for shortcuts used when focus is on text area.
-     * @param event key event
-     */
-    public final void wktAreaKeyPressed(final KeyEvent event) {
-        if (event.isAltDown() && event.getCode() == KeyCode.ENTER) {
-            updateLayer();
-        }
-    }
 
     /**
      * Called when clicking the submit query button.
@@ -339,7 +330,20 @@ public class Controller {
     public final void handleSceneKeyEvent(final KeyEvent event) {
         if (event.isControlDown()) {
             if (event.getCode() == KeyCode.ENTER) {
-                updateLayer();
+                // Ctrl + Enter -> update
+                updateLayer();//
+            } else if (event.getCode() == KeyCode.DOWN) {
+                // Ctrl + Down Arrow -> Move selected layers down
+                ArrayList<Layer> selectedLayers = Layer.getAllSelectedLayers(false);
+                if (selectedLayers.size() != 0) {
+                    selectedLayers.get(0).moveSelectedLayers(1);
+                }
+            } else if (event.getCode() == KeyCode.UP) {
+                // Ctrl + Up Arrow -> Move selected layers up
+                ArrayList<Layer> selectedLayers = Layer.getAllSelectedLayers(false);
+                if (selectedLayers.size() != 0) {
+                    selectedLayers.get(0).moveSelectedLayers(-1);
+                }
             } else {
                 switch (event.getText().toLowerCase()) {
                     case "n": // Ctrl+N - create new layer

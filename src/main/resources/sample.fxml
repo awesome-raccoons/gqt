@@ -38,7 +38,7 @@
                                   <items>
                                       <TextArea fx:id="query" disable="true" layoutX="0" layoutY="75" onKeyPressed="#queryAreaKeyPressed" pickOnBounds="false" prefHeight="30.0" prefWidth="150" />
 
-                                      <TextArea fx:id="queryInput" disable="true" onKeyPressed="#wktAreaKeyPressed" pickOnBounds="false" prefHeight="127.0" prefWidth="602.0">
+                                      <TextArea fx:id="queryInput" disable="true" pickOnBounds="false" prefHeight="127.0" prefWidth="602.0">
                                           <font>
                                               <Font name="Courier New" size="13.0" />
                                           </font></TextArea>
