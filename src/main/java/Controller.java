@@ -14,8 +14,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import models.GeometryModel;
-import models.ModelBoundaries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,7 +85,7 @@ public class Controller {
         zoomToFitSelectedButton.setDisable(true);
         zoomToFitButton.setDisable(true);
     }
-    
+
     public final AnchorPane getUpperPane() {
         return upperPane;
     }
@@ -147,7 +145,7 @@ public class Controller {
     }
 
     public final void createEmptyLayer() {
-        Layer l = new Layer(null, vboxLayers, "Empty", "", "", queryInput, query, this);
+        Layer l = new Layer(null, vboxLayers, "Empty", queryInput, query, this);
         Layer.getLayers(false).add(l);
         l.addLayerToView();
         //To ensure the latest new layer will be selected.
@@ -252,15 +250,6 @@ public class Controller {
     public final Database getCurrentDB() {
         return this.currentDatabase;
     }
-    /**
-     * Handler for shortcuts used when focus is on text area.
-     * @param event key event
-     */
-    public final void wktAreaKeyPressed(final KeyEvent event) {
-        if (event.isAltDown() && event.getCode() == KeyCode.ENTER) {
-            updateLayer();
-        }
-    }
 
     /**
      * Called when clicking the submit query button.
@@ -339,7 +328,20 @@ public class Controller {
     public final void handleSceneKeyEvent(final KeyEvent event) {
         if (event.isControlDown()) {
             if (event.getCode() == KeyCode.ENTER) {
+                // Ctrl + Enter -> update
                 updateLayer();
+            } else if (event.getCode() == KeyCode.DOWN) {
+                // Ctrl + Down Arrow -> Move selected layers down
+                ArrayList<Layer> selectedLayers = Layer.getAllSelectedLayers(false);
+                if (selectedLayers.size() != 0) {
+                    selectedLayers.get(0).moveSelectedLayers(1);
+                }
+            } else if (event.getCode() == KeyCode.UP) {
+                // Ctrl + Up Arrow -> Move selected layers up
+                ArrayList<Layer> selectedLayers = Layer.getAllSelectedLayers(false);
+                if (selectedLayers.size() != 0) {
+                    selectedLayers.get(0).moveSelectedLayers(-1);
+                }
             } else {
                 switch (event.getText().toLowerCase()) {
                     case "n": // Ctrl+N - create new layer
