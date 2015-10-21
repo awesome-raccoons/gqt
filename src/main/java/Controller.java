@@ -85,7 +85,7 @@ public class Controller {
         zoomToFitSelectedButton.setDisable(true);
         zoomToFitButton.setDisable(true);
     }
-    
+
     public final AnchorPane getUpperPane() {
         return upperPane;
     }
