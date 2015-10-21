@@ -65,9 +65,6 @@ public class Layer extends HBox {
         this.isSelected = new LayerSelectedProperty();
         EventHandler<MouseEvent> mouseClickedHandler = event -> handleLayerMousePress();
         this.setOnMouseClicked(mouseClickedHandler);
-        EventHandler<KeyEvent> keyReleasedHandler = this::handleLayerKeyPresses;
-        this.setOnKeyReleased(keyReleasedHandler);
-
         createLayer();
     }
 
@@ -142,16 +139,6 @@ public class Layer extends HBox {
             this.name += " " + gisVis.getID();
         }
         layerName.setText(this.name);
-    }
-
-    public final void handleLayerKeyPresses(final KeyEvent event) {
-        if (event.getCode() == KeyCode.DOWN) {
-            //Move selected layers down
-            moveSelectedLayers(1);
-        } else if (event.getCode() == KeyCode.UP) {
-            //Move selected layers up
-            moveSelectedLayers(-1);
-        }
     }
 
     public final void handleLayerMousePress() {

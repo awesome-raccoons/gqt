@@ -1,9 +1,7 @@
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
@@ -90,6 +88,7 @@ public class Controller {
     private Tab queryTab;
     @FXML
     private Tab databasesTab;
+
 
     /**
      * saves position of mouse coordinates from last handler.
@@ -447,16 +446,6 @@ public class Controller {
         //calculateBoundaries();
     }
 
-    /**
-     * Handler for shortcuts used when focus is on text area.
-     * @param event key event
-     */
-    public final void wktAreaKeyPressed(final KeyEvent event) {
-        if (event.isAltDown() && event.getCode() == KeyCode.ENTER) {
-            updateLayer();
-        }
-    }
-
     public final void onAnyKeyPressed(final KeyEvent event) {
         if (!heldDownKeys.contains(event.getCode())) {
             heldDownKeys.add(event.getCode());
@@ -480,7 +469,20 @@ public class Controller {
     public final void handleSceneKeyEvent(final KeyEvent event) {
         if (event.isControlDown()) {
             if (event.getCode() == KeyCode.ENTER) {
-                updateLayer();
+                // Ctrl + Enter -> update
+                updateLayer();//
+            } else if (event.getCode() == KeyCode.DOWN) {
+                // Ctrl + Down Arrow -> Move selected layers down
+                ArrayList<Layer> selectedLayers = Layer.getAllSelectedLayers(false);
+                if (selectedLayers.size() != 0) {
+                    selectedLayers.get(0).moveSelectedLayers(1);
+                }
+            } else if (event.getCode() == KeyCode.UP) {
+                // Ctrl + Up Arrow -> Move selected layers up
+                ArrayList<Layer> selectedLayers = Layer.getAllSelectedLayers(false);
+                if (selectedLayers.size() != 0) {
+                    selectedLayers.get(0).moveSelectedLayers(-1);
+                }
             } else {
                 switch (event.getText().toLowerCase()) {
                     case "n": // Ctrl+N - create new layer
@@ -528,8 +530,9 @@ public class Controller {
         double positionX = (sceneX - currentOffsetX - centerX) / currentZoom;
         double positionY = -(sceneY - currentOffsetY - centerY) / currentZoom;
         // update text
-        this.positionX.setText("X: " + (int) positionX);
-        this.positionY.setText("Y: " + (int) positionY);
+
+        this.positionX.setText("X: " + String.format( "%.2f", positionX) );
+        this.positionY.setText("Y: " + String.format( "%.2f", positionY) );
     }
 
     /**

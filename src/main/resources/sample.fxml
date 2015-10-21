@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.input.*?>
 <?import java.lang.*?>
 <?import javafx.geometry.*?>
 <?import javafx.geometry.Insets?>
@@ -34,7 +35,7 @@
                                 <VBox fx:id="vboxLayers" prefHeight="112.0" prefWidth="216.0" />
                               </content>
                             </ScrollPane>
-                            <TextArea fx:id="queryInput" disable="true" onKeyPressed="#wktAreaKeyPressed" pickOnBounds="false" prefHeight="127.0" prefWidth="602.0" />
+                            <TextArea fx:id="queryInput" disable="true" pickOnBounds="false" prefHeight="127.0" prefWidth="602.0" />
                           </children>
                           <columnConstraints>
                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
@@ -44,7 +45,10 @@
                             <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
                           </rowConstraints>
                         </GridPane>
-                        <Button fx:id="submit" layoutX="23.0" layoutY="7.0" mnemonicParsing="false" onAction="#updateLayer" text="Update" />
+                        <Button fx:id="submit" layoutX="23.0" layoutY="7.0" mnemonicParsing="false" onAction="#updateLayer" text="Update">
+                                       <tooltip>
+                                          <Tooltip text="Ctrl + Enter" />
+                                       </tooltip></Button>
                         <Button fx:id="edit" layoutX="500.0" layoutY="7.0" mnemonicParsing="false" onAction="#createEmptyLayer" text="Create Layer" />
                         <Button fx:id="zoomToFitButton" layoutX="679.0" layoutY="7.0" minWidth="77.0" mnemonicParsing="false" onAction="#zoomToFitAll" text="Fit All" />
                         <Button fx:id="resetViewButton" layoutX="594.0" layoutY="7.0" mnemonicParsing="false" onAction="#resetView" text="Reset View" />
@@ -60,6 +64,13 @@
                         </Text>
                         <Text fx:id="positionX" layoutX="1056.0" layoutY="24.0" strokeType="OUTSIDE" strokeWidth="0.0" text="X: 0" />
                         <Text fx:id="positionY" layoutX="1098.0" layoutY="24.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Y: 0" />
+                                    <MenuButton fx:id="fitSelector" layoutX="337.0" layoutY="7.0" mnemonicParsing="false" text="Fit...">
+                                      <items>
+                                        <MenuItem mnemonicParsing="false" onAction="#zoomToFitAll" text="All" />
+                                        <MenuItem mnemonicParsing="false" onAction="#zoomToFitVisible" text="Visible" />
+                                          <MenuItem mnemonicParsing="false" onAction="#zoomToFitSelected" text="Selected" />
+                                      </items>
+                                    </MenuButton>
                       </children>
                     </AnchorPane>
                   </content>
