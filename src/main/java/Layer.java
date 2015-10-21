@@ -59,8 +59,6 @@ public class Layer extends HBox {
         this.gisVis = gisVis;
         this.parentContainer = parentContainer;
         this.name = name;
-        this.wktString = "";
-        this.queryString = "";
         this.textArea = textArea;
         this.queryArea = queryArea;
         this.validWkt = new Image(Main.class.getResourceAsStream("valid.png"));
@@ -68,7 +66,7 @@ public class Layer extends HBox {
         this.validTooltip = new Tooltip("All geometries in layer are valid");
         this.invalidTooltip = new Tooltip("Layer contains invalid geometries");
         this.isSelected = new LayerSelectedProperty();
-        EventHandler<MouseEvent> mouseClickedHandler = event -> handleLayerMousePress();
+        EventHandler<MouseEvent> mouseClickedHandler = event -> handleLayerMousePress(false);
         this.setOnMouseClicked(mouseClickedHandler);
         this.controller = controller;
 
@@ -96,7 +94,7 @@ public class Layer extends HBox {
         layerName = new TextField();
         layerName.setOnMouseClicked(event1 -> {
             if (!isSelected.get()) {
-                handleLayerMousePress();
+                handleLayerMousePress(false);
             }
         });
         updateLayerName();
@@ -152,7 +150,7 @@ public class Layer extends HBox {
         layerName.setText(this.name);
     }
 
-    public final void handleLayerMousePress() {
+    public final void handleLayerMousePress(boolean ignoreControl) {
         textArea.setDisable(false);
         queryArea.setDisable(false);
         controller.getZoomToFitSelectedButton().setDisable(false);
@@ -160,7 +158,7 @@ public class Layer extends HBox {
 
         //CTRL is pressed select additional, otherwise unselected previously selected
         boolean oldValue = isSelected.get();
-        if (!Controller.isKeyHeldDown(KeyCode.CONTROL)) {
+        if (!Controller.isKeyHeldDown(KeyCode.CONTROL) || ignoreControl) {
             deselectAllLayers();
         }
 

@@ -149,7 +149,7 @@ public class Controller {
         Layer.getLayers(false).add(l);
         l.addLayerToView();
         //To ensure the latest new layer will be selected.
-        l.handleLayerMousePress();
+        l.handleLayerMousePress(true);
 }
 
 
