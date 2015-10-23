@@ -1,17 +1,12 @@
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.control.ComboBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -58,11 +53,11 @@ public class Controller {
     @FXML
     private Button submit;
     @FXML
-    private Button zoomToFitVisibleButton;
+    private MenuItem fitVisibleMenuItem;
     @FXML
-    private Button zoomToFitSelectedButton;
+    private MenuItem fitSelectedMenuItem;
     @FXML
-    private Button zoomToFitButton;
+    private MenuItem fitAllMenuItem;
 
 
     /**
@@ -81,9 +76,9 @@ public class Controller {
 
 
     public final void init() {
-        zoomToFitVisibleButton.setDisable(true);
-        zoomToFitSelectedButton.setDisable(true);
-        zoomToFitButton.setDisable(true);
+        fitVisibleMenuItem.setDisable(true);
+        fitSelectedMenuItem.setDisable(true);
+        fitAllMenuItem.setDisable(true);
     }
 
     public final AnchorPane getUpperPane() {
@@ -128,20 +123,20 @@ public class Controller {
         }
     }
 
-    public final Button getZoomToFitSelectedButton() {
-        return zoomToFitSelectedButton;
+    public final MenuItem getFitSelectedMenuItem() {
+        return fitSelectedMenuItem;
     }
 
     public final Button getSubmit() {
         return submit;
     }
 
-    public final Button getZoomToFitButton() {
-        return zoomToFitButton;
+    public final MenuItem getFitAllMenuItem() {
+        return fitAllMenuItem;
     }
 
-    public final Button getZoomToFitVisibleButton() {
-        return zoomToFitVisibleButton;
+    public final MenuItem getFitVisibleMenuItem() {
+        return fitVisibleMenuItem;
     }
 
     public final void createEmptyLayer() {
@@ -302,7 +297,6 @@ public class Controller {
 
             submitQuery();
         }
-
     }
 
     public final void onAnyKeyPressed(final KeyEvent event) {
@@ -321,6 +315,23 @@ public class Controller {
         }
     }
 
+    public final void moveLayersDown() {
+        ArrayList<Layer> selectedLayers = Layer.getAllSelectedLayers(false);
+        if (selectedLayers.size() != 0) {
+            selectedLayers.get(0).moveSelectedLayers(1);
+        }
+    }
+
+    public final void moveLayersUp() {
+        ArrayList<Layer> selectedLayers = Layer.getAllSelectedLayers(false);
+        if (selectedLayers.size() != 0) {
+            selectedLayers.get(0).moveSelectedLayers(-1);
+        }
+    }
+
+    public final void deleteSelectedLayers() {
+        Layer.getAllSelectedLayers(false).forEach(Layer::deleteLayer);
+    }
     /**
      * Handler to allow keyboard shortcuts regardless of current focus.
      * @param event
@@ -332,23 +343,17 @@ public class Controller {
                 updateLayer();
             } else if (event.getCode() == KeyCode.DOWN) {
                 // Ctrl + Down Arrow -> Move selected layers down
-                ArrayList<Layer> selectedLayers = Layer.getAllSelectedLayers(false);
-                if (selectedLayers.size() != 0) {
-                    selectedLayers.get(0).moveSelectedLayers(1);
-                }
+                moveLayersDown();
             } else if (event.getCode() == KeyCode.UP) {
                 // Ctrl + Up Arrow -> Move selected layers up
-                ArrayList<Layer> selectedLayers = Layer.getAllSelectedLayers(false);
-                if (selectedLayers.size() != 0) {
-                    selectedLayers.get(0).moveSelectedLayers(-1);
-                }
+                moveLayersUp();
             } else {
                 switch (event.getText().toLowerCase()) {
                     case "n": // Ctrl+N - create new layer
                         createEmptyLayer();
                         break;
                     case "d": // Ctrl+D - delete layer
-                        Layer.getAllSelectedLayers(false).forEach(Layer::deleteLayer);
+                        deleteSelectedLayers();
                         break;
                     case "l": // Ctrl+L - fit all
                         zoomToFitAll();

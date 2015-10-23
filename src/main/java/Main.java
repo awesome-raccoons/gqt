@@ -19,6 +19,8 @@ public class Main extends Application {
         primaryStage.setTitle("Gis Query Tool");
         primaryStage.setMaximized(true);
         Scene scene = new Scene(root);
+        primaryStage.setMinHeight(400);
+        primaryStage.setMinWidth(300);
         // set zooming by Control+scroll to work from everywhere
         javafx.event.EventHandler<ScrollEvent> mouseScrollHandler =
                 event -> controller.handleSceneScrollEvent(event);

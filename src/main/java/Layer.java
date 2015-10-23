@@ -153,7 +153,7 @@ public class Layer extends HBox {
     public final void handleLayerMousePress(boolean ignoreControl) {
         textArea.setDisable(false);
         queryArea.setDisable(false);
-        controller.getZoomToFitSelectedButton().setDisable(false);
+        controller.getFitSelectedMenuItem().setDisable(false);
         controller.getSubmit().setDisable(true);
 
         //CTRL is pressed select additional, otherwise unselected previously selected
@@ -181,7 +181,7 @@ public class Layer extends HBox {
             queryArea.clear();
             textArea.setDisable(true);
             queryArea.setDisable(true);
-            controller.getZoomToFitSelectedButton().setDisable(true);
+            controller.getFitSelectedMenuItem().setDisable(true);
         } else if (numberOfSelectedLayers == 1) {
             getAllSelectedLayers(false).get(0).showWKTString();
             controller.getSubmit().setDisable(false);
@@ -351,8 +351,8 @@ public class Layer extends HBox {
      */
     public final void redrawAll() {
         GisVisualization.reset();
-        controller.getZoomToFitVisibleButton().setDisable(true);
-        controller.getZoomToFitButton().setDisable(true);
+        controller.getFitVisibleMenuItem().setDisable(true);
+        controller.getFitAllMenuItem().setDisable(true);
         int visibleLayers = 0;
         for (int i = getLayers(false).size() - 1; i >= 0; i--) {
             Layer layer = layers.get(i);
@@ -363,8 +363,8 @@ public class Layer extends HBox {
             }
         }
         if (visibleLayers > 0) {
-            controller.getZoomToFitVisibleButton().setDisable(false);
-            controller.getZoomToFitButton().setDisable(false);
+            controller.getFitVisibleMenuItem().setDisable(false);
+            controller.getFitAllMenuItem().setDisable(false);
         }
     }
 
