@@ -96,7 +96,7 @@ public final class DatabaseConnector {
 
 
         } catch (SQLException | ClassNotFoundException ex) {
-            Logger lgr = Logger.getLogger(SQLOutput.class.getName());
+            //Logger lgr = Logger.getLogger(SQLOutput.class.getName());
             //lgr.log(Level.SEVERE, ex.getMessage(), ex);
 
 
@@ -113,9 +113,10 @@ public final class DatabaseConnector {
                 results = exception;
                 return results;
 
-            } else {
-                lgr.log(Level.WARNING, ex.getMessage(), ex);
-                System.out.println("test");
+            } else if (ex.toString().contains("Communications")) {
+                String exception = "Wrong server address";
+                results = exception;
+                return results;
             }
         }
             try {
@@ -155,6 +156,10 @@ public final class DatabaseConnector {
                     System.out.println("test");
                 }
 
+            }
+            if (results == null) {
+                String exception = "Invalid Query";
+                results = exception;
             }
             return results;
 

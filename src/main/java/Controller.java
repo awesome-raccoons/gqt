@@ -25,6 +25,8 @@ public class Controller {
     @FXML
     private ComboBox dbList;
     @FXML
+    private ComboBox dbList2;
+    @FXML
     private TextField dbName;
     @FXML
     private TextField dbUrl;
@@ -58,6 +60,11 @@ public class Controller {
     private MenuItem fitSelectedMenuItem;
     @FXML
     private MenuItem fitAllMenuItem;
+    @FXML
+    private Button loadConfig;
+    @FXML
+    private Button saveConfig;
+    
 
 
     /**
@@ -91,6 +98,16 @@ public class Controller {
     public final void changeDatabase() {
         Database db = (Database) dbList.getSelectionModel().getSelectedItem();
         setDatabase(db);
+        dbList2.getSelectionModel().select(getCurrentDB());
+        this.dbName.setText(getCurrentDB().getName());
+        this.dbUrl.setText(getCurrentDB().getUrl());
+        this.dbUser.setText(getCurrentDB().getUser());
+        this.dbPassword.setText(getCurrentDB().getPassword());
+    }
+    public final void changeDatabaseOther() {
+        Database db = (Database) dbList2.getSelectionModel().getSelectedItem();
+        setDatabase(db);
+        dbList.getSelectionModel().select(getCurrentDB());
         this.dbName.setText(getCurrentDB().getName());
         this.dbUrl.setText(getCurrentDB().getUrl());
         this.dbUser.setText(getCurrentDB().getUser());
@@ -107,11 +124,29 @@ public class Controller {
         Database db = new Database(name, url, user, password);
         setDatabase(db);
         dbList.getItems().add(db);
+        dbList2.getItems().add(db);
+        dbList.getSelectionModel().select(db);
+        dbList2.getSelectionModel().select(db);
         dbName.clear();
         dbUrl.clear();
         dbUser.clear();
         dbPassword.clear();
     }
+
+    public final void loadConfig() {
+        Database db = PropertyValues.Input();
+        dbList.getItems().add(db);
+        dbList2.getItems().add(db);
+        setDatabase(db);
+        dbList.getSelectionModel().select(db);
+        dbList2.getSelectionModel().select(db);
+
+    }
+
+    public final void saveConfig() {
+        PropertyValues.Output(this.getCurrentDB());
+    }
+
     @FXML
     public final void updateLayer() {
         WktParser wktParser = new WktParser(Layer.getSelectedLayer(), upperPane);
@@ -253,37 +288,55 @@ public class Controller {
         String qText = query.getText();
         Database database = getCurrentDB();
         if (database != null) {
-            String result = DatabaseConnector.executeQuery(qText, database);
+            try {
+                String result = DatabaseConnector.executeQuery(qText, database);
 
-            if (result.contains("POSTGIS Error")) {
-                String title = "SQL Error";
-                String header = "POSTGIS Error";
-                //Specify different errors later
-                String alertMsg = "Invalid geometry,wrong syntax or empty query";
-                Alerts alert = new Alerts(alertMsg, title, header);
+                if (result.contains("POSTGIS Error")) {
+                    String title = "SQL Error";
+                    String header = "POSTGIS Error";
+                    //Specify different errors later
+                    String alertMsg = "Invalid geometry,wrong syntax or empty query";
+                    Alerts alert = new Alerts(alertMsg, title, header);
+                    alert.show();
+                } else if (result.contains("MYSQL error")) {
+                    String title = "SQL Error";
+                    String header = "MYSQL Error";
+                    //Specify different errors later
+                    String alertMsg = "Invalid geometry, wrong syntax or empty query";
+                    Alerts alert = new Alerts(alertMsg, title, header);
+                    alert.show();
+                } else if (result.contains("URL not valid")) {
+                    String title = "Server Error";
+                    String header = " ";
+                    String alertMsg = "Server URL not valid";
+                    Alerts alert = new Alerts(alertMsg, title, header);
+                    alert.show();
+                } else if (result.contains("Wrong username")) {
+                    String title = "Credential error";
+                    String header = " ";
+                    String alertMsg = "Wrong username or password";
+                    Alerts alert = new Alerts(alertMsg, title, header);
+                    alert.show();
+                } else if (result.contains("Invalid Query")) {
+                    String title = "Query Error";
+                    String header = "";
+                    String alertMsg = "Syntax error in query or invalid request";
+                    Alerts alert = new Alerts(alertMsg, title, header);
+                    alert.show();
+
+                } else if (result.contains("Wrong server")) {
+                    String title = "Server Error";
+                    String header = "";
+                    String alertMsg = "Server URL not valid";
+                    Alerts alert = new Alerts(alertMsg, title, header);
+                    alert.show();
+                } else {
+                    queryInput.setText(result);
+                    updateLayer();
+                }
+            } catch (NullPointerException e) {
+                Alerts alert = new Alerts("Query returned null", "Null error", "");
                 alert.show();
-            } else if (result.contains("MYSQL error")) {
-                String title = "SQL Error";
-                String header = "MYSQL Error";
-                //Specify different errors later
-                String alertMsg = "Invalid geometry, wrong syntax or empty query";
-                Alerts alert = new Alerts(alertMsg, title, header);
-                alert.show();
-            } else if (result.contains("URL not valid")) {
-                String title = "Server Error";
-                String header = " ";
-                String alertMsg = "Server URL not valid";
-                Alerts alert = new Alerts(alertMsg, title, header);
-                alert.show();
-            } else if (result.contains("wrong username")) {
-                String title = "Credential error";
-                String header = " ";
-                String alertMsg = "Wrong username or password";
-                Alerts alert = new Alerts(alertMsg, title, header);
-                alert.show();
-            } else {
-                queryInput.setText(result);
-                updateLayer();
             }
         } else {
             Alerts alert = new Alerts("No database selected", "DB Error", "");
