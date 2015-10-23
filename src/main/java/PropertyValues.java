@@ -6,7 +6,7 @@ import java.util.Properties;
  */
 public class PropertyValues {
 
-    public static Database Input(){
+    public static Database Input() {
         Properties prop = new Properties();
         InputStream input = null;
         Database db = null;
@@ -23,17 +23,18 @@ public class PropertyValues {
 
 
 
-        } catch ( IOException ex) {
+        } catch (IOException ex) {
             String title = "File not found";
             String header = "";
             String body = "Did not find the configuration file. It should be called config.properties";
             Alerts alert = new Alerts(title,header,body);
+            alert.show();
         } finally {
             return db;
         }
     }
 
-    public static void Output(Database db){
+    public static void Output(Database db) {
         Properties prop = new Properties();
         OutputStream out = null;
 
