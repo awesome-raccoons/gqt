@@ -236,7 +236,7 @@ public class Layer extends HBox {
         for (Layer l : getLayers(false)) {
             l.isSelected.set(true);
             if (l.gisVis != null) {
-                l.gisVis.setDisplayTooltips(false);
+                l.gisVis.setDisplayTooltips(true);
             }
             l.toggleBackgroundColor(l.isSelected);
         }
