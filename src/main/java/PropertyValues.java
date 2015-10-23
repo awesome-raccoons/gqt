@@ -25,10 +25,6 @@ public class PropertyValues {
                 db = new Database(name,url,user,password);
             }
 
-
-
-
-
         } catch (IOException ex) {
             String title = "File not found";
             String header = "";
@@ -52,12 +48,6 @@ public class PropertyValues {
             prop.setProperty("user", db.getUser());
             prop.setProperty("password", db.getPassword());
             prop.store(out, null);
-
-            //String title = "No database selected";
-            //String body = "Failed to save properties";
-            //Alerts alert = new Alerts(body, "", title);
-            //alert.show();
-
 
         } catch (IOException ex) {
             ex.printStackTrace();
