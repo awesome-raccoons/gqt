@@ -331,6 +331,16 @@ public class Controller {
 
     public final void deleteSelectedLayers() {
         Layer.getAllSelectedLayers(false).forEach(Layer::deleteLayer);
+        ArrayList<Layer> layers = Layer.getLayers(false);
+        if (layers.size() > 0) {
+            Layer layer = layers.get(layers.size() - 1);
+            layer.handleLayerMousePress(true);
+        }
+
+    }
+
+    public final void selectAllLayers() {
+        Layer.selectAllLayers();
     }
     /**
      * Handler to allow keyboard shortcuts regardless of current focus.
@@ -363,6 +373,9 @@ public class Controller {
                         break;
                     case "w": // Ctrl+W - fit visible
                         zoomToFitVisible();
+                        break;
+                    case "a":
+                        selectAllLayers();
                         break;
                     default:
                         break;
