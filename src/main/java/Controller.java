@@ -129,6 +129,8 @@ public class Controller {
         setDatabase(db);
         dbList.getItems().add(db);
         dbList2.getItems().add(db);
+        dbList.getSelectionModel().select(db);
+        dbList2.getSelectionModel().select(db);
         dbName.clear();
         dbUrl.clear();
         dbUser.clear();
@@ -140,6 +142,9 @@ public class Controller {
         dbList.getItems().add(db);
         dbList2.getItems().add(db);
         setDatabase(db);
+        dbList.getSelectionModel().select(db);
+        dbList2.getSelectionModel().select(db);
+
     }
 
     public final void saveConfig(){
