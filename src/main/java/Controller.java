@@ -139,16 +139,33 @@ public class Controller {
 
     public final void loadConfig() {
         Database db = PropertyValues.Input();
-        dbList.getItems().add(db);
-        dbList2.getItems().add(db);
-        setDatabase(db);
-        dbList.getSelectionModel().select(db);
-        dbList2.getSelectionModel().select(db);
+        if (db != null) {
+            dbList.getItems().add(db);
+            dbList2.getItems().add(db);
+            setDatabase(db);
+            dbList.getSelectionModel().select(db);
+            dbList2.getSelectionModel().select(db);
+        } else {
+            String title = "Failed to load properties";
+            String body = "No database stored in config.properties";
+            Alerts alert = new Alerts(title, "", body);
+            alert.show();
+
+        }
+
 
     }
 
     public final void saveConfig() {
-        PropertyValues.Output(this.getCurrentDB());
+        if (this.getCurrentDB() == null) {
+            String title = "Failed to save properties";
+            String body = "No database selected";
+            Alerts alert = new Alerts(title, "", body);
+            alert.show();
+        } else {
+            PropertyValues.Output(this.getCurrentDB());
+        }
+
     }
 
     @FXML
