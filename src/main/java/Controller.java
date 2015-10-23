@@ -30,6 +30,8 @@ public class Controller {
     @FXML
     private ComboBox dbList;
     @FXML
+    private ComboBox dbList2;
+    @FXML
     private TextField dbName;
     @FXML
     private TextField dbUrl;
@@ -63,6 +65,10 @@ public class Controller {
     private Button zoomToFitSelectedButton;
     @FXML
     private Button zoomToFitButton;
+    @FXML
+    private Button loadConfig;
+    @FXML
+    private Button saveConfig;
 
 
     /**
@@ -96,6 +102,16 @@ public class Controller {
     public final void changeDatabase() {
         Database db = (Database) dbList.getSelectionModel().getSelectedItem();
         setDatabase(db);
+        dbList2.getSelectionModel().select(getCurrentDB());
+        this.dbName.setText(getCurrentDB().getName());
+        this.dbUrl.setText(getCurrentDB().getUrl());
+        this.dbUser.setText(getCurrentDB().getUser());
+        this.dbPassword.setText(getCurrentDB().getPassword());
+    }
+    public final void changeDatabaseOther() {
+        Database db = (Database) dbList2.getSelectionModel().getSelectedItem();
+        setDatabase(db);
+        dbList.getSelectionModel().select(getCurrentDB());
         this.dbName.setText(getCurrentDB().getName());
         this.dbUrl.setText(getCurrentDB().getUrl());
         this.dbUser.setText(getCurrentDB().getUser());
@@ -112,11 +128,29 @@ public class Controller {
         Database db = new Database(name, url, user, password);
         setDatabase(db);
         dbList.getItems().add(db);
+        dbList2.getItems().add(db);
+        dbList.getSelectionModel().select(db);
+        dbList2.getSelectionModel().select(db);
         dbName.clear();
         dbUrl.clear();
         dbUser.clear();
         dbPassword.clear();
     }
+
+    public final void loadConfig() {
+        Database db = PropertyValues.Input();
+        dbList.getItems().add(db);
+        dbList2.getItems().add(db);
+        setDatabase(db);
+        dbList.getSelectionModel().select(db);
+        dbList2.getSelectionModel().select(db);
+
+    }
+
+    public final void saveConfig() {
+        PropertyValues.Output(this.getCurrentDB());
+    }
+
     @FXML
     public final void updateLayer() {
         WktParser wktParser = new WktParser(Layer.getSelectedLayer(), upperPane);
@@ -304,8 +338,8 @@ public class Controller {
                     queryInput.setText(result);
                     updateLayer();
                 }
-            } catch(NullPointerException e) {
-                Alerts alert = new Alerts("Query returned null","Null error", "");
+            } catch (NullPointerException e) {
+                Alerts alert = new Alerts("Query returned null", "Null error", "");
                 alert.show();
             }
         } else {

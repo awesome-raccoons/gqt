@@ -126,7 +126,11 @@
 
                                     </children>
                                 </GridPane>
-                                <Button id="addDatabaseButton" fx:id="dbDetailsSubmit" layoutX="240.0" layoutY="177.0" mnemonicParsing="false" onMouseClicked="#addDatabase" text="Add database" />
+                                <Label layoutX="180" layoutY="-1.0" text="Server list:" />
+                                <Button id="addDatabaseButton" fx:id="dbDetailsSubmit" layoutX="100.0" layoutY="177.0" mnemonicParsing="false" onMouseClicked="#addDatabase" text="Add database" />
+                                <Button id="loadConfig" fx:id="loadConfig" layoutX="200.0" layoutY="177.0" mnemonicParsing="false" onMouseClicked="#loadConfig" text="Load configuration file" />
+                                <Button id="saveConfig" fx:id="saveConfig" layoutX="350.0" layoutY="177.0" mnemonicParsing="false" onMouseClicked="#saveConfig" text="Save currently selected server as configuration file" />
+                                <ComboBox fx:id="dbList2" layoutX="240" layoutY="-1.0" onAction="#changeDatabaseOther" />
 
                             </children>
 
