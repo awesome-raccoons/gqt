@@ -137,7 +137,7 @@ public class Controller {
         dbPassword.clear();
     }
 
-    public final void loadConfig(){
+    public final void loadConfig() {
         Database db = PropertyValues.Input();
         dbList.getItems().add(db);
         dbList2.getItems().add(db);
@@ -147,7 +147,7 @@ public class Controller {
 
     }
 
-    public final void saveConfig(){
+    public final void saveConfig() {
         PropertyValues.Output(this.getCurrentDB());
     }
 
@@ -338,8 +338,8 @@ public class Controller {
                     queryInput.setText(result);
                     updateLayer();
                 }
-            } catch(NullPointerException e) {
-                Alerts alert = new Alerts("Query returned null","Null error", "");
+            } catch (NullPointerException e) {
+                Alerts alert = new Alerts("Query returned null", "Null error", "");
                 alert.show();
             }
         } else {
