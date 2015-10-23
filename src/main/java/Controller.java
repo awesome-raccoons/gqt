@@ -19,9 +19,9 @@ public class Controller {
     private Database currentDatabase = null;
 
     @FXML
-    private TextArea queryInput;
+    private TextArea wktTextArea;
     @FXML
-    private TextArea query;
+    private TextArea dbTextArea;
     @FXML
     private ComboBox dbList;
     @FXML
@@ -150,8 +150,8 @@ public class Controller {
     @FXML
     public final void updateLayer() {
         WktParser wktParser = new WktParser(Layer.getSelectedLayer(), upperPane);
-        Layer.getSelectedLayer().setSQLQuery(query.getText());
-        boolean result = wktParser.parseWktString(queryInput.getText());
+        Layer.getSelectedLayer().setSQLQuery(dbTextArea.getText());
+        boolean result = wktParser.parseWktString(wktTextArea.getText());
         if (result) {
             wktParser.updateLayerGeometries();
             displayController.rescaleAllGeometries();
@@ -175,11 +175,13 @@ public class Controller {
     }
 
     public final void createEmptyLayer() {
-        Layer l = new Layer(null, vboxLayers, "Empty", queryInput, query, this);
+        Layer l = new Layer(null, vboxLayers, "Empty", wktTextArea, dbTextArea, this);
         Layer.getLayers(false).add(l);
         l.addLayerToView();
         //To ensure the latest new layer will be selected.
         l.handleLayerMousePress(true);
+        wktTextArea.requestFocus();
+
 }
 
 
@@ -203,8 +205,6 @@ public class Controller {
     public final void zoomToFitVisible() {
         displayController.zoomToFitVisible();
     }
-
-
 
     /**
      * reset view to default position centered around (0 0) with 100% zoom.
@@ -285,7 +285,7 @@ public class Controller {
      * Called when clicking the submit query button.
      */
     public final void submitQuery() {
-        String qText = query.getText();
+        String qText = dbTextArea.getText();
         Database database = getCurrentDB();
         if (database != null) {
             try {
@@ -331,7 +331,7 @@ public class Controller {
                     Alerts alert = new Alerts(alertMsg, title, header);
                     alert.show();
                 } else {
-                    queryInput.setText(result);
+                    wktTextArea.setText(result);
                     updateLayer();
                 }
             } catch (NullPointerException e) {
