@@ -122,19 +122,29 @@ public class Controller {
     }
     public final void addDatabase() {
         String name = dbName.getText();
+        System.out.println("here and" + dbName.getText() + "here");
+        System.out.println(dbName.getText());
         String url = dbUrl.getText();
         String user = dbUser.getText();
         String password = dbPassword.getText();
-        Database db = new Database(name, url, user, password);
-        setDatabase(db);
-        dbList.getItems().add(db);
-        dbList2.getItems().add(db);
-        dbList.getSelectionModel().select(db);
-        dbList2.getSelectionModel().select(db);
-        dbName.clear();
-        dbUrl.clear();
-        dbUser.clear();
-        dbPassword.clear();
+        if(!name.isEmpty() && !url.isEmpty() && !user.isEmpty()
+                && !password.isEmpty()) {
+            Database db = new Database(name, url, user, password);
+            setDatabase(db);
+            dbList.getItems().add(db);
+            dbList2.getItems().add(db);
+            dbList.getSelectionModel().select(db);
+            dbList2.getSelectionModel().select(db);
+            dbName.clear();
+            dbUrl.clear();
+            dbUser.clear();
+            dbPassword.clear();
+        } else {
+            String title = "Empty field error";
+            String body = "All entry fields must be filled";
+            Alerts alert = new Alerts(title, "", body);
+            alert.show();
+        }
     }
 
     public final void loadConfig() {
