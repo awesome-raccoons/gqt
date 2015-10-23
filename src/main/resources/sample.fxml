@@ -86,12 +86,12 @@
                                              <children>
                                     <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="222.0" prefWidth="809.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                         <items>
-                                            <TextArea fx:id="query" disable="true" layoutX="0" layoutY="75" onKeyPressed="#queryAreaKeyPressed" pickOnBounds="false" prefHeight="30.0" prefWidth="150" promptText="Input database query">
+                                            <TextArea fx:id="dbTextArea" disable="true" layoutX="0" layoutY="75" onKeyPressed="#queryAreaKeyPressed" pickOnBounds="false" prefHeight="30.0" prefWidth="150" promptText="Input database query">
                                                 <font>
                                                     <Font name="Courier New" size="13.0" />
                                                 </font>
                                                       </TextArea>
-                                            <TextArea fx:id="queryInput" disable="true" pickOnBounds="false" prefHeight="127.0" prefWidth="602.0" promptText="Input WKT string">
+                                            <TextArea fx:id="wktTextArea" disable="true" pickOnBounds="false" prefHeight="127.0" prefWidth="602.0" promptText="Input WKT string">
                                                 <font>
                                                     <Font name="Courier New" size="13.0" />
                                                 </font>
