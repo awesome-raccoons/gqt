@@ -54,7 +54,7 @@ public class WktParser {
      * @param poly Well Known Text from user input
      */
     public final boolean parseWktString(final String poly) {
-        if (poly.equals("")) {
+        if (poly == null || poly.equals("")) {
             showWKTParseErrorMessage();
             return false;
         } else {
