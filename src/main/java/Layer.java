@@ -234,13 +234,17 @@ public class Layer extends HBox {
 
     public static void selectAllLayers() {
         for (Layer l : getLayers(false)) {
-            l.isSelected.set(true);
-            if (l.gisVis != null) {
-                l.gisVis.setDisplayTooltips(true);
+            if (!l.isSelected.get()) {
+                l.isSelected.set(true);
+                if (l.gisVis != null) {
+                    l.gisVis.setDisplayTooltips(true);
+                }
+                l.toggleBackgroundColor(l.isSelected);
             }
-            l.toggleBackgroundColor(l.isSelected);
         }
     }
+
+
     public final void deleteLayer() {
         layers.remove(this);
         reorderLayers();
