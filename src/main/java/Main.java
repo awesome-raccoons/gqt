@@ -8,6 +8,8 @@ import javafx.stage.Stage;
 
 
 public class Main extends Application {
+    private int minWidth = 300;
+    private int minHeight = 400;
 
     @Override
     public final void start(final Stage primaryStage) throws Exception {
@@ -19,8 +21,8 @@ public class Main extends Application {
         primaryStage.setTitle("Gis Query Tool");
         primaryStage.setMaximized(true);
         Scene scene = new Scene(root);
-        primaryStage.setMinHeight(400);
-        primaryStage.setMinWidth(300);
+        primaryStage.setMinHeight(minHeight);
+        primaryStage.setMinWidth(minWidth);
         // set zooming by Control+scroll to work from everywhere
         javafx.event.EventHandler<ScrollEvent> mouseScrollHandler =
                 event -> controller.handleSceneScrollEvent(event);

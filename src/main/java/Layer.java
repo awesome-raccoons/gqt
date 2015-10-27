@@ -150,7 +150,7 @@ public class Layer extends HBox {
         layerName.setText(this.name);
     }
 
-    public final void handleLayerMousePress(boolean ignoreControl) {
+    public final void handleLayerMousePress(final boolean ignoreControl) {
         textArea.setDisable(false);
         queryArea.setDisable(false);
         controller.getFitSelectedMenuItem().setDisable(false);
