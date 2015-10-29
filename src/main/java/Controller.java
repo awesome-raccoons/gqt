@@ -138,8 +138,10 @@ public class Controller {
         String url = dbUrl.getText();
         String user = dbUser.getText();
         String password = dbPassword.getText();
-        if(!name.isEmpty() && !url.isEmpty() && !user.isEmpty()
-                && !password.isEmpty()) {
+        if(!name.isEmpty() && !url.isEmpty() && !user.isEmpty()) {
+            if(password.isEmpty()){
+                password = "";
+            }
             Database db = new Database(name, url, user, password);
             setDatabase(db);
             dbList.getItems().add(db);
@@ -152,7 +154,7 @@ public class Controller {
             dbPassword.clear();
         } else {
             String title = "Empty field error";
-            String body = "All entry fields must be filled";
+            String body = "All entry fields (except the password field) must be filled";
             Alerts alert = new Alerts(title, "", body);
             alert.show();
         }

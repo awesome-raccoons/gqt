@@ -36,6 +36,9 @@ public final class DatabaseConnector {
             String user = db.getUser();
             String url = db.getUrl();
             String password = db.getPassword();
+            if(password.isEmpty()){
+                password = null;
+            }
         try {
 
             Class.forName("com.mysql.jdbc.Driver");
@@ -57,6 +60,7 @@ public final class DatabaseConnector {
 
 
             if (url.contains("mysql")) {
+
                 con = DriverManager.getConnection(url, user, password);
                 st = con.createStatement();
                 rs = st.executeQuery(query);
