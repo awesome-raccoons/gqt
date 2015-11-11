@@ -63,7 +63,7 @@ public class WktParser {
                 this.inputString = poly;
                 this.upperMostGeometryType = geom.getGeometryType();
                 extractAllGeometries(geom);
-            } catch (com.vividsolutions.jts.io.ParseException e) {
+            } catch (com.vividsolutions.jts.io.ParseException | java.lang.IllegalArgumentException e) {
                 showWKTParseErrorMessage();
                 return false;
             }
