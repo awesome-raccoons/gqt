@@ -93,7 +93,8 @@ public class Controller {
     }
 
     /**
-     * Called when selecting a database in the dbList dropdownlist.
+     * Called when selecting a database in the dbList dropdownlist,
+     * in the main tab.
      */
     public final void changeDatabase() {
         Database db = (Database) dbList.getSelectionModel().getSelectedItem();
@@ -104,6 +105,11 @@ public class Controller {
         this.dbUser.setText(getCurrentDB().getUser());
         this.dbPassword.setText(getCurrentDB().getPassword());
     }
+
+    /**
+     * Called when selecting a database in the dbList2 dropdownlist,
+     * in the databases tab.
+     */
     public final void changeDatabaseOther() {
         Database db = (Database) dbList2.getSelectionModel().getSelectedItem();
         setDatabase(db);
@@ -113,38 +119,84 @@ public class Controller {
         this.dbUser.setText(getCurrentDB().getUser());
         this.dbPassword.setText(getCurrentDB().getPassword());
     }
+
+    /**
+     * Changes the current database to the parameter.
+     * @param db The database to switch to.
+     */
     public final void setDatabase(final Database db) {
         this.currentDatabase = db;
     }
+
+    /**
+     * Called when the Add Database button is clicked. Creates a new
+     * database object from the four TextField objects in the databases tab.
+     * Gives an alert if all fields are not filled.
+     */
     public final void addDatabase() {
         String name = dbName.getText();
         String url = dbUrl.getText();
         String user = dbUser.getText();
         String password = dbPassword.getText();
-        Database db = new Database(name, url, user, password);
-        setDatabase(db);
-        dbList.getItems().add(db);
-        dbList2.getItems().add(db);
-        dbList.getSelectionModel().select(db);
-        dbList2.getSelectionModel().select(db);
-        dbName.clear();
-        dbUrl.clear();
-        dbUser.clear();
-        dbPassword.clear();
+        if(!name.isEmpty() && !url.isEmpty() && !user.isEmpty()) {
+            if(password.isEmpty()){
+                password = "";
+            }
+            Database db = new Database(name, url, user, password);
+            setDatabase(db);
+            dbList.getItems().add(db);
+            dbList2.getItems().add(db);
+            dbList.getSelectionModel().select(db);
+            dbList2.getSelectionModel().select(db);
+            dbName.clear();
+            dbUrl.clear();
+            dbUser.clear();
+            dbPassword.clear();
+        } else {
+            String title = "Empty field error";
+            String body = "All entry fields (except the password field) must be filled";
+            Alerts alert = new Alerts(title, "", body);
+            alert.show();
+        }
     }
 
+    /**
+     * Loads a database stored in config.properties. Gives an alert if there is
+     * no database stored in the file.
+     */
     public final void loadConfig() {
         Database db = PropertyValues.Input();
-        dbList.getItems().add(db);
-        dbList2.getItems().add(db);
-        setDatabase(db);
-        dbList.getSelectionModel().select(db);
-        dbList2.getSelectionModel().select(db);
+        if (db != null) {
+            dbList.getItems().add(db);
+            dbList2.getItems().add(db);
+            setDatabase(db);
+            dbList.getSelectionModel().select(db);
+            dbList2.getSelectionModel().select(db);
+        } else {
+            String title = "Failed to load properties";
+            String body = "No database stored in config.properties";
+            Alerts alert = new Alerts(title, "", body);
+            alert.show();
+
+        }
+
 
     }
 
+    /**
+     * Saves the currently selected database to the config.properties file. Gives an
+     * alert if no database is selected.
+     */
     public final void saveConfig() {
-        PropertyValues.Output(this.getCurrentDB());
+        if (this.getCurrentDB() == null) {
+            String title = "Failed to save properties";
+            String body = "No database selected";
+            Alerts alert = new Alerts(title, "", body);
+            alert.show();
+        } else {
+            PropertyValues.Output(this.getCurrentDB());
+        }
+
     }
 
     @FXML
@@ -294,14 +346,16 @@ public class Controller {
                 if (result.contains("POSTGIS Error")) {
                     String title = "SQL Error";
                     String header = "POSTGIS Error";
-                    //Specify different errors later
+
+                    //Specify different errors later, for example self-intersection
                     String alertMsg = "Invalid geometry,wrong syntax or empty query";
                     Alerts alert = new Alerts(alertMsg, title, header);
                     alert.show();
                 } else if (result.contains("MYSQL error")) {
                     String title = "SQL Error";
                     String header = "MYSQL Error";
-                    //Specify different errors later
+
+                    //Specify different errors later, for example self intersection
                     String alertMsg = "Invalid geometry, wrong syntax or empty query";
                     Alerts alert = new Alerts(alertMsg, title, header);
                     alert.show();

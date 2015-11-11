@@ -1,7 +1,7 @@
 
 
 
-//import java.sql.*;
+
 
 import java.sql.Connection;
 import java.sql.Statement;
@@ -36,11 +36,17 @@ public final class DatabaseConnector {
             String user = db.getUser();
             String url = db.getUrl();
             String password = db.getPassword();
+            if(password.isEmpty()){
+                password = null;
+            }
         try {
 
             Class.forName("com.mysql.jdbc.Driver");
             Class.forName("org.postgresql.Driver");
 
+
+
+            //Sample query and servers for testing
 
             //String query = "SELECT ST_AsText(ST_Envelope(ST_GeomFromText(
             // 'POLYGON((5 0,7 10,0 15,10 15,15 25,20 15,30 15,22 10,25 0,15 5,5 0))')));;";
@@ -48,20 +54,20 @@ public final class DatabaseConnector {
             //user = "root";
             //password = "dbpass";
 
-
-
             //String url = "jdbc:mysql://mysql.stud.ntnu.no/perchrib_raccoons";
             //String user = "perchrib";
             //String password = "123";
+
+
             if (url.contains("mysql")) {
+
                 con = DriverManager.getConnection(url, user, password);
                 st = con.createStatement();
                 rs = st.executeQuery(query);
                 while (rs.next()) {
                     System.out.print(rs.getString(1));
                     results = rs.getString(1);
-                    //System.out.print(": ");
-                    //System.out.println(rs.getString(2));
+
                 }
             } else if (url.contains("postgresql")) {
                 pCon = DriverManager.getConnection(url, user, password);
@@ -96,8 +102,6 @@ public final class DatabaseConnector {
 
 
         } catch (SQLException | ClassNotFoundException ex) {
-            //Logger lgr = Logger.getLogger(SQLOutput.class.getName());
-            //lgr.log(Level.SEVERE, ex.getMessage(), ex);
 
 
             if (ex.toString().contains("PSQL")) {
@@ -153,7 +157,6 @@ public final class DatabaseConnector {
                     return results;
                 } else {
                     lgr.log(Level.WARNING, ex.getMessage(), ex);
-                    System.out.println("test");
                 }
 
             }

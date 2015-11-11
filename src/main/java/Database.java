@@ -15,19 +15,19 @@ public class Database {
     }
 
     public final String getUrl() {
-        return url;
+        return this.url;
     }
 
     public final String getUser() {
-        return user;
+        return this.user;
     }
 
     public final String getPassword() {
-        return password;
+        return this.password;
     }
 
     public final String getName() {
-        return name;
+        return this.name;
     }
 
     public final String toString() {
